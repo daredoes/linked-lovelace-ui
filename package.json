@@ -1,7 +1,7 @@
 {
-  "name": "linked-lovelace-card",
-  "version": "1.0.0",
-  "description": "Linked Lovelace Card",
+  "name": "linked-lovelace-ui",
+  "version": "1.0.3",
+  "description": "Linked Lovelace UI",
   "keywords": [
     "home-assistant",
     "homeassistant",
@@ -10,7 +10,7 @@
     "lovelace",
     "custom-cards"
   ],
-  "module": "linked-lovelace-card.js",
+  "module": "linked-lovelace-ui.js",
   "repository": "git@github.com:daredoes/linked-lovelace-ui.git",
   "author": "DARE <me@daredoes.work>",
   "license": "MIT",

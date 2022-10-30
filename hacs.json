@@ -1,5 +1,5 @@
 {
     "name": "Linked Lovelace",
     "render_readme": true,
-    "filename": "linked-lovelace-card.js"
+    "filename": "linked-lovelace-ui.js"
 }

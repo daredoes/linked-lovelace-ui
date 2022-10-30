@@ -39,7 +39,7 @@ const plugins = [
 
 export default [
   {
-    input: 'src/linked-lovelace-card.ts',
+    input: 'src/linked-lovelace-ui.ts',
     output: {
       dir: 'dist',
       format: 'es',

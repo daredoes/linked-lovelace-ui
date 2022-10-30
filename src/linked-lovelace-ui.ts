@@ -22,7 +22,7 @@ log(`${localize('common.version')} ${CARD_VERSION}`);
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
-  type: 'linked-lovelace',
+  type: 'linked-lovelace-ui',
   name: 'Linked Lovelace Card',
   description: 'A card that handles Linked Lovelace',
 });
@@ -60,7 +60,7 @@ const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
   return func
 }
 
-@customElement('linked-lovelace')
+@customElement('linked-lovelace-ui')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceCard extends LitElement {
 

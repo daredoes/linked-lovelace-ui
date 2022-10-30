@@ -36,7 +36,7 @@ Add through  [HACS](https://github.com/custom-components/hacs)
 
 | Name              | Type    | Requirement  | Description                                 | Default             |
 | ----------------- | ------- | ------------ | ------------------------------------------- | ------------------- |
-| type              | string  | **Required** | `custom:linked-lovelace-card`                   |
+| type              | string  | **Required** | `custom:linked-lovelace-ui`                   |
 | name              | string  | **Optional** | Card name                                   | ``       |
 
 ## Templates
@@ -125,7 +125,7 @@ type: vertical-stack
 cards:
   - type: vertical-stack
     cards:
-      - type: custom:linked-lovelace-card
+      - type: custom:linked-lovelace-ui
   - type: custom:mushroom-template-card
     template_data:
       version: v0.0.1
@@ -143,7 +143,7 @@ type: vertical-stack
 cards:
   - type: vertical-stack
     cards:
-      - type: custom:linked-lovelace-card
+      - type: custom:linked-lovelace-ui
   - type: custom:mushroom-template-card
     primary: ''
     secondary: v0.0.1
