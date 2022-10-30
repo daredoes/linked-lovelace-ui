@@ -15,8 +15,8 @@ jobs:
       - name: Build the file
         run: |
           cd $GITHUB_WORKSPACE
-          npm install
-          npm run build
+          yarn
+          yarn build
 
       # Upload build file to the releas as an asset.
       - name: Upload zip to release
