@@ -1,7 +1,8 @@
 {
   "common": {
     "version": "Version",
-    "reload": "Reload UI",
+    "reload_ui": "Reload UI",
+    "reload": "Reload",
     "invalid_configuration": "Invalid configuration",
     "show_warning": "Show Warning",
     "show_error": "Show Error"

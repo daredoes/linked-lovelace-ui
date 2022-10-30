@@ -47,16 +47,16 @@ export class LinkedLovelaceCardEditor extends ScopedRegistryHost(LitElement) imp
     return this._config?.name || '';
   }
 
-  get _entity(): string {
-    return this._config?.entity || '';
+  get _debugText(): string {
+    return this._config?.debugText || '';
   }
 
-  get _show_warning(): boolean {
-    return this._config?.show_warning || false;
+  get _debug(): boolean {
+    return this._config?.debug || false;
   }
 
-  get _show_error(): boolean {
-    return this._config?.show_error || false;
+  get _dryRun(): boolean {
+    return this._config?.dryRun || false;
   }
 
   protected render(): TemplateResult | void {
@@ -65,12 +65,34 @@ export class LinkedLovelaceCardEditor extends ScopedRegistryHost(LitElement) imp
     }
 
     return html`
+    <div class="linked-lovelace-config">
       <mwc-textfield
         label="Name (Optional)"
         .value=${this._name}
         .configValue=${'name'}
         @input=${this._valueChanged}
       ></mwc-textfield>
+      <mwc-textfield
+        label="Debug Text (Optional)"
+        .value=${this._debugText}
+        .configValue=${'debugText'}
+        @input=${this._valueChanged}
+      ></mwc-textfield>
+      <mwc-formfield .label=${`Read Only?`}>
+        <mwc-switch
+          .checked=${this._dryRun !== false}
+          .configValue=${'dryRun'}
+          @change=${this._valueChanged}
+        ></mwc-switch>
+      </mwc-formfield>
+      <mwc-formfield .label=${`Debug Mode: ${this._debug ? 'Enabled' : 'Disabled'}`}>
+        <mwc-switch
+          .checked=${this._debug !== false}
+          .configValue=${'debug'}
+          @change=${this._valueChanged}
+        ></mwc-switch>
+      </mwc-formfield>
+    </div>
     `;
   }
 
@@ -109,6 +131,14 @@ export class LinkedLovelaceCardEditor extends ScopedRegistryHost(LitElement) imp
   }
 
   static styles: CSSResultGroup = css`
+    .linked-lovelace-config {
+      display: flex;
+      flex-direction: column;
+    }
+    .linked-lovelace-config > * {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
     mwc-select,
     mwc-textfield {
       margin-bottom: 16px;

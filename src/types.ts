@@ -10,6 +10,10 @@ declare global {
 // TODO Add your configuration elements here for type-checking
 export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
   type: string;
+  name?: string;
+  debugText?: string;
+  dryRun: boolean;
+  debug: boolean;
 }
 
 
