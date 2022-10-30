@@ -1,119 +1,202 @@
-# Boilerplate Card by [@iantrich](https://www.github.com/iantrich)
+# Linked Lovelace by [@daredoes](https://www.github.com/daredoes)
 
-A community driven boilerplate of best practices for Home Assistant Lovelace custom cards
+![Linked Lovelace Demo](/docs/imgs/LinkedLoveLace.gif)
+
+A Javascript/Websocket way to do templating in the Lovelace UI
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/custom-components/hacs)
 
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
-
 ## Support
 
-Hey dude! Help me out for a couple of :beers: or a :coffee:!
+Hey you! Help me out for a couple of :beers: or a :coffee:!
 
-[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/zJtVxUAgH)
+[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/daredoes)
+
+---
+
+##  Features
+
+* Create cards in the Lovelace UI that can be **linked** to multiple dashboards
+* Provide *basic* templating when creating linked cards
+
+---
+
+## Installation
+
+Add through  [HACS](https://github.com/custom-components/hacs)
+
+---
 
 ## Options
 
 | Name              | Type    | Requirement  | Description                                 | Default             |
 | ----------------- | ------- | ------------ | ------------------------------------------- | ------------------- |
-| type              | string  | **Required** | `custom:boilerplate-card`                   |
-| name              | string  | **Optional** | Card name                                   | `Boilerplate`       |
-| show_error        | boolean | **Optional** | Show what an error looks like for the card  | `false`             |
-| show_warning      | boolean | **Optional** | Show what a warning looks like for the card | `false`             |
-| entity            | string  | **Optional** | Home Assistant entity ID.                   | `none`              |
-| tap_action        | object  | **Optional** | Action to take on tap                       | `action: more-info` |
-| hold_action       | object  | **Optional** | Action to take on hold                      | `none`              |
-| double_tap_action | object  | **Optional** | Action to take on double tap                | `none`              |
+| type              | string  | **Required** | `custom:linked-lovelace-card`                   |
+| name              | string  | **Optional** | Card name                                   | ``       |
 
-## Action Options
+## Templates
 
-| Name            | Type   | Requirement  | Description                                                                                                                            | Default     |
-| --------------- | ------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| action          | string | **Required** | Action to perform (more-info, toggle, call-service, navigate url, none)                                                                | `more-info` |
-| navigation_path | string | **Optional** | Path to navigate to (e.g. /lovelace/0/) when action defined as navigate                                                                | `none`      |
-| url             | string | **Optional** | URL to open on click when action is url. The URL will open in a new tab                                                                | `none`      |
-| service         | string | **Optional** | Service to call (e.g. media_player.media_play_pause) when action defined as call-service                                               | `none`      |
-| service_data    | object | **Optional** | Service data to include (e.g. entity_id: media_player.bedroom) when action defined as call-service                                     | `none`      |
-| haptic          | string | **Optional** | Haptic feedback _success, warning, failure, light, medium, heavy, selection_ | `none`      |
-| repeat          | number | **Optional** | How often to repeat the `hold_action` in milliseconds.                                                                                 | `none`       |
+---
 
-## Starting a new card from boilerplate-card
+### Creating a template dashboard
 
-### Step 1
+The first thing needed when creating a template card is a dashboard to hold these templates.
 
-Click the "Use this template" button on the main page and clone the new repository to your machine
+Create a dashboard inside of Hassio at `http://YOUR_INSTANCE.local:8123/config/lovelace/dashboards`
 
-### Step 2
+   ![Add New Dashboard](/docs/imgs/LovelaceDashboards.png)
 
-Install necessary modules (verified to work in node 8.x)
-`yarn install` or `npm install`
+For our example, we'll create a `Templates` dashboard with the path `lovelace-templates`. The settings here don't really matter, it only matters that we have a dashboard.
 
-### Step 3
+   ![Add Template Dashboard](/docs/imgs/AddNewDashboard.png)
 
-Do a test lint & build on the project. You can see available scripts in the package.json
-`npm run build`
+1. On the `Templates` dashboard, click the `⋮` to access a menu, and click `Edit Dashboard`.
 
-### Step 4
+   ![Edit Dashboard](/docs/imgs/EditDashboard.png)
+2. Once again, click the `⋮` to access another menu, and click `Raw configuration editor`.
 
-Search the repository for all instances of "TODO" and handle the changes/suggestions
+   ![Edit Dashboard Header](/docs/imgs/RawConfigurationEditorMenu.png)
+3. Add `template: true` to the top of the configuration file
 
-### Step 5
+   ![Configuration](/docs/imgs/Configuration.png)
 
-Customize to suit your needs and contribute it back to the community
+That's it! Any view in this dashboard that has exactly one card in it will now be converted into a template.
 
-## Starting a new card from boilerplate-card with [devcontainer][devcontainer]
+#### **Remember, the path of each view in the dashboard will be the name of the template.**
 
-Note: this is available only in vscode ensure you have the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension installed.
+### What is a template?
 
-1. Fork and clone the repository.
-2. Open a [devcontainer][devcontainer] terminal and run `npm start` when it's ready.
-3. The compiled `.js` file will be accessible on
-   `http://127.0.0.1:5000/boilerplate-card.js`.
-4. On a running Home Assistant installation add this to your Lovelace
-   `resources:`
+> A template is a 'view' that contains exactly one 'card'. The 'path' of the view determines the 'key' we use to identify the template in other cards.
+
+### What can be in a template?
+
+So, *amateur hour here*, a template can be any valid card, where any term surrounded by the `$` character can be used as a key for replacement.
+
+How does data make it into the template to be replaced? `template_data` *duh?*
+
+Need an example? Okay!
+
+First, we'll create a view called `Version Card` with the path `version-card`.
+
+Next, we'll make a card that has a version in the bottom-right corner. Create a new card, and throw this YAML into it.
 
 ```yaml
-- url: 'http://127.0.0.1:5000/boilerplate-card.js'
-  type: module
+type: custom:mushroom-template-card
+primary: ''
+secondary: $version$
+icon: ''
+badge_icon: ''
+badge_color: ''
+fill_container: false
+layout: horizontal
+multiline_secondary: false
+tap_action:
+  action: none
+hold_action:
+  action: none
+double_tap_action:
+  action: none
+card_mod:
+  style: |
+    ha-card.type-custom-mushroom-template-card {
+      background-color: rgba(0,0,0,0);
+      text-align: right;
+      padding-top: 0px;
+      margin-top: -26px;
+      z-index: 0;
+    }
 ```
 
-_Change "127.0.0.1" to the IP of your development machine._
+Now, let's use that `version-card` in something! How about another template!?
 
-### Bonus
+First, we'll create a view called `Update Button` with the path `update-button`.
 
-If you need a fresh test instance you can install a fresh Home Assistant instance inside the devcontainer as well.
+Next, we'll make a card that contains a vertical stack, with the button and our version as the two elements in the stack.
 
-1. Run the command `container start`.
-2. Home Assistant will install and will eventually be running on port `9123`
+Here's the YAML
 
-## [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
-
-NB This will not work with node 9.x if you see the following errors try installing node 8.10.0
-
-```yarn install
-yarn install v1.3.2
-[1/4] 🔍  Resolving packages...
-warning rollup-plugin-commonjs@10.1.0: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-commonjs.
-[2/4] 🚚  Fetching packages...
-error @typescript-eslint/eslint-plugin@2.6.0: The engine "node" is incompatible with this module. Expected version "^8.10.0 || ^10.13.0 || >=11.10.1".
-error Found incompatible module
-info Visit https://yarnpkg.com/en/docs/cli/install for documentation about this command.
+```yaml
+type: vertical-stack
+cards:
+  - type: vertical-stack
+    cards:
+      - type: custom:linked-lovelace-card
+  - type: custom:mushroom-template-card
+    template_data:
+      version: v0.0.1
+    template: version-card
 ```
 
-[commits-shield]: https://img.shields.io/github/commit-activity/y/custom-cards/boilerplate-card.svg?style=for-the-badge
-[commits]: https://github.com/custom-cards/boilerplate-card/commits/master
+![Broken Template Card](/docs/imgs/BrokenTemplate.png)
+
+Wait, that doesn't look like a very useful card. Maybe it'll be more useful once we render it. Save the card, and then click it! You may be prompted to refresh the page, if not, refresh anyways since the changes won't appear until we do.
+
+Click edit, and look that that filled in YAML.
+
+```yaml
+type: vertical-stack
+cards:
+  - type: vertical-stack
+    cards:
+      - type: custom:linked-lovelace-card
+  - type: custom:mushroom-template-card
+    primary: ''
+    secondary: v0.0.1
+    icon: ''
+    badge_icon: ''
+    badge_color: ''
+    fill_container: false
+    layout: horizontal
+    multiline_secondary: false
+    tap_action:
+      action: none
+    hold_action:
+      action: none
+    double_tap_action:
+      action: none
+    card_mod:
+      style: |
+        ha-card.type-custom-mushroom-template-card {
+          background-color: rgba(0,0,0,0);
+          text-align: right;
+          padding-top: 0px;
+          margin-top: -26px;
+          z-index: 0;
+        }
+    template_data:
+      version: v0.0.1
+    template: version-card
+```
+
+![Working Template Card](/docs/imgs/WorkingTemplate.png)
+
+The main takeaway here is where `template_data`, `version`, and `$version$` are used.
+
+#### **Card Using Template**
+
+```yaml
+template: version-card
+template_data:
+    version: v0.0.1
+```
+
+#### **Card Using Template Data**
+
+```yaml
+type: custom:mushroom-template-card
+secondary: $version$
+```
+
+
+[commits-shield]: https://img.shields.io/github/commit-activity/y/daredoes/linked-lovelace-ui.svg
+[commits]: https://github.com/daredoes/linked-lovelace-ui/commits/master
 [devcontainer]: https://code.visualstudio.com/docs/remote/containers
-[discord]: https://discord.gg/5e9yvq
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
-[forum]: https://community.home-assistant.io/c/projects/frontend
-[license-shield]: https://img.shields.io/github/license/custom-cards/boilerplate-card.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2021.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/custom-cards/boilerplate-card.svg?style=for-the-badge
-[releases]: https://github.com/custom-cards/boilerplate-card/releases
+[license-shield]: https://img.shields.io/github/license/daredoes/linked-lovelace-ui.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2022
+[releases-shield]: https://img.shields.io/github/release/daredoes/linked-lovelace-ui.svg
+[releases]: https://github.com/daredoes/linked-lovelace-ui/releases
