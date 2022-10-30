@@ -10,10 +10,11 @@ import { ignoreSelectFiles } from './elements/ignore/select';
 import { ignoreSwitchFiles } from './elements/ignore/switch';
 
 export default {
-  input: ['src/boilerplate-card.ts'],
+  input: ['src/linked-lovelace-card.ts'],
   output: {
     dir: './dist',
     format: 'es',
+    inlineDynamicImports: true,
   },
   plugins: [
     resolve(),

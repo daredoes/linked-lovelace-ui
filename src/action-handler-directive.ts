@@ -162,16 +162,15 @@ class ActionHandler extends HTMLElement implements ActionHandler {
   }
 }
 
-// TODO You need to replace all instances of "action-handler-boilerplate" with "action-handler-<your card name>"
-customElements.define('action-handler-boilerplate', ActionHandler);
+customElements.define('action-handler-linked-lovelace', ActionHandler);
 
 const getActionHandler = (): ActionHandler => {
   const body = document.body;
-  if (body.querySelector('action-handler-boilerplate')) {
-    return body.querySelector('action-handler-boilerplate') as ActionHandler;
+  if (body.querySelector('action-handler-linked-lovelace')) {
+    return body.querySelector('action-handler-linked-lovelace') as ActionHandler;
   }
 
-  const actionhandler = document.createElement('action-handler-boilerplate');
+  const actionhandler = document.createElement('action-handler-linked-lovelace');
   body.appendChild(actionhandler);
 
   return actionhandler as ActionHandler;
@@ -193,6 +192,6 @@ export const actionHandler = directive(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
-    render(_options?: ActionHandlerOptions) {}
+    render(_options?: ActionHandlerOptions) { }
   },
 );

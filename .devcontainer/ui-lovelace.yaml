@@ -1,9 +1,9 @@
 resources:
-  - url: http://127.0.0.1:5000/boilerplate-card.js
+  - url: http://127.0.0.1:5000/linked-lovelace-card.js
     type: module
 views:
   - cards:
-      - type: custom:boilerplate-card
-        name: Boilerplate Card Development
+      - type: custom:linked-lovelace-card
+        name: Linked Lovelace Development
         entity: sun.sun
         test_gui: true
