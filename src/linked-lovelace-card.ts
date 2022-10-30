@@ -17,6 +17,7 @@ import { actionHandler } from './action-handler-directive';
 import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { LinkedLovelaceCardEditor } from './editor';
+import LinkedLovelace from './linked-lovelace';
 
 /* eslint no-console: 0 */
 console.info(
@@ -35,6 +36,14 @@ console.info(
 
 @customElement('linked-lovelace')
 export class LinkedLovelaceCard extends LitElement {
+
+
+  async firstUpdated() {
+    // Give the browser a chance to paint
+    await new Promise((r) => setTimeout(r, 0));
+    this.linkedLovelace = new LinkedLovelace(this.hass)
+  }
+
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
     await import('./editor');
     return document.createElement('linked-lovelace-editor') as LinkedLovelaceCardEditor;
@@ -47,6 +56,8 @@ export class LinkedLovelaceCard extends LitElement {
   // TODO Add any properities that should cause your element to re-render here
   // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass!: HomeAssistant;
+
+  @property({ attribute: false }) public linkedLovelace!: LinkedLovelace;
 
   @state() private config!: LinkedLovelaceCardConfig;
 
@@ -97,7 +108,15 @@ export class LinkedLovelaceCard extends LitElement {
     })}
         tabindex="0"
         .label=${`Linked Lovelace: ${this.config.entity || 'No Entity Defined'}`}
-      ></ha-card>
+      >
+      <ha-progress-button
+        .progress=${0}
+        @click=${() => {console.log('tapped')}}
+        ?disabled=${false}
+        >
+        Save
+      </ha-progress-button>
+    </ha-card>
     `;
   }
 

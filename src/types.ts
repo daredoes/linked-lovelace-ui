@@ -19,3 +19,36 @@ export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
   hold_action?: ActionConfig;
   double_tap_action?: ActionConfig;
 }
+
+
+export interface Dashboard {
+  id: string
+  mode: string
+  require_admin: boolean
+  show_in_sidebar: boolean
+  title: string
+  url_path: string
+}
+
+export interface DashboardCard extends LovelaceCardConfig {
+  cards?: DashboardCard[],
+}
+
+export interface DashboardView {
+  title: string
+  path?: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  badges?: any[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  cards?: DashboardCard[],
+  theme?: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [x: string]: any
+}
+
+export interface DashboardConfig {
+  template?: boolean
+  views: DashboardView[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [x: string]: any
+}
