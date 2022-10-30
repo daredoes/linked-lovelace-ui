@@ -4,16 +4,12 @@ import { customElement, property, state } from 'lit/decorators';
 import {
   HomeAssistant,
   hasConfigOrEntityChanged,
-  hasAction,
-  ActionHandlerEvent,
-  handleAction,
   LovelaceCardEditor,
   getLovelace,
 } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { LinkedLovelaceCardConfig } from './types';
+import type { Dashboard, DashboardCard, DashboardConfig, DashboardView, LinkedLovelaceCardConfig } from './types';
 import './types'
-import { actionHandler } from './action-handler-directive';
 import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { LinkedLovelaceCardEditor } from './editor';
@@ -34,14 +30,92 @@ console.info(
   description: 'A card that handles Linked Lovelace',
 });
 
+const parseDashboards = (data) => {
+  const dashboards: Record<string, Dashboard> = {}
+        data.forEach((dashboard) => {
+            dashboards[dashboard.id] = dashboard
+        })
+        return dashboards
+}
+
+const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
+  const func = async (dashboardConfig: DashboardConfig) => {
+    const response = {
+      templates: {},
+      dashboard: dashboardConfig,
+      views: {},
+      dashboardId,
+      dashboardUrl
+    }
+    if (dashboardConfig.template) {
+      dashboardConfig.views.forEach((view) => {
+            if (view.cards?.length == 1) {
+              response.templates[`${view.path}`] = view.cards[0]
+            }
+        })
+    }
+    dashboardConfig.views.forEach((view) => {
+      response.views[`${dashboardId}${view.path ? `.${view.path}`: ''}`] = view
+    })
+    dashboardConfig.views = Object.values(response.views)
+    return response
+  }
+  return func
+}
+
 @customElement('linked-lovelace')
 export class LinkedLovelaceCard extends LitElement {
+
+  constructor() {
+    super();
+    this.dashboards = {}
+    this.templates = {}
+    this.views = {}
+  }
+
+  getDashboardConfigs = async () => {
+    const dashboards = await this.linkedLovelace.getDashboards().then(parseDashboards)
+    const responses = await Promise.all(Object.keys(dashboards).map(async (dashboardId) => {
+        const dashboard = dashboards[dashboardId]
+        return await this.linkedLovelace.getDashboardConfig(dashboard.url_path).then(parseDashboardGenerator(dashboardId, dashboard.url_path))
+    }))
+    const templates = {}
+    const views = {}
+    const dashboardsConfigs = {}
+    responses.forEach((response) => {
+      Object.assign(templates, response.templates)
+      Object.assign(views, response.views)
+      dashboardsConfigs[response.dashboardUrl] = response.dashboard
+    })
+    const response = {
+      templates, views, dashboards, dashboardsConfigs
+    }
+    return response
+}
 
 
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
     this.linkedLovelace = new LinkedLovelace(this.hass)
+
+  }
+
+  private updateLinkedLovelace = async () => {
+    const response = await this.getDashboardConfigs()
+    const { dashboards, views, templates, dashboardsConfigs } = response
+    const allTemplates = Object.assign({}, this.templates, templates)
+    Object.keys(templates).forEach((templateKey) => {
+      templates[templateKey] = this.linkedLovelace.updateTemplate(templates[templateKey], allTemplates)
+    })
+    this.dashboards = Object.assign({}, this.dashboards, dashboards)
+    this.views = Object.assign({}, this.views, views)
+    this.templates = Object.assign({}, this.templates, templates)
+    await Promise.all(Object.keys(dashboardsConfigs).map(async (dashboardId) => {
+      const dashboard = dashboardsConfigs[dashboardId]
+      const updatedDashboard = this.linkedLovelace.updateTemplate(dashboard, this.templates);
+      return this.linkedLovelace.setDashboardConfig(dashboardId, updatedDashboard)
+    }))
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
@@ -58,6 +132,11 @@ export class LinkedLovelaceCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property({ attribute: false }) public linkedLovelace!: LinkedLovelace;
+
+  @state() public templates: Record<string, DashboardCard>;
+  @state() public views: Record<string, DashboardView>;
+  @state() public dashboards: Record<string, Dashboard>;
+  @state() private templateCount = 0;
 
   @state() private config!: LinkedLovelaceCardConfig;
 
@@ -87,59 +166,31 @@ export class LinkedLovelaceCard extends LitElement {
     return hasConfigOrEntityChanged(this, changedProps, false);
   }
 
+  protected renderTemplates(): TemplateResult | void {
+    return html`
+    <span>Templates: ${this.templateCount}</span>
+    `;
+  }
+
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    // TODO Check for stateObj or other necessary things and render a warning if missing
-    if (this.config.show_warning) {
-      return this._showWarning(localize('common.show_warning'));
-    }
-
-    if (this.config.show_error) {
-      return this._showError(localize('common.show_error'));
-    }
-
     return html`
       <ha-card
         .header=${this.config.name}
-        @action=${this._handleAction}
-        .actionHandler=${actionHandler({
-      hasHold: hasAction(this.config.hold_action),
-      hasDoubleClick: hasAction(this.config.double_tap_action),
-    })}
         tabindex="0"
-        .label=${`Linked Lovelace: ${this.config.entity || 'No Entity Defined'}`}
+        .label=${`Linked Lovelace Reloader`}
       >
-      <ha-progress-button
-        .progress=${0}
-        @click=${() => {console.log('tapped')}}
-        ?disabled=${false}
-        >
-        Save
-      </ha-progress-button>
+      <div class="card-content">
+        <ha-progress-button
+          @click=${this.updateLinkedLovelace}
+          >
+          ${localize('common.reload')}
+        </ha-progress-button>
+      </div>
     </ha-card>
     `;
   }
 
-  private _handleAction(ev: ActionHandlerEvent): void {
-    if (this.hass && this.config && ev.detail.action) {
-      handleAction(this, this.hass, this.config, ev.detail.action);
-    }
-  }
-
-  private _showWarning(warning: string): TemplateResult {
-    return html` <hui-warning>${warning}</hui-warning> `;
-  }
-
-  private _showError(error: string): TemplateResult {
-    const errorCard = document.createElement('hui-error-card');
-    errorCard.setConfig({
-      type: 'error',
-      error,
-      origConfig: this.config,
-    });
-
-    return html` ${errorCard} `;
-  }
 
   // https://lit.dev/docs/components/styles/
   static get styles(): CSSResultGroup {
