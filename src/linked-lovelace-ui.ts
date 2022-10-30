@@ -103,7 +103,7 @@ export class LinkedLovelaceCard extends LitElement {
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
-    // this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun)
+    this.requestUpdate()
   }
 
   private getLinkedLovelaceData = async () => {
@@ -126,6 +126,7 @@ export class LinkedLovelaceCard extends LitElement {
       this.log(`Updated Dashboard Data (original) (updated)'${dashboardId}'`, dashboard, updatedDashboard)
     })
     this.log(`Updated dashboards, dashboard configs, views, templates`, this.dashboards, this.dashboardConfigs, this.views, this.templates)
+    this.loaded = true;
   }
 
   private updateLinkedLovelace = async () => {
@@ -147,6 +148,7 @@ export class LinkedLovelaceCard extends LitElement {
   // TODO Add any properities that should cause your element to re-render here
   // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass!: HomeAssistant;
+  @property() public loaded = false;
 
   @property({ attribute: false }) public linkedLovelace!: LinkedLovelace;
 
@@ -176,20 +178,20 @@ export class LinkedLovelaceCard extends LitElement {
     };
   }
 
+  willUpdate() {
+    // only need to check changed properties for an expensive computation.
+    if (this.hass && !this.linkedLovelace) {
+      this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun)
+      this.loaded = false;
+      this.getLinkedLovelaceData()
+    }
+  }
+
   // https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-performing
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this.config) {
       return false;
     }
-    if (!this.hass) {
-      return false;
-    }
-    if (!this.linkedLovelace) {
-      this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun)
-      this.getLinkedLovelaceData()
-      return false;
-    }
-
     return hasConfigOrEntityChanged(this, changedProps, false);
   }
 
@@ -220,7 +222,7 @@ export class LinkedLovelaceCard extends LitElement {
     `;
   }
 
-  protected renderLinkedLoveData(): TemplateResult | void {
+  protected renderLinkedLovelaceData(): TemplateResult | void {
     return html`
       <div>
         ${this.renderTemplates()}
@@ -239,7 +241,7 @@ export class LinkedLovelaceCard extends LitElement {
         .label=${`Linked Lovelace Reloader`}
       >
       <div class="card-content">
-        ${this.renderLinkedLoveData()}
+        <!-- ${this.renderLinkedLovelaceData()} -->
         <ha-progress-button
           @click=${this.updateLinkedLovelace}
           >
@@ -253,6 +255,25 @@ export class LinkedLovelaceCard extends LitElement {
 
   // https://lit.dev/docs/components/styles/
   static get styles(): CSSResultGroup {
-    return css``;
+    return css`
+    .linked-lovelace-config {
+      display: flex;
+      flex-direction: column;
+    }
+    .linked-lovelace-config > * {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    mwc-select,
+    mwc-textfield {
+      margin-bottom: 16px;
+      display: block;
+    }
+    mwc-formfield {
+      padding-bottom: 8px;
+    }
+    mwc-switch {
+      --mdc-theme-secondary: var(--switch-checked-color);
+    }`;
   }
 }

@@ -1,4 +1,4 @@
-export const log = (msg, ...values) => {
+export const log = (msg: any, ...values: any[]): void => {
     /* eslint no-console: 0 */
     console.info(
         `%c  LINKED-LOVELACE-UI \n%c  ${msg}   `,

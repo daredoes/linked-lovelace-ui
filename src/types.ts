@@ -1,10 +1,8 @@
 import { LovelaceCard, LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
-import { LinkedLovelaceCard } from './linked-lovelace-ui'
 
 declare global {
   interface HTMLElementTagNameMap {
     'linked-lovelace-card-editor': LovelaceCardEditor;
-    'linked-lovelace-ui': LinkedLovelaceCard;
     'hui-error-card': LovelaceCard;
   }
 }
