@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
 import {
   HomeAssistant,
@@ -64,6 +65,7 @@ const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
 }
 
 @customElement('linked-lovelace')
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceCard extends LitElement {
 
   constructor() {

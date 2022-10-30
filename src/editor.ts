@@ -4,6 +4,7 @@ import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helper
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { LinkedLovelaceCardConfig } from './types';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
 import { formfieldDefinition } from '../elements/formfield';
 import { selectDefinition } from '../elements/select';
@@ -11,6 +12,7 @@ import { switchDefinition } from '../elements/switch';
 import { textfieldDefinition } from '../elements/textfield';
 
 @customElement('linked-lovelace-editor')
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceCardEditor extends ScopedRegistryHost(LitElement) implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
