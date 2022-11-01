@@ -1,8 +1,12 @@
 {
   "common": {
     "version": "Version",
-    "reload_ui": "Reload UI",
+    "reload_ui": "Update",
     "reload": "Reload",
+    "headers": {
+      "templates": "Templates & The Views They Are Used On",
+      "dashboards": "Dashboards & Their Views"
+    },
     "invalid_configuration": "Invalid configuration",
     "show_warning": "Show Warning",
     "show_error": "Show Error"
