@@ -103,7 +103,9 @@ export class LinkedLovelaceCard extends LitElement {
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
-    this.requestUpdate()
+    this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun)
+    await this.getLinkedLovelaceData()
+    this.loaded = true;
   }
 
   private getLinkedLovelaceData = async () => {
@@ -126,7 +128,6 @@ export class LinkedLovelaceCard extends LitElement {
       this.log(`Updated Dashboard Data (original) (updated)'${dashboardId}'`, dashboard, updatedDashboard)
     })
     this.log(`Updated dashboards, dashboard configs, views, templates`, this.dashboards, this.dashboardConfigs, this.views, this.templates)
-    this.loaded = true;
   }
 
   private updateLinkedLovelace = async () => {
@@ -148,7 +149,7 @@ export class LinkedLovelaceCard extends LitElement {
   // TODO Add any properities that should cause your element to re-render here
   // https://lit.dev/docs/components/properties/
   @property({ attribute: false }) public hass!: HomeAssistant;
-  @property() public loaded = false;
+  @state() public loaded = false;
 
   @property({ attribute: false }) public linkedLovelace!: LinkedLovelace;
 
@@ -178,19 +179,14 @@ export class LinkedLovelaceCard extends LitElement {
     };
   }
 
-  willUpdate() {
-    // only need to check changed properties for an expensive computation.
-    if (this.hass && !this.linkedLovelace) {
-      this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun)
-      this.loaded = false;
-      this.getLinkedLovelaceData()
-    }
-  }
-
   // https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-performing
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this.config) {
       return false;
+    }
+
+    if (changedProps.has('dashboards') || changedProps.has('views') || changedProps.has('templates')) {
+      return true;
     }
     return hasConfigOrEntityChanged(this, changedProps, false);
   }
@@ -241,7 +237,7 @@ export class LinkedLovelaceCard extends LitElement {
         .label=${`Linked Lovelace Reloader`}
       >
       <div class="card-content">
-        <!-- ${this.renderLinkedLovelaceData()} -->
+        ${this.renderLinkedLovelaceData()}
         <ha-progress-button
           @click=${this.updateLinkedLovelace}
           >
