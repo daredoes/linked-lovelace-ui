@@ -16,37 +16,37 @@ export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
   debug: boolean;
 }
 
-
 export interface Dashboard {
-  id: string
-  mode: string
-  require_admin: boolean
-  show_in_sidebar: boolean
-  title: string
-  url_path: string
+  id: string;
+  mode: string;
+  require_admin: boolean;
+  show_in_sidebar: boolean;
+  title: string;
+  url_path: string;
 }
 
 export interface DashboardCard extends LovelaceCardConfig {
-  cards?: DashboardCard[],
+  cards?: DashboardCard[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template_data?: Record<string, any>
+  template?: string;
+  template_data?: Record<string, any>;
 }
 
 export interface DashboardView {
-  title: string
-  path?: string,
+  title: string;
+  path?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  badges?: any[],
+  badges?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cards?: DashboardCard[],
-  theme?: string,
+  cards?: DashboardCard[];
+  theme?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [x: string]: any
+  [x: string]: any;
 }
 
 export interface DashboardConfig {
-  template?: boolean
-  views: DashboardView[],
+  template?: boolean;
+  views: DashboardView[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [x: string]: any
+  [x: string]: any;
 }
