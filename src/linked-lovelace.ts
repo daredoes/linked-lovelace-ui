@@ -96,6 +96,13 @@ class LinkedLovelace {
     });
   };
 
+  toggleDashboardAsTemplate = async (urlPath: string, isTemplate?: boolean): Promise<DashboardConfig> => {
+    const dashboardConfig = await this.getDashboardConfig(urlPath);
+    dashboardConfig.template = typeof isTemplate === 'undefined' ? !Boolean(dashboardConfig.template) : isTemplate;
+    await this.setDashboardConfig(urlPath, dashboardConfig);
+    return dashboardConfig;
+  };
+
   setDashboardConfig = async (urlPath: string, config: Record<string, any>): Promise<null> => {
     if (this.debug) {
       log(`${this.dryRun ? 'Not Actually ' : ''}Setting Lovelace User-Created Dashboard: ${urlPath}`, config);

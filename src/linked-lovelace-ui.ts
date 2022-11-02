@@ -95,32 +95,48 @@ export class LinkedLovelaceCard extends LitElement {
     }
   }
 
-  getDashboardConfigs = async () => {
-    const dashboards = await this.linkedLovelace.getDashboards().then(parseDashboards);
-    this.log(`Parsed Dashboards`, dashboards);
+  parseDashboardConfigs = async (dashboards: Record<string, Dashboard>) => {
     const responses = await Promise.all(
       Object.keys(dashboards).map(async (dashboardId) => {
         const dashboard = dashboards[dashboardId];
-        return await this.linkedLovelace
-          .getDashboardConfig(dashboard.url_path)
-          .then(parseDashboardGenerator(dashboardId, dashboard.url_path));
+        return await this.parseDashboardConfig(dashboard);
       }),
     );
+    return responses;
+  };
+
+  parseDashboardConfig = async (dashboard: Dashboard) => {
+    return await this.linkedLovelace
+      .getDashboardConfig(dashboard.url_path)
+      .then(parseDashboardGenerator(dashboard.id, dashboard.url_path));
+  };
+
+  flattenParsedDashboardConfigs = (responses) => {
     const templates = {};
     const views = {};
-    const dashboardsConfigs = {};
+    const dashboardConfigs = {};
     responses.forEach((response) => {
       Object.assign(templates, response.templates);
       Object.assign(views, response.views);
-      dashboardsConfigs[response.dashboardUrl] = response.dashboard;
+      dashboardConfigs[response.dashboardUrl] = response.dashboard;
     });
     const response = {
       templates,
       views,
-      dashboards,
-      dashboardsConfigs,
+      dashboardConfigs,
     };
     return response;
+  };
+
+  getDashboardConfigs = async () => {
+    const dashboards: Record<string, Dashboard> = await this.linkedLovelace.getDashboards().then(parseDashboards);
+    this.log(`Parsed Dashboards`, dashboards);
+    const responses = await this.parseDashboardConfigs(dashboards);
+    const flattenedResponses = this.flattenParsedDashboardConfigs(responses);
+    return {
+      dashboards,
+      ...flattenedResponses,
+    };
   };
 
   async firstUpdated() {
@@ -131,27 +147,46 @@ export class LinkedLovelaceCard extends LitElement {
     this.loaded = true;
   }
 
-  private getLinkedLovelaceData = async () => {
-    const response = await this.getDashboardConfigs();
-    this.log(`Got Dashboard Configs`, response);
-    const { dashboards, views, templates, dashboardsConfigs } = response;
+  private _updateTemplates = (templates: Record<string, DashboardCard>) => {
+    const tmplts = templates;
     const allTemplates = Object.assign({}, this.templates, templates);
     Object.keys(templates).forEach((templateKey) => {
       this.log(`Updating template '${templateKey}' with other template data`, templates[templateKey]);
-      templates[templateKey] = this.linkedLovelace.updateTemplate(templates[templateKey], allTemplates);
+      tmplts[templateKey] = this.linkedLovelace.updateTemplate(tmplts[templateKey], allTemplates) as DashboardCard;
       this.log(`Updated template '${templateKey}' with other template data`, templates[templateKey]);
     });
-    this.dashboards = Object.assign({}, this.dashboards, dashboards);
-    this.views = Object.assign({}, this.views, views);
     this.templates = Object.assign({}, this.templates, templates);
-    Object.keys(dashboardsConfigs).forEach((dashboardId) => {
-      const dashboard = dashboardsConfigs[dashboardId];
+  };
+
+  private _updateDashboards = (dashboards: Record<string, Dashboard>) => {
+    this.dashboards = Object.assign({}, this.dashboards, dashboards);
+  };
+
+  private _updateViews = (views: Record<string, DashboardView>) => {
+    this.views = Object.assign({}, this.views, views);
+  };
+
+  private _updateDashboardConfigs = (dashboardConfigs: Record<string, DashboardConfig>) => {
+    Object.keys(dashboardConfigs).forEach((dashboardId) => {
+      const dashboard = dashboardConfigs[dashboardId];
       const updatedDashboard = this.linkedLovelace.updateTemplate(dashboard, this.templates);
       this.dashboardConfigs[dashboardId] = updatedDashboard as DashboardConfig;
       this.log(`Updated Dashboard Data (original) (updated)'${dashboardId}'`, dashboard, updatedDashboard);
     });
+  };
 
-    Object.keys(this.views).forEach((viewKey) => {
+  private _updateFromLatest = async () => {
+    const response = await this.getDashboardConfigs();
+    this.log(`Got Dashboard Configs`, response);
+    const { dashboards, views, templates, dashboardConfigs } = response;
+    this._updateTemplates(templates);
+    this._updateDashboards(dashboards);
+    this._updateViews(views);
+    this._updateDashboardConfigs(dashboardConfigs);
+  };
+
+  private _getTemplatesUsedInViews = (views: Record<string, DashboardView>) => {
+    Object.keys(views).forEach((viewKey) => {
       const view = this.views[viewKey];
       const templates = getTemplatesUsedInView(view);
       templates.forEach((template) => {
@@ -161,15 +196,11 @@ export class LinkedLovelaceCard extends LitElement {
         this.templatesToViews[template][viewKey] = true;
       });
     });
+  };
 
-    this.log(
-      `Updated dashboards, dashboard configs, views, templates`,
-      this.dashboards,
-      this.dashboardConfigs,
-      this.views,
-      this.templates,
-      this.templatesToViews,
-    );
+  private getLinkedLovelaceData = async () => {
+    await this._updateFromLatest();
+    this._getTemplatesUsedInViews(this.views);
   };
 
   private updateLinkedLovelace = async () => {
@@ -184,6 +215,12 @@ export class LinkedLovelaceCard extends LitElement {
   private handleClick = async () => {
     await this.getLinkedLovelaceData();
     await this.updateLinkedLovelace();
+    this.requestUpdate();
+  };
+
+  private toggleDashboard = async (urlPath: string) => {
+    await this.linkedLovelace.toggleDashboardAsTemplate(urlPath);
+    await this._updateFromLatest();
     this.requestUpdate();
   };
 
@@ -281,9 +318,17 @@ export class LinkedLovelaceCard extends LitElement {
         <div class="lovelace-items-grid">
           ${Object.keys(views).map((dashboardKey) => {
             const myViews = views[dashboardKey];
+            const dashboardConfig = this.dashboardConfigs[this.dashboards[dashboardKey].url_path];
             return html`
               <div>
-                <p>${this.dashboards[dashboardKey].title}</p>
+                <p
+                  @click=${() => {
+                    this.toggleDashboard(this.dashboards[dashboardKey].url_path);
+                  }}
+                  class=${dashboardConfig.template ? 'lovelace-dashboard-template' : ''}
+                >
+                  ${this.dashboards[dashboardKey].title}
+                </p>
                 <div>
                   ${myViews.map((v) => {
                     return html` <span>${v.title}</span> `;
@@ -314,10 +359,13 @@ export class LinkedLovelaceCard extends LitElement {
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Reloader`}>
         <div class="card-content">${this.renderLinkedLovelaceData()}</div>
         <div class="card-actions">
-          ${!this.config.dryRun &&
-          html`
-            <ha-progress-button @click=${this.getLinkedLovelaceData}> ${localize('common.reload')} </ha-progress-button>
-          `}
+          ${!this.config.dryRun
+            ? html`
+                <ha-progress-button @click=${this.getLinkedLovelaceData}>
+                  ${localize('common.reload')}
+                </ha-progress-button>
+              `
+            : ''}
           <ha-progress-button @click=${this.handleClick}>
             ${localize(this.config.dryRun ? 'common.reload' : 'common.reload_ui')}
           </ha-progress-button>
@@ -332,6 +380,9 @@ export class LinkedLovelaceCard extends LitElement {
       .lovelace-items-header {
         font-weight: bolder;
         font-size: large;
+      }
+      .lovelace-dashboard-template {
+        font-weight: bolder;
       }
       .lovelace-items-grid {
         display: flex;
