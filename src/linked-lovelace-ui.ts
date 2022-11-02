@@ -288,7 +288,7 @@ export class LinkedLovelaceCard extends LitElement {
             const myViews = Object.keys(this.templatesToViews[templateKey]);
             return html`
               <div>
-                <p>${templateKey}</p>
+                <span>${templateKey}</span>
                 <div>
                   ${myViews.map((v) => {
                     return html` <span>${v}</span> `;
@@ -321,14 +321,16 @@ export class LinkedLovelaceCard extends LitElement {
             const dashboardConfig = this.dashboardConfigs[this.dashboards[dashboardKey].url_path];
             return html`
               <div>
-                <p
-                  @click=${() => {
-                    this.toggleDashboard(this.dashboards[dashboardKey].url_path);
-                  }}
-                  class=${dashboardConfig.template ? 'lovelace-dashboard-template' : ''}
-                >
-                  ${this.dashboards[dashboardKey].title}
-                </p>
+                <span>${this.dashboards[dashboardKey].title}</span>
+                <mwc-formfield .label=${`Template Dashboard`}>
+                  <ha-switch
+                    .disabled=${this.config.dryRun}
+                    @change=${() => {
+                      this.toggleDashboard(this.dashboards[dashboardKey].url_path);
+                    }}
+                    .checked=${dashboardConfig.template}
+                  ></ha-switch>
+                </mwc-formfield>
                 <div>
                   ${myViews.map((v) => {
                     return html` <span>${v.title}</span> `;
@@ -387,7 +389,14 @@ export class LinkedLovelaceCard extends LitElement {
       .lovelace-items-grid {
         display: flex;
         flex-direction: column;
-        margin-bottom: 1em;
+      }
+      .lovelace-items-grid > div {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 1em;
+        margin-top: 0.75em;
+        margin-bottom: 0.75em;
       }
       .lovelace-items-grid > div > div {
         display: flex;
