@@ -21,6 +21,43 @@ log(`${localize('common.version')} ${CARD_VERSION}`);
   name: 'Linked Lovelace Card',
   description: 'A card that handles Linked Lovelace',
 });
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    const oldValue = mutation.oldValue;
+    const newValue = mutation.target.textContent;
+    if (oldValue !== newValue) {
+      console.log(oldValue, newValue, mutation);
+    }
+  });
+});
+
+observer.observe(document.body, {
+  characterDataOldValue: true,
+  subtree: true,
+  childList: true,
+  characterData: true,
+});
+
+(async () => {
+  // Wait for scoped customElements registry to be set up
+  // otherwise the customElements registry card-mod is defined in
+  // may get overwritten by the polyfill if card-mod is loaded as a module
+  while (customElements.get('home-assistant') === undefined)
+    await new Promise((resolve) => window.setTimeout(resolve, 100));
+
+  console.log(document.getElementsByTagName('partial-panel-resolver'));
+  const ha = document.getElementsByTagName('home-assistant')[0] as LitElement;
+  const layout = ha.renderRoot
+    .querySelector<LitElement>('home-assistant-main')
+    ?.renderRoot.querySelector<LitElement>('app-drawer-layout');
+  const panel = layout?.getElementsByTagName('partial-panel-resolver')[0];
+  const child = panel?.getElementsByTagName('ha-panel-lovelace')[0] as LitElement;
+  console.log(child);
+  const appLayout = child?.renderRoot
+    .querySelector<LitElement>('hui-root')
+    ?.renderRoot.querySelector<LitElement>('ha-app-layout');
+  console.log('Runs on every page baby', ha, appLayout);
+})();
 
 const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
   if (card.template) {
@@ -191,7 +228,7 @@ export class LinkedLovelaceCard extends LitElement {
     this._updateDashboards(dashboards);
     this._updateViews(views);
     this._updateDashboardConfigs(dashboardConfigs);
-    console.log(
+    this.log(
       this.templates,
       this.dashboardConfigs,
       this.dashboards,
@@ -245,6 +282,13 @@ export class LinkedLovelaceCard extends LitElement {
 
   private toggleDashboard = async (urlPath: string) => {
     await this.linkedLovelace.toggleDashboardAsTemplate(urlPath);
+    await this.getLinkedLovelaceData();
+    this.requestUpdate();
+  };
+
+  private updateDashboard = async (urlPath: string) => {
+    await this.getLinkedLovelaceData();
+    await this.linkedLovelace.setDashboardConfig(urlPath, this.dashboardConfigs[urlPath]);
     await this.getLinkedLovelaceData();
     this.requestUpdate();
   };
@@ -353,19 +397,32 @@ export class LinkedLovelaceCard extends LitElement {
             const dashboardConfig = this.dashboardConfigs[this.dashboards[dashboardKey].url_path];
             return html`
               <ha-card raised>
-                <h3 class="card-header dashboard">Dashboard: ${this.dashboards[dashboardKey].title}</h3>
+                <ha-settings-row>
+                  <span slot="heading">${this.dashboards[dashboardKey].title}</span>
+                  <span slot="description">Dashboard</span>
+                </ha-settings-row>
+                <!-- <h3 class="card-header dashboard">Dashboard: ${this.dashboards[dashboardKey].title}</h3> -->
                 <div class="card-content">
                   <div class="lovelace-items-grid">
                     ${myViews.map((v) => {
                       const myTemplate = this.viewsToTemplates[`${dashboardKey}${v.path ? `.${v.path}` : ''}`] || [];
                       return html`
                         <ha-card>
-                          <h3 class="card-header view">View: ${v.title}</h3>
+                          <ha-settings-row>
+                            <span slot="heading">${v.title}</span>
+                            <span slot="description">View</span>
+                          </ha-settings-row>
                           <div class="card-content">
                             <div>
+                              <ha-settings-row>
+                                <span slot="heading"> Templates In Use: </span>
+                                <span slot="description"> ${myTemplate.join(', ')} </span>
+                              </ha-settings-row>
+                            </div>
+                            <!-- <div>
                               <p>Templates In Use:</p>
                               <p>${myTemplate.join(', ')}</p>
-                            </div>
+                            </div> -->
                           </div>
                           <div class="card-actions"></div>
                         </ha-card>
@@ -381,6 +438,14 @@ export class LinkedLovelaceCard extends LitElement {
                     }}
                   >
                     ${dashboardConfig.template ? 'Disable Template Mode' : 'Enable Template Mode'}
+                  </ha-progress-button>
+                  <ha-progress-button
+                    .disabled=${this.config.dryRun}
+                    @click=${() => {
+                      this.updateDashboard(this.dashboards[dashboardKey].url_path);
+                    }}
+                  >
+                    ${localize('common.reload')}
                   </ha-progress-button>
                 </div>
               </ha-card>
