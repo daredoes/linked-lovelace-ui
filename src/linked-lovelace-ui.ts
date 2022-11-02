@@ -87,6 +87,7 @@ export class LinkedLovelaceCard extends LitElement {
     this.templates = {};
     this.views = {};
     this.templatesToViews = {};
+    this.viewsToTemplates = {};
   }
 
   log(msg, ...values) {
@@ -176,6 +177,13 @@ export class LinkedLovelaceCard extends LitElement {
   };
 
   private _updateFromLatest = async () => {
+    this.templates = {};
+    this.dashboardConfigs = {};
+    this.dashboards = {};
+    this.templatesToViews = {};
+    this.views = {};
+    this.viewsToTemplates = {};
+
     const response = await this.getDashboardConfigs();
     this.log(`Got Dashboard Configs`, response);
     const { dashboards, views, templates, dashboardConfigs } = response;
@@ -183,6 +191,14 @@ export class LinkedLovelaceCard extends LitElement {
     this._updateDashboards(dashboards);
     this._updateViews(views);
     this._updateDashboardConfigs(dashboardConfigs);
+    console.log(
+      this.templates,
+      this.dashboardConfigs,
+      this.dashboards,
+      this.templatesToViews,
+      this.views,
+      this.viewsToTemplates,
+    );
   };
 
   private _getTemplatesUsedInViews = (views: Record<string, DashboardView>) => {
@@ -194,6 +210,10 @@ export class LinkedLovelaceCard extends LitElement {
           this.templatesToViews[template] = {};
         }
         this.templatesToViews[template][viewKey] = true;
+        if (!this.viewsToTemplates[viewKey]) {
+          this.viewsToTemplates[viewKey] = [];
+        }
+        this.viewsToTemplates[viewKey].push(template);
       });
     });
   };
@@ -218,9 +238,14 @@ export class LinkedLovelaceCard extends LitElement {
     this.requestUpdate();
   };
 
+  private handleReloadClick = async () => {
+    await this.getLinkedLovelaceData();
+    this.requestUpdate();
+  };
+
   private toggleDashboard = async (urlPath: string) => {
     await this.linkedLovelace.toggleDashboardAsTemplate(urlPath);
-    await this._updateFromLatest();
+    await this.getLinkedLovelaceData();
     this.requestUpdate();
   };
 
@@ -242,6 +267,7 @@ export class LinkedLovelaceCard extends LitElement {
 
   @state() public templates: Record<string, DashboardCard>;
   @state() public templatesToViews: Record<string, Record<string, boolean>>;
+  @state() public viewsToTemplates: Record<string, string[]>;
   @state() public views: Record<string, DashboardView>;
   @state() public dashboards: Record<string, Dashboard>;
   @state() public dashboardConfigs: Record<string, DashboardConfig>;
@@ -273,7 +299,13 @@ export class LinkedLovelaceCard extends LitElement {
       return false;
     }
 
-    if (changedProps.has('dashboards') || changedProps.has('views') || changedProps.has('templates')) {
+    if (
+      changedProps.has('dashboards') ||
+      changedProps.has('views') ||
+      changedProps.has('templates') ||
+      changedProps.has('viewsToTemplates') ||
+      changedProps.has('templatesToViews')
+    ) {
       return true;
     }
     return hasConfigOrEntityChanged(this, changedProps, false);
@@ -320,23 +352,38 @@ export class LinkedLovelaceCard extends LitElement {
             const myViews = views[dashboardKey];
             const dashboardConfig = this.dashboardConfigs[this.dashboards[dashboardKey].url_path];
             return html`
-              <div>
-                <span>${this.dashboards[dashboardKey].title}</span>
-                <mwc-formfield .label=${`Template Dashboard`}>
-                  <ha-switch
+              <ha-card raised>
+                <h3 class="card-header dashboard">Dashboard: ${this.dashboards[dashboardKey].title}</h3>
+                <div class="card-content">
+                  <div class="lovelace-items-grid">
+                    ${myViews.map((v) => {
+                      const myTemplate = this.viewsToTemplates[`${dashboardKey}${v.path ? `.${v.path}` : ''}`] || [];
+                      return html`
+                        <ha-card>
+                          <h3 class="card-header view">View: ${v.title}</h3>
+                          <div class="card-content">
+                            <div>
+                              <p>Templates In Use:</p>
+                              <p>${myTemplate.join(', ')}</p>
+                            </div>
+                          </div>
+                          <div class="card-actions"></div>
+                        </ha-card>
+                      `;
+                    })}
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <ha-progress-button
                     .disabled=${this.config.dryRun}
-                    @change=${() => {
+                    @click=${() => {
                       this.toggleDashboard(this.dashboards[dashboardKey].url_path);
                     }}
-                    .checked=${dashboardConfig.template}
-                  ></ha-switch>
-                </mwc-formfield>
-                <div>
-                  ${myViews.map((v) => {
-                    return html` <span>${v.title}</span> `;
-                  })}
+                  >
+                    ${dashboardConfig.template ? 'Disable Template Mode' : 'Enable Template Mode'}
+                  </ha-progress-button>
                 </div>
-              </div>
+              </ha-card>
             `;
           })}
         </div>
@@ -363,9 +410,7 @@ export class LinkedLovelaceCard extends LitElement {
         <div class="card-actions">
           ${!this.config.dryRun
             ? html`
-                <ha-progress-button @click=${this.getLinkedLovelaceData}>
-                  ${localize('common.reload')}
-                </ha-progress-button>
+                <ha-progress-button @click=${this.handleReloadClick}> ${localize('common.reload')} </ha-progress-button>
               `
             : ''}
           <ha-progress-button @click=${this.handleClick}>
@@ -387,8 +432,18 @@ export class LinkedLovelaceCard extends LitElement {
         font-weight: bolder;
       }
       .lovelace-items-grid {
+        flex-grow: 1;
         display: flex;
         flex-direction: column;
+        gap: 0.5em;
+      }
+      .card-header.dashboard {
+        font-size: 16px;
+        line-height: 24px;
+      }
+      .card-header.view {
+        font-size: 14px;
+        line-height: 24px;
       }
       .lovelace-items-grid > div {
         display: flex;
@@ -398,13 +453,16 @@ export class LinkedLovelaceCard extends LitElement {
         margin-top: 0.75em;
         margin-bottom: 0.75em;
       }
-      .lovelace-items-grid > div > div {
+      .lovelace-items-grid .card-content {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
         gap: 1em;
       }
-      .lovelace-items-grid > div > div > span {
+      .lovelace-items-grid > ha-card {
+        border: 1px solid;
+      }
+      .lovelace-items-grid .card-content > span {
         border-radius: 5px;
         padding: 2px;
         border: 1px solid;

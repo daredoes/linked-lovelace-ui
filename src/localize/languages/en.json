@@ -5,7 +5,7 @@
     "reload": "Reload",
     "headers": {
       "templates": "Templates & The Views They Are Used On",
-      "dashboards": "Dashboards & Their Views"
+      "dashboards": "Dashboards"
     },
     "invalid_configuration": "Invalid configuration",
     "show_warning": "Show Warning",
