@@ -13,6 +13,7 @@ import LinkedLovelace from './linked-lovelace';
 import { log } from './helpers';
 
 log(`${localize('common.version')} ${CARD_VERSION}`);
+import './linked-lovelace-integrated';
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
@@ -21,43 +22,6 @@ log(`${localize('common.version')} ${CARD_VERSION}`);
   name: 'Linked Lovelace Card',
   description: 'A card that handles Linked Lovelace',
 });
-const observer = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-    const oldValue = mutation.oldValue;
-    const newValue = mutation.target.textContent;
-    if (oldValue !== newValue) {
-      console.log(oldValue, newValue, mutation);
-    }
-  });
-});
-
-observer.observe(document.body, {
-  characterDataOldValue: true,
-  subtree: true,
-  childList: true,
-  characterData: true,
-});
-
-(async () => {
-  // Wait for scoped customElements registry to be set up
-  // otherwise the customElements registry card-mod is defined in
-  // may get overwritten by the polyfill if card-mod is loaded as a module
-  while (customElements.get('home-assistant') === undefined)
-    await new Promise((resolve) => window.setTimeout(resolve, 100));
-
-  console.log(document.getElementsByTagName('partial-panel-resolver'));
-  const ha = document.getElementsByTagName('home-assistant')[0] as LitElement;
-  const layout = ha.renderRoot
-    .querySelector<LitElement>('home-assistant-main')
-    ?.renderRoot.querySelector<LitElement>('app-drawer-layout');
-  const panel = layout?.getElementsByTagName('partial-panel-resolver')[0];
-  const child = panel?.getElementsByTagName('ha-panel-lovelace')[0] as LitElement;
-  console.log(child);
-  const appLayout = child?.renderRoot
-    .querySelector<LitElement>('hui-root')
-    ?.renderRoot.querySelector<LitElement>('ha-app-layout');
-  console.log('Runs on every page baby', ha, appLayout);
-})();
 
 const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
   if (card.template) {
@@ -75,6 +39,35 @@ const getTemplatesUsedInView = (view: DashboardView): string[] => {
   return (
     view.cards?.flatMap((c) => {
       return getTemplatesUsedInCard(c);
+    }) || []
+  );
+};
+
+const getCardTypesInCard = (card: DashboardCard): any[] => {
+  return (
+    card.cards?.map((c) => {
+      const results: any[] = [];
+      if (c.template) {
+        results.push(`template: ${c.template}`);
+      } else {
+        results.push(`type: ${c.type}`);
+      }
+      if (c.cards) {
+        results.push(getCardTypesInCard(c));
+      }
+      return results;
+    }) || []
+  );
+};
+
+const getCardTypesInView = (view: DashboardView): string[] => {
+  return (
+    view.cards?.map((c) => {
+      console.log(getCardTypesInCard(c));
+      if (c.template) {
+        return `template: ${c.template}`;
+      }
+      return `type: ${c.type}`;
     }) || []
   );
 };
@@ -390,7 +383,7 @@ export class LinkedLovelaceCard extends LitElement {
     });
     return html`
       <div>
-        <span class="lovelace-items-header">${localize('common.headers.dashboards')}</span>
+        <!-- <span class="lovelace-items-header">${localize('common.headers.dashboards')}</span> -->
         <div class="lovelace-items-grid">
           ${Object.keys(views).map((dashboardKey) => {
             const myViews = views[dashboardKey];
@@ -405,18 +398,25 @@ export class LinkedLovelaceCard extends LitElement {
                 <div class="card-content">
                   <div class="lovelace-items-grid">
                     ${myViews.map((v) => {
-                      const myTemplate = this.viewsToTemplates[`${dashboardKey}${v.path ? `.${v.path}` : ''}`] || [];
+                      const isTemplate = dashboardConfig.template && v.path ? Boolean(this.templates[v.path]) : false;
+                      const myTemplate = isTemplate
+                        ? this.viewsToTemplates[`${dashboardKey}${v.path ? `.${v.path}` : ''}`] || []
+                        : [];
                       return html`
                         <ha-card>
                           <ha-settings-row>
                             <span slot="heading">${v.title}</span>
-                            <span slot="description">View</span>
+                            <span slot="description">View${isTemplate ? ' and Template' : ''}</span>
                           </ha-settings-row>
                           <div class="card-content">
                             <div>
-                              <ha-settings-row>
+                              <!-- <ha-settings-row>
                                 <span slot="heading"> Templates In Use: </span>
                                 <span slot="description"> ${myTemplate.join(', ')} </span>
+                              </ha-settings-row> -->
+                              <ha-settings-row>
+                                <span slot="heading"> Cards: </span>
+                                <span slot="description"> ${getCardTypesInView(v).join(', ')} </span>
                               </ha-settings-row>
                             </div>
                             <!-- <div>
@@ -459,9 +459,9 @@ export class LinkedLovelaceCard extends LitElement {
   protected renderLinkedLovelaceData(): TemplateResult | void {
     return html`
       <div>
-        <hr />
-        ${this.renderTemplates()}
-        <hr />
+        <!-- <hr />
+        ${this.renderTemplates()} -->
+        <!-- <hr /> -->
         ${this.renderViews()}
       </div>
     `;
