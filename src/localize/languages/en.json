@@ -2,7 +2,7 @@
   "common": {
     "version": "Version",
     "reload_ui": "Update",
-    "reload": "Reload",
+    "reload": "Refresh",
     "headers": {
       "templates": "Templates & The Views They Are Used On",
       "dashboards": "Dashboards"

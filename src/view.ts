@@ -82,10 +82,8 @@ export class LinkedLovelaceViewCard extends LitElement {
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    const dashboardConfig =
-      StaticLinkedLovelace.instance.dashboardConfigs[
-        StaticLinkedLovelace.instance.dashboards[this.dashboardKey].url_path
-      ];
+    const dashboardUrl = StaticLinkedLovelace.instance.dashboards[this.dashboardKey].url_path;
+    const dashboardConfig = StaticLinkedLovelace.instance.dashboardConfigs[dashboardUrl];
     const isTemplate =
       dashboardConfig.template && this.view.path
         ? Boolean(StaticLinkedLovelace.instance.templates[this.view.path])
@@ -97,7 +95,14 @@ export class LinkedLovelaceViewCard extends LitElement {
             this.expanded = !this.expanded;
           }}
         >
-          <span slot="heading">${this.view.title}</span>
+          <a
+            href=${`/${dashboardUrl}/${this.view.path || ''}`}
+            @click=${(ev) => {
+              ev.stopPropagation();
+            }}
+            slot="heading"
+            >${this.view.title}</a
+          >
           <span slot="description">View${isTemplate ? ' and Template' : ''}</span>
         </ha-settings-row>
         ${this.renderContent()}

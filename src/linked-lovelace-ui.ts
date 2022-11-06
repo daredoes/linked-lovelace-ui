@@ -13,7 +13,7 @@ import StaticLinkedLovelace from './shared-linked-lovelace';
 import { log } from './helpers';
 
 log(`${localize('common.version')} ${CARD_VERSION}`);
-import './linked-lovelace-integrated';
+// import './linked-lovelace-integrated';
 import './view';
 import './dashboard';
 
@@ -42,6 +42,7 @@ export class LinkedLovelaceCard extends LitElement {
     await new Promise((r) => setTimeout(r, 0));
     // this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun);
     StaticLinkedLovelace.instance._setDebug(this.config.debug);
+    StaticLinkedLovelace.instance._setDryRun(this.config.dryRun);
     await StaticLinkedLovelace.instance.getLinkedLovelaceData();
     this.loaded = true;
   }
@@ -53,19 +54,6 @@ export class LinkedLovelaceCard extends LitElement {
   };
 
   private handleReloadClick = async () => {
-    await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    this.requestUpdate();
-  };
-
-  private toggleDashboard = async (urlPath: string) => {
-    await StaticLinkedLovelace.linkedLovelace.toggleDashboardAsTemplate(urlPath);
-    await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    this.requestUpdate();
-  };
-
-  private updateDashboard = async (urlPath: string) => {
-    await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    await StaticLinkedLovelace.instance.setDashboardConfig(urlPath);
     await StaticLinkedLovelace.instance.getLinkedLovelaceData();
     this.requestUpdate();
   };

@@ -1,75 +1,15 @@
-import { HomeAssistant } from 'custom-card-helpers';
-import { LitElement } from 'lit';
 import LinkedLovelace from './linked-lovelace';
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from './types';
 
-import { log } from './helpers';
-
-const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
-  if (card.template) {
-    return [card.template];
-  }
-  if (card.cards) {
-    return card.cards.flatMap((c) => {
-      return getTemplatesUsedInCard(c);
-    });
-  }
-  return [];
-};
-
-const getTemplatesUsedInView = (view: DashboardView): string[] => {
-  return (
-    view.cards?.flatMap((c) => {
-      return getTemplatesUsedInCard(c);
-    }) || []
-  );
-};
-
-const parseDashboards = (data) => {
-  const dashboards: Record<string, Dashboard> = {};
-  data.forEach((dashboard) => {
-    if (dashboard.mode == 'storage') {
-      dashboards[dashboard.id] = dashboard;
-    }
-  });
-  return dashboards;
-};
-
-const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
-  const func = async (dashboardConfig: DashboardConfig) => {
-    const response = {
-      templates: {},
-      dashboard: dashboardConfig,
-      views: {},
-      dashboardId,
-      dashboardUrl,
-    };
-    if (dashboardConfig.template) {
-      dashboardConfig.views.forEach((view) => {
-        if (view.cards?.length == 1) {
-          response.templates[`${view.path}`] = view.cards[0];
-        }
-      });
-    }
-    dashboardConfig.views.forEach((view) => {
-      response.views[`${dashboardId}${view.path ? `.${view.path}` : ''}`] = view;
-    });
-    dashboardConfig.views = Object.values(response.views);
-    return response;
-  };
-  return func;
-};
-
-const getHass = (): HomeAssistant => {
-  const hass = document.getElementsByTagName('home-assistant')[0] as LitElement;
-  return (hass as any).hass as HomeAssistant;
-};
+import { log, getTemplatesUsedInView, parseDashboards, parseDashboardGenerator, getHass } from './helpers';
 
 class StaticLinkedLovelace {
   static _linkedLovelace?: LinkedLovelace;
   static self?: StaticLinkedLovelace;
+
   debug = false;
   dryRun = false;
+
   dashboards: Record<string, Dashboard> = {};
   dashboardConfigs: Record<string, DashboardConfig> = {};
   templates: Record<string, DashboardCard> = {};
@@ -78,25 +18,25 @@ class StaticLinkedLovelace {
   templatesToViews: Record<string, Record<string, boolean>> = {};
   viewsToTemplates: Record<string, string[]> = {};
 
-  log(msg, ...values) {
+  log(msg: any, ...values: any[]): void {
     if (this.debug) {
       log(msg, ...values);
     }
   }
 
-  public _setDebug = (debug: boolean) => {
+  public _setDebug = (debug: boolean): void => {
     this.debug = debug;
   };
 
-  public _setDryRun = (dryRun: boolean) => {
+  public _setDryRun = (dryRun: boolean): void => {
     this.dryRun = dryRun;
   };
 
-  public enableDebug = () => {
+  public enableDebug = (): void => {
     this._setDebug(true);
   };
 
-  public disableDebug = () => {
+  public disableDebug = (): void => {
     this._setDebug(false);
   };
 
