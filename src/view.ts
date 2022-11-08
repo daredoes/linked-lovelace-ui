@@ -7,6 +7,7 @@ import type { DashboardCard, DashboardView } from './types';
 import './types';
 import { log } from './helpers';
 import StaticLinkedLovelace from './shared-linked-lovelace';
+import { mdiArrowDownBold, mdiArrowRightBold } from '@mdi/js';
 
 const getCardTypesInCard = (card: DashboardCard): any[] => {
   return (
@@ -66,13 +67,18 @@ export class LinkedLovelaceViewCard extends LitElement {
   }
 
   protected renderContent(): TemplateResult | void {
+    const cards = getCardTypesInView(this.view);
     if (this.expanded) {
       return html`
         <div class="card-content">
           <div>
             <ha-settings-row>
-              <span slot="heading">Cards</span>
-              <span slot="description"> ${getCardTypesInView(this.view).join(', ')} </span>
+              ${cards.length
+                ? html`
+                    <span slot="heading">Cards</span>
+                    <span slot="description"> ${cards.join(', ')} </span>
+                  `
+                : html` <span slot="heading">No Cards</span> `}
             </ha-settings-row>
           </div>
         </div>
@@ -89,12 +95,8 @@ export class LinkedLovelaceViewCard extends LitElement {
         ? Boolean(StaticLinkedLovelace.instance.templates[this.view.path])
         : false;
     return html`
-      <ha-card>
-        <ha-settings-row
-          @click=${() => {
-            this.expanded = !this.expanded;
-          }}
-        >
+      <ha-card outlined>
+        <ha-settings-row>
           <a
             href=${`/${dashboardUrl}/${this.view.path || ''}`}
             @click=${(ev) => {
@@ -104,6 +106,13 @@ export class LinkedLovelaceViewCard extends LitElement {
             >${this.view.title}</a
           >
           <span slot="description">View${isTemplate ? ' and Template' : ''}</span>
+          <ha-icon-button
+            @click=${() => {
+              this.expanded = !this.expanded;
+            }}
+            .label=${this.expanded ? 'Condense' : 'Expand'}
+            .path=${this.expanded ? mdiArrowDownBold : mdiArrowRightBold}
+          ></ha-icon-button>
         </ha-settings-row>
         ${this.renderContent()}
       </ha-card>

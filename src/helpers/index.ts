@@ -1,4 +1,4 @@
 export { log } from './log';
-export { getTemplatesUsedInCard, getTemplatesUsedInView } from './templates';
+export { getTemplatesUsedInCard, getTemplatesUsedInView, updateCardTemplate } from './templates';
 export { getHass } from './hass';
-export { parseDashboardGenerator, parseDashboards } from './dashboards';
+export { parseDashboardGenerator, parseDashboards, updateDashboardConfigTemplates } from './dashboards';

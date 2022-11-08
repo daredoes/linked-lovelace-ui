@@ -1,4 +1,5 @@
-import { Dashboard, DashboardConfig } from '../types';
+import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
+import { updateCardTemplate } from './templates';
 
 export const parseDashboards = (data) => {
   const dashboards: Record<string, Dashboard> = {};
@@ -33,4 +34,24 @@ export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
     return response;
   };
   return func;
+};
+
+export const updateDashboardConfigTemplates = (data: DashboardConfig, templateData = {}): DashboardConfig => {
+  const views: DashboardView[] = [];
+  // Iterate through each view in top-level config
+  data.views.forEach((view: DashboardView) => {
+    const cards: DashboardCard[] = [];
+    if (view.cards) {
+      // For every card in the config, store a copy of the rendered card
+      view.cards.forEach((card) => {
+        cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
+      });
+      // Replace the cards in the view
+      view.cards = cards;
+    }
+    views.push(Object.assign({}, view));
+  });
+  // Replace the views in the config
+  data.views = views;
+  return data;
 };

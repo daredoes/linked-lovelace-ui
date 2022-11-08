@@ -1,7 +1,15 @@
 import LinkedLovelace from './linked-lovelace';
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from './types';
 
-import { log, getTemplatesUsedInView, parseDashboards, parseDashboardGenerator, getHass } from './helpers';
+import {
+  log,
+  getTemplatesUsedInView,
+  parseDashboards,
+  parseDashboardGenerator,
+  getHass,
+  updateCardTemplate,
+  updateDashboardConfigTemplates,
+} from './helpers';
 
 class StaticLinkedLovelace {
   static _linkedLovelace?: LinkedLovelace;
@@ -96,10 +104,7 @@ class StaticLinkedLovelace {
     const allTemplates = Object.assign({}, this.templates, templates);
     Object.keys(templates).forEach((templateKey) => {
       this.log(`Updating template '${templateKey}' with other template data`, templates[templateKey]);
-      tmplts[templateKey] = StaticLinkedLovelace.linkedLovelace.updateTemplate(
-        tmplts[templateKey],
-        allTemplates,
-      ) as DashboardCard;
+      tmplts[templateKey] = updateCardTemplate(tmplts[templateKey], allTemplates);
       this.log(`Updated template '${templateKey}' with other template data`, templates[templateKey]);
     });
     this.templates = Object.assign({}, this.templates, templates);
@@ -116,7 +121,7 @@ class StaticLinkedLovelace {
   private _updateDashboardConfigs = (dashboardConfigs: Record<string, DashboardConfig>) => {
     Object.keys(dashboardConfigs).forEach((dashboardId) => {
       const dashboard = dashboardConfigs[dashboardId];
-      const updatedDashboard = StaticLinkedLovelace.linkedLovelace.updateTemplate(dashboard, this.templates);
+      const updatedDashboard = updateDashboardConfigTemplates(dashboard, this.templates);
       this.dashboardConfigs[dashboardId] = updatedDashboard as DashboardConfig;
       this.log(`Updated Dashboard Data (original) (updated)'${dashboardId}'`, dashboard, updatedDashboard);
     });

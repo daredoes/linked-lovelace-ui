@@ -10,6 +10,8 @@ import './types';
 import { log } from './helpers';
 import StaticLinkedLovelace from './shared-linked-lovelace';
 
+import { mdiArrowRightBold, mdiArrowDownBold } from '@mdi/js';
+
 const getCardTypesInCard = (card: DashboardCard): any[] => {
   return (
     card.cards?.map((c) => {
@@ -112,13 +114,23 @@ export class LinkedLovelaceViewCard extends LitElement {
 
     return html`
       <ha-card raised>
-        <ha-settings-row
-          @click=${() => {
-            this.expanded = !this.expanded;
-          }}
-        >
-          <span slot="heading">${dashboard.title}</span>
+        <ha-settings-row>
+          <a
+            href=${`/${dashboard.url_path}`}
+            @click=${(ev) => {
+              ev.stopPropagation();
+            }}
+            slot="heading"
+            >${dashboard.title}</a
+          >
           <span slot="description">${dashboardConfig.template ? 'Template ' : ''}Dashboard</span>
+          <ha-icon-button
+            @click=${() => {
+              this.expanded = !this.expanded;
+            }}
+            .label=${this.expanded ? 'Condense' : 'Expand'}
+            .path=${this.expanded ? mdiArrowDownBold : mdiArrowRightBold}
+          ></ha-icon-button>
         </ha-settings-row>
         ${this.renderContent()}
         <div class="card-actions">
@@ -136,7 +148,7 @@ export class LinkedLovelaceViewCard extends LitElement {
               this.updateDashboard(dashboard.url_path);
             }}
           >
-            ${localize('common.reload')}
+            ${localize('common.reload_ui')}
           </ha-progress-button>
         </div>
       </ha-card>

@@ -133,7 +133,12 @@ export class LinkedLovelaceCard extends LitElement {
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
     return html`
-      <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Reloader`}>
+      <ha-card
+        .header=${this.config.name}
+        tabindex="0"
+        .label=${`Linked Lovelace Reloader`}
+        class="linked-lovelace-container"
+      >
         <div class="card-content">${this.renderLinkedLovelaceData()}</div>
         <div class="card-actions">
           ${!this.config.dryRun
@@ -152,6 +157,10 @@ export class LinkedLovelaceCard extends LitElement {
   // https://lit.dev/docs/components/styles/
   static get styles(): CSSResultGroup {
     return css`
+      .linked-lovelace-container {
+        background-color: rgba(0, 0, 0, 0);
+        border: 1px solid;
+      }
       .lovelace-items-header {
         font-weight: bolder;
         font-size: large;
