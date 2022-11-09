@@ -10,7 +10,7 @@ import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { LinkedLovelaceCardEditor } from './editor';
 import StaticLinkedLovelace from './shared-linked-lovelace';
-import { log } from './helpers';
+import { log, fetchYamlToJson } from './helpers';
 
 log(`${localize('common.version')} ${CARD_VERSION}`);
 // import './linked-lovelace-integrated';

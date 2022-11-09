@@ -5,9 +5,9 @@ import { customElement, property, state } from 'lit/decorators';
 
 import type { DashboardCard, DashboardView } from './types';
 import './types';
-import { log } from './helpers';
+import { getHass, log } from './helpers';
 import StaticLinkedLovelace from './shared-linked-lovelace';
-import { mdiArrowDownBold, mdiArrowRightBold } from '@mdi/js';
+import { mdiArrowDownBold, mdiArrowRightBold, mdiArrowUp, mdiArrowDown, mdiArrowLeft, mdiArrowRight } from '@mdi/js';
 
 const getCardTypesInCard = (card: DashboardCard): any[] => {
   return (
@@ -37,6 +37,26 @@ const getCardTypesInView = (view: DashboardView): string[] => {
   );
 };
 
+const clickHelper = (top?: number, left?: number) => {
+  return (ev: Event) => {
+    const elements = (ev.currentTarget as HTMLElement)?.parentElement?.parentElement?.getElementsByTagName('pre');
+    if (elements) {
+      for (let i = 0; i < elements.length; i++) {
+        const element = elements.item(i);
+        if (element) {
+          if (top == -1) {
+            top = element.scrollHeight;
+          }
+          if (left == -1) {
+            left = element.scrollWidth;
+          }
+          element.scroll({ top, left, behavior: 'smooth' });
+        }
+      }
+    }
+  };
+};
+
 @customElement('linked-lovelace-view')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceViewCard extends LitElement {
@@ -56,6 +76,8 @@ export class LinkedLovelaceViewCard extends LitElement {
   @property({ attribute: false }) public debug = false;
   @property({ attribute: false }) public dashboardKey = '';
 
+  @state() uniqueId = ``;
+
   @state() private expanded = false;
 
   // https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-performing
@@ -66,20 +88,57 @@ export class LinkedLovelaceViewCard extends LitElement {
     return true;
   }
 
+  async firstUpdated() {
+    // TODO: Style, because this doesn't work at all
+    await new Promise((r) => setTimeout(r, 0));
+    this.uniqueId = `${this.dashboardKey}${this.view.path ? `.${this.view.path}` : ''}`;
+    const element = this.shadowRoot?.getElementById(`#${this.uniqueId}`);
+    console.log(`${this.uniqueId}`);
+    if (element) {
+      console.log(element);
+      element.innerHTML = element.innerHTML.replaceAll('"template":', '<span class="template">"template"</span>:');
+    }
+  }
+
   protected renderContent(): TemplateResult | void {
-    const cards = getCardTypesInView(this.view);
     if (this.expanded) {
       return html`
         <div class="card-content">
           <div>
-            <ha-settings-row>
-              ${cards.length
-                ? html`
-                    <span slot="heading">Cards</span>
-                    <span slot="description"> ${cards.join(', ')} </span>
-                  `
-                : html` <span slot="heading">No Cards</span> `}
-            </ha-settings-row>
+            <div>
+              <code class="linked-lovelace">
+                <div>
+                  <ha-icon-button
+                    @click=${clickHelper(0)}
+                    .label=${'Scroll to Top'}
+                    .path=${mdiArrowUp}
+                  ></ha-icon-button>
+                  <ha-icon-button
+                    @click=${clickHelper(undefined, 0)}
+                    .label=${'Scroll to Left'}
+                    .path=${mdiArrowLeft}
+                  ></ha-icon-button>
+                  <ha-icon-button
+                    @click=${clickHelper(undefined, -1)}
+                    .label=${'Scroll to Right'}
+                    .path=${mdiArrowRight}
+                  ></ha-icon-button>
+                  <ha-icon-button
+                    @click=${clickHelper(-1)}
+                    .label=${'Scroll to Bottom'}
+                    .path=${mdiArrowDown}
+                  ></ha-icon-button>
+                </div>
+                <pre
+                  @valueChanged=${() => {
+                    console.log('valeu');
+                  }}
+                  id=${this.uniqueId}
+                >
+${JSON.stringify(this.view, undefined, 2)}</pre
+                >
+              </code>
+            </div>
           </div>
         </div>
       `;
@@ -121,6 +180,19 @@ export class LinkedLovelaceViewCard extends LitElement {
 
   // https://lit.dev/docs/components/styles/
   static get styles(): CSSResultGroup {
-    return css``;
+    return css`
+      code.linked-lovelace .template {
+        font-weight: bolder;
+      }
+      code.linked-lovelace > div {
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+      }
+      code.linked-lovelace pre {
+        max-height: 500px;
+        overflow: scroll;
+      }
+    `;
   }
 }

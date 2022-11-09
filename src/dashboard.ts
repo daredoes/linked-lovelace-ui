@@ -1,45 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
+import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
-import { hasConfigOrEntityChanged } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
-
 import { localize } from './localize/localize';
-import type { DashboardCard, DashboardView } from './types';
 import './types';
 import { log } from './helpers';
 import StaticLinkedLovelace from './shared-linked-lovelace';
 
 import { mdiArrowRightBold, mdiArrowDownBold } from '@mdi/js';
-
-const getCardTypesInCard = (card: DashboardCard): any[] => {
-  return (
-    card.cards?.map((c) => {
-      const results: any[] = [];
-      if (c.template) {
-        results.push(`template: ${c.template}`);
-      } else {
-        results.push(`type: ${c.type}`);
-      }
-      if (c.cards) {
-        results.push(getCardTypesInCard(c));
-      }
-      return results;
-    }) || []
-  );
-};
-
-const getCardTypesInView = (view: DashboardView): string[] => {
-  return (
-    view.cards?.map((c) => {
-      console.log(getCardTypesInCard(c));
-      if (c.template) {
-        return `template: ${c.template}`;
-      }
-      return `type: ${c.type}`;
-    }) || []
-  );
-};
 
 @customElement('linked-lovelace-dashboard')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -114,7 +82,11 @@ export class LinkedLovelaceViewCard extends LitElement {
 
     return html`
       <ha-card raised>
-        <ha-settings-row>
+        <ha-settings-row
+          @click=${() => {
+            this.expanded = !this.expanded;
+          }}
+        >
           <a
             href=${`/${dashboard.url_path}`}
             @click=${(ev) => {
@@ -125,9 +97,6 @@ export class LinkedLovelaceViewCard extends LitElement {
           >
           <span slot="description">${dashboardConfig.template ? 'Template ' : ''}Dashboard</span>
           <ha-icon-button
-            @click=${() => {
-              this.expanded = !this.expanded;
-            }}
             .label=${this.expanded ? 'Condense' : 'Expand'}
             .path=${this.expanded ? mdiArrowDownBold : mdiArrowRightBold}
           ></ha-icon-button>
