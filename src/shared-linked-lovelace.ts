@@ -61,7 +61,10 @@ class StaticLinkedLovelace {
   parseDashboardConfig = async (dashboard: Dashboard) => {
     return await StaticLinkedLovelace.linkedLovelace
       ?.getDashboardConfig(dashboard.url_path)
-      .then(parseDashboardGenerator(dashboard.id, dashboard.url_path));
+      .then(parseDashboardGenerator(dashboard.id, dashboard.url_path))
+      .catch(() => {
+        return null;
+      });
   };
 
   flattenParsedDashboardConfigs = (responses) => {
@@ -69,9 +72,11 @@ class StaticLinkedLovelace {
     const views = {};
     const dashboardConfigs = {};
     responses.forEach((response) => {
-      Object.assign(templates, response.templates);
-      Object.assign(views, response.views);
-      dashboardConfigs[response.dashboardUrl] = response.dashboard;
+      if (response) {
+        Object.assign(templates, response.templates);
+        Object.assign(views, response.views);
+        dashboardConfigs[response.dashboardUrl] = response.dashboard;
+      }
     });
     const response = {
       templates,

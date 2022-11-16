@@ -147,7 +147,7 @@ export class LinkedLovelaceCard extends LitElement {
               `
             : ''}
           <ha-progress-button @click=${this.handleClick}>
-            ${localize(this.config.dryRun ? 'common.reload' : 'common.reload_ui')}
+            ${localize(this.config.dryRun ? 'common.reload' : 'common.update_all')}
           </ha-progress-button>
         </div>
       </ha-card>

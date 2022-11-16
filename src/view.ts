@@ -2,7 +2,7 @@
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
-
+import { localize } from './localize/localize';
 import type { DashboardCard, DashboardView } from './types';
 import './types';
 import { getHass, log } from './helpers';
@@ -26,6 +26,32 @@ const getCardTypesInCard = (card: DashboardCard): any[] => {
   );
 };
 
+type Template = {
+  template: string;
+  template_data?: Record<string, any>;
+};
+
+const getTemplatesInCard = (card: DashboardCard): Template[] => {
+  return (
+    card.cards?.flatMap((c) => {
+      const results: Template[] = [];
+      if (c.template) {
+        results.push({
+          template: c.template,
+          template_data: c.template_data,
+        });
+      } else if (c.cards) {
+        results.concat(getTemplatesInCard(c));
+      }
+      return results;
+    }) || []
+  );
+};
+
+const getTemplatesInView = (view: DashboardView): Template[] => {
+  return view.cards?.flatMap((c) => getTemplatesInCard(c)) || [];
+};
+
 const getCardTypesInView = (view: DashboardView): string[] => {
   return (
     view.cards?.map((c) => {
@@ -39,7 +65,9 @@ const getCardTypesInView = (view: DashboardView): string[] => {
 
 const clickHelper = (top?: number, left?: number) => {
   return (ev: Event) => {
-    const elements = (ev.currentTarget as HTMLElement)?.parentElement?.parentElement?.getElementsByTagName('pre');
+    const elements = (
+      ev.currentTarget as HTMLElement
+    )?.parentElement?.parentElement?.parentElement?.getElementsByTagName('pre');
     if (elements) {
       for (let i = 0; i < elements.length; i++) {
         const element = elements.item(i);
@@ -92,7 +120,7 @@ export class LinkedLovelaceViewCard extends LitElement {
     // TODO: Style, because this doesn't work at all
     await new Promise((r) => setTimeout(r, 0));
     this.uniqueId = `${this.dashboardKey}${this.view.path ? `.${this.view.path}` : ''}`;
-    const element = this.shadowRoot?.getElementById(`#${this.uniqueId}`);
+    const element = this.renderRoot?.querySelector(`#${this.uniqueId}`);
     console.log(`${this.uniqueId}`);
     if (element) {
       console.log(element);
@@ -107,28 +135,6 @@ export class LinkedLovelaceViewCard extends LitElement {
           <div>
             <div>
               <code class="linked-lovelace">
-                <div>
-                  <ha-icon-button
-                    @click=${clickHelper(0)}
-                    .label=${'Scroll to Top'}
-                    .path=${mdiArrowUp}
-                  ></ha-icon-button>
-                  <ha-icon-button
-                    @click=${clickHelper(undefined, 0)}
-                    .label=${'Scroll to Left'}
-                    .path=${mdiArrowLeft}
-                  ></ha-icon-button>
-                  <ha-icon-button
-                    @click=${clickHelper(undefined, -1)}
-                    .label=${'Scroll to Right'}
-                    .path=${mdiArrowRight}
-                  ></ha-icon-button>
-                  <ha-icon-button
-                    @click=${clickHelper(-1)}
-                    .label=${'Scroll to Bottom'}
-                    .path=${mdiArrowDown}
-                  ></ha-icon-button>
-                </div>
                 <pre
                   @valueChanged=${() => {
                     console.log('valeu');
@@ -137,6 +143,39 @@ export class LinkedLovelaceViewCard extends LitElement {
                 >
 ${JSON.stringify(this.view, undefined, 2)}</pre
                 >
+                <div>
+                  <span>${localize('common.scroll_controls')}</span>
+                  <div>
+                    <ha-icon-button
+                      @click=${clickHelper(0)}
+                      .label=${`${localize('common.scroll_directions.prefix')}${localize(
+                        'common.scroll_directions.directions.top',
+                      )}${localize('common.scroll_directions.suffix')}`}
+                      .path=${mdiArrowUp}
+                    ></ha-icon-button>
+                    <ha-icon-button
+                      @click=${clickHelper(undefined, 0)}
+                      .label=${`${localize('common.scroll_directions.prefix')}${localize(
+                        'common.scroll_directions.directions.left',
+                      )}${localize('common.scroll_directions.suffix')}`}
+                      .path=${mdiArrowLeft}
+                    ></ha-icon-button>
+                    <ha-icon-button
+                      @click=${clickHelper(undefined, -1)}
+                      .label=${`${localize('common.scroll_directions.prefix')}${localize(
+                        'common.scroll_directions.directions.right',
+                      )}${localize('common.scroll_directions.suffix')}`}
+                      .path=${mdiArrowRight}
+                    ></ha-icon-button>
+                    <ha-icon-button
+                      @click=${clickHelper(-1)}
+                      .label=${`${localize('common.scroll_directions.prefix')}${localize(
+                        'common.scroll_directions.directions.bottom',
+                      )}${localize('common.scroll_directions.suffix')}`}
+                      .path=${mdiArrowDown}
+                    ></ha-icon-button>
+                  </div>
+                </div>
               </code>
             </div>
           </div>
@@ -153,6 +192,9 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
       dashboardConfig.template && this.view.path
         ? Boolean(StaticLinkedLovelace.instance.templates[this.view.path])
         : false;
+
+    const templates = getTemplatesInView(this.view);
+    const templatesCount = templates.length;
     return html`
       <ha-card outlined>
         <ha-settings-row>
@@ -164,12 +206,20 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
             slot="heading"
             >${this.view.title}</a
           >
-          <span slot="description">View${isTemplate ? ' and Template' : ''}</span>
+          <span slot="description"
+            >${localize('common.view')}${isTemplate
+              ? ` ${localize('common.and')} ${localize('common.template')}`
+              : ''}${templatesCount > 0
+              ? html` <br />${templatesCount}
+                  ${templatesCount != 1 ? localize('common.templates') : localize('common.template')}
+                  ${localize('common.in_use')}`
+              : html``}</span
+          >
           <ha-icon-button
             @click=${() => {
               this.expanded = !this.expanded;
             }}
-            .label=${this.expanded ? 'Condense' : 'Expand'}
+            .label=${localize(this.expanded ? 'common.condense' : 'common.expand')}
             .path=${this.expanded ? mdiArrowDownBold : mdiArrowRightBold}
           ></ha-icon-button>
         </ha-settings-row>
@@ -186,7 +236,8 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
       }
       code.linked-lovelace > div {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
+        align-items: center;
         flex-direction: row;
       }
       code.linked-lovelace pre {

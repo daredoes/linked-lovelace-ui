@@ -95,9 +95,11 @@ export class LinkedLovelaceViewCard extends LitElement {
             slot="heading"
             >${dashboard.title}</a
           >
-          <span slot="description">${dashboardConfig.template ? 'Template ' : ''}Dashboard</span>
+          <span slot="description"
+            >${dashboardConfig.template ? `${localize('common.template')} ` : ''}${localize('common.dashboard')}</span
+          >
           <ha-icon-button
-            .label=${this.expanded ? 'Condense' : 'Expand'}
+            .label=${localize(this.expanded ? 'common.condense' : 'common.expand')}
             .path=${this.expanded ? mdiArrowDownBold : mdiArrowRightBold}
           ></ha-icon-button>
         </ha-settings-row>
@@ -109,7 +111,7 @@ export class LinkedLovelaceViewCard extends LitElement {
               this.toggleDashboard(dashboard.url_path);
             }}
           >
-            ${dashboardConfig.template ? 'Disable Template Mode' : 'Enable Template Mode'}
+            ${localize(dashboardConfig.template ? 'common.template_mode.disable' : 'common.template_mode.enable')}
           </ha-progress-button>
           <ha-progress-button
             .disabled=${dryRun}
@@ -117,7 +119,7 @@ export class LinkedLovelaceViewCard extends LitElement {
               this.updateDashboard(dashboard.url_path);
             }}
           >
-            ${localize('common.reload_ui')}
+            ${localize('common.update')}
           </ha-progress-button>
         </div>
       </ha-card>
