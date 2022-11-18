@@ -1,6 +1,6 @@
 {
   "name": "linked-lovelace-ui",
-  "version": "1.0.3",
+  "version": "1.2.0",
   "description": "Linked Lovelace UI",
   "keywords": [
     "home-assistant",
@@ -24,9 +24,11 @@
     "@material/mwc-select": "^0.25.3",
     "@material/mwc-switch": "^0.25.3",
     "@material/mwc-textfield": "^0.25.3",
+    "@mdi/js": "^7.0.96",
     "custom-card-helpers": "^1.7.2",
     "home-assistant-js-websocket": "^5.11.1",
-    "lit": "^2.0.0"
+    "lit": "^2.0.0",
+    "yaml": "1.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
@@ -58,6 +60,8 @@
   },
   "scripts": {
     "start": "export ROLLUP_WATCH=true && rollup -c --watch",
+    "prestart": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "prebuild": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build": "npm run lint && npm run rollup",
     "lint": "eslint src/*.ts",
     "rollup": "rollup -c"
