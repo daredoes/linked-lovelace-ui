@@ -6,13 +6,13 @@ import { HomeAssistant, hasConfigOrEntityChanged, LovelaceCardEditor, getLovelac
 
 import type { DashboardView, LinkedLovelaceCardConfig } from './types';
 import './types';
-import { CARD_VERSION } from './const';
+import { LIB_VERSION } from './version';
 import { localize } from './localize/localize';
 import { LinkedLovelaceCardEditor } from './editor';
 import StaticLinkedLovelace from './shared-linked-lovelace';
 import { log } from './helpers';
 
-log(`${localize('common.version')} ${CARD_VERSION}`);
+log(`${localize('common.version')} ${LIB_VERSION}`);
 // import './linked-lovelace-integrated';
 import './view';
 import './dashboard';
