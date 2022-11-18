@@ -28,3 +28,8 @@ jobs:
           asset_name: linked-lovelace-ui.js
           tag: ${{ github.ref }}
           overwrite: true
+      - uses: "actions/checkout@v2"
+      - name: HACS Action
+        uses: "hacs/action@main"
+        with:
+          category: "plugin"
