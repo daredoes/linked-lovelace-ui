@@ -3,9 +3,9 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
 import { localize } from './localize/localize';
-import type { DashboardCard, DashboardView } from './types';
+import type { Dashboard, DashboardCard, DashboardView } from './types';
 import './types';
-import { getHass, log } from './helpers';
+import { log } from './helpers';
 import StaticLinkedLovelace from './shared-linked-lovelace';
 import { mdiArrowDownBold, mdiArrowRightBold, mdiArrowUp, mdiArrowDown, mdiArrowLeft, mdiArrowRight } from '@mdi/js';
 
@@ -110,7 +110,7 @@ export class LinkedLovelaceViewCard extends LitElement {
 
   // https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-performing
   protected shouldUpdate(changedProps: PropertyValues): boolean {
-    if (changedProps.has('expanded')) {
+    if (changedProps.has('expanded') || changedProps.has('uniqueId')) {
       return true;
     }
     return true;
@@ -121,9 +121,7 @@ export class LinkedLovelaceViewCard extends LitElement {
     await new Promise((r) => setTimeout(r, 0));
     this.uniqueId = `${this.dashboardKey}${this.view.path ? `.${this.view.path}` : ''}`;
     const element = this.renderRoot?.querySelector(`#${this.uniqueId}`);
-    console.log(`${this.uniqueId}`);
     if (element) {
-      console.log(element);
       element.innerHTML = element.innerHTML.replaceAll('"template":', '<span class="template">"template"</span>:');
     }
   }
@@ -186,6 +184,11 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
+    console.log(this.dashboardKey);
+    const dashboard: Dashboard | undefined = StaticLinkedLovelace.instance.dashboards[this.dashboardKey];
+    if (!dashboard) {
+      return html`Bug - Reload Page`;
+    }
     const dashboardUrl = StaticLinkedLovelace.instance.dashboards[this.dashboardKey].url_path;
     const dashboardConfig = StaticLinkedLovelace.instance.dashboardConfigs[dashboardUrl];
     const isTemplate =
@@ -207,13 +210,15 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
             >${this.view.title}</a
           >
           <span slot="description"
-            >${localize('common.view')}${isTemplate
-              ? ` ${localize('common.and')} ${localize('common.template')}`
-              : ''}${templatesCount > 0
-              ? html` <br />${templatesCount}
+            >${localize('common.view')}${
+      isTemplate ? ` ${localize('common.and')} ${localize('common.template')}` : ''
+    }${
+      templatesCount > 0
+        ? html` <br />${templatesCount}
                   ${templatesCount != 1 ? localize('common.templates') : localize('common.template')}
                   ${localize('common.in_use')}`
-              : html``}</span
+        : html``
+    }</span
           >
           <ha-icon-button
             @click=${() => {

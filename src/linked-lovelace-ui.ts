@@ -10,7 +10,7 @@ import { CARD_VERSION } from './const';
 import { localize } from './localize/localize';
 import { LinkedLovelaceCardEditor } from './editor';
 import StaticLinkedLovelace from './shared-linked-lovelace';
-import { log, fetchYamlToJson } from './helpers';
+import { log } from './helpers';
 
 log(`${localize('common.version')} ${CARD_VERSION}`);
 // import './linked-lovelace-integrated';
@@ -37,6 +37,10 @@ export class LinkedLovelaceCard extends LitElement {
       log(msg, ...values);
     }
   }
+
+  private _repaint() {
+    this.loaded = !this.loaded;
+  }
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
@@ -44,18 +48,19 @@ export class LinkedLovelaceCard extends LitElement {
     StaticLinkedLovelace.instance._setDebug(this.config.debug);
     StaticLinkedLovelace.instance._setDryRun(this.config.dryRun);
     await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    this.loaded = true;
+    this._repaint();
   }
 
   private handleClick = async () => {
     await StaticLinkedLovelace.instance.getLinkedLovelaceData();
     await StaticLinkedLovelace.instance.updateLinkedLovelace();
-    this.requestUpdate();
+    this._repaint();
   };
 
   private handleReloadClick = async () => {
     await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    this.requestUpdate();
+    this.loaded = !this.loaded;
+    this._repaint();
   };
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
@@ -97,6 +102,9 @@ export class LinkedLovelaceCard extends LitElement {
   protected shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this.config) {
       return false;
+    }
+    if (changedProps.get('loaded') !== undefined) {
+      return true;
     }
 
     return hasConfigOrEntityChanged(this, changedProps, false);
@@ -141,11 +149,13 @@ export class LinkedLovelaceCard extends LitElement {
       >
         <div class="card-content">${this.renderLinkedLovelaceData()}</div>
         <div class="card-actions">
-          ${!this.config.dryRun
-            ? html`
+          ${
+            !this.config.dryRun
+              ? html`
                 <ha-progress-button @click=${this.handleReloadClick}> ${localize('common.reload')} </ha-progress-button>
               `
-            : ''}
+              : ''
+          }
           <ha-progress-button @click=${this.handleClick}>
             ${localize(this.config.dryRun ? 'common.reload' : 'common.update_all')}
           </ha-progress-button>
