@@ -4,15 +4,13 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, LovelaceCardEditor, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { DashboardView, LinkedLovelaceTemplateCardConfig } from './types';
+import type { LinkedLovelaceTemplateCardConfig } from './types';
 import './types';
-import { LIB_VERSION } from './version';
 import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import StaticLinkedLovelace from './shared-linked-lovelace';
 import { log } from './helpers';
 
-log(`Template card`);
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
