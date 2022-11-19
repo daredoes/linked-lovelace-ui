@@ -23,7 +23,7 @@ export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
     if (dashboardConfig.template) {
       dashboardConfig.views.forEach((view) => {
         if (view.cards?.length == 1) {
-          response.templates[`${view.path}`] = extractTemplateData(view.cards[0]);
+          response.templates[`${view.path}`] = view.cards[0];
         }
       });
     }
@@ -44,7 +44,12 @@ export const updateDashboardConfigTemplates = (data: DashboardConfig, templateDa
     if (view.cards) {
       // For every card in the config, store a copy of the rendered card
       view.cards.forEach((card) => {
-        cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
+        const newCard = Object.assign({}, updateCardTemplate(card, templateData));
+        if (newCard.template) {
+          cards.push(extractTemplateData(newCard));
+        } else {
+          cards.push(newCard);
+        }
       });
       // Replace the cards in the view
       view.cards = cards;
