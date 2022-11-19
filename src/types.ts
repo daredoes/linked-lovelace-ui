@@ -16,6 +16,13 @@ export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
   debug: boolean;
 }
 
+export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
+  type: string;
+  template: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  template_data: Record<string, any>
+}
+
 export interface Dashboard {
   id: string;
   mode: string;

@@ -1,5 +1,5 @@
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
-import { updateCardTemplate } from './templates';
+import { extractTemplateData, updateCardTemplate } from './templates';
 
 export const parseDashboards = (data) => {
   const dashboards: Record<string, Dashboard> = {};
@@ -23,7 +23,7 @@ export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
     if (dashboardConfig.template) {
       dashboardConfig.views.forEach((view) => {
         if (view.cards?.length == 1) {
-          response.templates[`${view.path}`] = view.cards[0];
+          response.templates[`${view.path}`] = extractTemplateData(view.cards[0]);
         }
       });
     }
