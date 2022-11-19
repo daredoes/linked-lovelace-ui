@@ -22,6 +22,19 @@ export const getTemplatesUsedInView = (view: DashboardView): string[] => {
 
 const replaceRegex = /(?<!\\)\$([^\$]+)(?!\\)\$/gm;
 
+export const extractTemplateData = (data: DashboardCard): DashboardCard => {
+  const dataFromTemplate = {};
+  let template = JSON.stringify(data);
+  template = template.replaceAll(replaceRegex, (substring, templateKey) => {
+    if (dataFromTemplate[templateKey] === undefined) {
+      dataFromTemplate[templateKey] = '';
+    }
+    return dataFromTemplate[templateKey] || substring;
+  });
+  data.template_data = { ...data.template_data, ...dataFromTemplate };
+  return data;
+};
+
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template
   const templateKey = data.template;

@@ -4,40 +4,26 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, LovelaceCardEditor, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { DashboardView, LinkedLovelaceCardConfig } from './types';
+import type { DashboardView, LinkedLovelaceTemplateCardConfig } from './types';
 import './types';
 import { LIB_VERSION } from './version';
 import { localize } from './localize/localize';
-import { LinkedLovelaceCardEditor } from './editor';
+import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import StaticLinkedLovelace from './shared-linked-lovelace';
 import { log } from './helpers';
 
-log(`${localize('common.version')} ${LIB_VERSION}`);
-(async () => {
-  // Wait for scoped customElements registry to be set up
-  // otherwise the customElements registry card-mod is defined in
-  // may get overwritten by the polyfill if card-mod is loaded as a module
-  while (customElements.get('home-assistant') === undefined)
-    await new Promise((resolve) => window.setTimeout(resolve, 100));
-
-  StaticLinkedLovelace.instance.getLinkedLovelaceData();
-})();
-
-import './view';
-import './dashboard';
-import './linked-lovelace-template';
-
+log(`Template card`);
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
-  type: 'linked-lovelace-ui',
-  name: 'Linked Lovelace Card',
-  description: 'A card that handles Linked Lovelace',
+  type: 'linked-lovelace-template',
+  name: 'Linked Lovelace Template Card',
+  description: 'Help select an existing template for a card',
 });
 
-@customElement('linked-lovelace-ui')
+@customElement('linked-lovelace-template')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export class LinkedLovelaceCard extends LitElement {
+export class LinkedLovelaceTemplateCard extends LitElement {
   constructor() {
     super();
   }
@@ -54,10 +40,6 @@ export class LinkedLovelaceCard extends LitElement {
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
-    // this.linkedLovelace = new LinkedLovelace(this.hass, this.config.debug, this.config.dryRun);
-    StaticLinkedLovelace.instance._setDebug(this.config.debug);
-    StaticLinkedLovelace.instance._setDryRun(this.config.dryRun);
-    await StaticLinkedLovelace.instance.getLinkedLovelaceData();
     this._repaint();
   }
 
@@ -67,15 +49,9 @@ export class LinkedLovelaceCard extends LitElement {
     this._repaint();
   };
 
-  private handleReloadClick = async () => {
-    await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    this.loaded = !this.loaded;
-    this._repaint();
-  };
-
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import('./editor');
-    return document.createElement('linked-lovelace-editor') as LinkedLovelaceCardEditor;
+    await import('./template-editor');
+    return document.createElement('linked-lovelace-template-editor') as LinkedLovelaceTemplateCardEditor;
   }
 
   public static getStubConfig(): Record<string, unknown> {
@@ -87,10 +63,10 @@ export class LinkedLovelaceCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() public loaded = false;
 
-  @state() private config!: LinkedLovelaceCardConfig;
+  @state() private config!: LinkedLovelaceTemplateCardConfig;
 
   // https://lit.dev/docs/components/properties/#accessors-custom
-  public setConfig(config: LinkedLovelaceCardConfig): void {
+  public setConfig(config: LinkedLovelaceTemplateCardConfig): void {
     // TODO Check for required fields and that they are of the proper format
     if (!config) {
       throw new Error(localize('common.invalid_configuration'));
@@ -100,7 +76,7 @@ export class LinkedLovelaceCard extends LitElement {
       getLovelace().setEditMode(true);
     }
 
-    const name = `${config.name || 'Linked Lovelace'}${config.debug ? `${config.debugText || ' (Debug)'}` : ''}`;
+    const name = `Linked Lovelace Template`;
 
     this.config = {
       ...config,
@@ -120,53 +96,18 @@ export class LinkedLovelaceCard extends LitElement {
     return hasConfigOrEntityChanged(this, changedProps, false);
   }
 
-  protected renderViews(): TemplateResult | void {
-    const views: Record<string, DashboardView[]> = {};
-    Object.keys(StaticLinkedLovelace.instance.views).forEach((viewKey) => {
-      const view = StaticLinkedLovelace.instance.views[viewKey];
-      const key = viewKey.split('.', 1)[0];
-      if (!views[key]) {
-        views[key] = [];
-      }
-      views[key].push(view);
-    });
-    return html`
-      <div>
-        <!-- <span class="lovelace-items-header">${localize('common.headers.dashboards')}</span> -->
-        <div class="lovelace-items-grid">
-          ${Object.keys(views).map((dashboardKey) => {
-            return html`
-              <linked-lovelace-dashboard .key=${dashboardKey} .debug=${this.config.debug}></linked-lovelace-dashboard>
-            `;
-          })}
-        </div>
-      </div>
-    `;
-  }
-
-  protected renderLinkedLovelaceData(): TemplateResult | void {
-    return html` <div>${this.renderViews()}</div> `;
-  }
-
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
     return html`
       <ha-card
         .header=${this.config.name}
         tabindex="0"
-        .label=${`Linked Lovelace Reloader`}
+        .label=${`Linked Lovelace Template`}
         class="linked-lovelace-container"
       >
-        <div class="card-content">${this.renderLinkedLovelaceData()}</div>
+        <div class="card-content">${this.config.template}</div>
         <div class="card-actions">
-          ${!this.config.dryRun
-            ? html`
-                <ha-progress-button @click=${this.handleReloadClick}> ${localize('common.reload')} </ha-progress-button>
-              `
-            : ''}
-          <ha-progress-button @click=${this.handleClick}>
-            ${localize(this.config.dryRun ? 'common.reload' : 'common.update_all')}
-          </ha-progress-button>
+          <ha-progress-button @click=${this.handleClick}> ${localize('common.update_all')} </ha-progress-button>
         </div>
       </ha-card>
     `;
