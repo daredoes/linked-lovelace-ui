@@ -70,7 +70,6 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     // Update any cards in the card
     const cards: DashboardCard[] = [];
     data.cards.forEach((card) => {
-      console.log(card, dataFromTemplate);
       if (dataFromTemplate) {
         // Pass template data down to children
         card.template_data = { ...(card.template_data || {}), ...dataFromTemplate };

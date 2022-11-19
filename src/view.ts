@@ -184,7 +184,6 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    console.log(this.dashboardKey);
     const dashboard: Dashboard | undefined = StaticLinkedLovelace.instance.dashboards[this.dashboardKey];
     if (!dashboard) {
       return html`Bug - Reload Page`;
@@ -210,15 +209,13 @@ ${JSON.stringify(this.view, undefined, 2)}</pre
             >${this.view.title}</a
           >
           <span slot="description"
-            >${localize('common.view')}${
-      isTemplate ? ` ${localize('common.and')} ${localize('common.template')}` : ''
-    }${
-      templatesCount > 0
-        ? html` <br />${templatesCount}
+            >${localize('common.view')}${isTemplate
+              ? ` ${localize('common.and')} ${localize('common.template')}`
+              : ''}${templatesCount > 0
+              ? html` <br />${templatesCount}
                   ${templatesCount != 1 ? localize('common.templates') : localize('common.template')}
                   ${localize('common.in_use')}`
-        : html``
-    }</span
+              : html``}</span
           >
           <ha-icon-button
             @click=${() => {
