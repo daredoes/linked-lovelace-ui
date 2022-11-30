@@ -7,7 +7,7 @@
     "5001:5000",
     // "9123:8123"
   ],
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "yarn",
   "runArgs": [
     "-v",
     "${env:HOME}${env:USERPROFILE}/.ssh:/tmp/.ssh" // This is added so you can push from inside the container

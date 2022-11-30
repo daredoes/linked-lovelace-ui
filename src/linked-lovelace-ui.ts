@@ -1,3 +1,6 @@
+import replaceAllInserter from 'string.prototype.replaceall';
+
+replaceAllInserter.shim();
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -159,11 +162,13 @@ export class LinkedLovelaceCard extends LitElement {
       >
         <div class="card-content">${this.renderLinkedLovelaceData()}</div>
         <div class="card-actions">
-          ${!this.config.dryRun
-            ? html`
+          ${
+            !this.config.dryRun
+              ? html`
                 <ha-progress-button @click=${this.handleReloadClick}> ${localize('common.reload')} </ha-progress-button>
               `
-            : ''}
+              : ''
+          }
           <ha-progress-button @click=${this.handleClick}>
             ${localize(this.config.dryRun ? 'common.reload' : 'common.update_all')}
           </ha-progress-button>

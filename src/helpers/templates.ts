@@ -24,8 +24,8 @@ const replaceRegex = /(?<!\\)\$([^\$]+)(?!\\)\$/gm;
 
 export const extractTemplateData = (data: DashboardCard): DashboardCard => {
   const dataFromTemplate = data.template_data || {};
-  let template = JSON.stringify(data);
-  template = template.replaceAll(replaceRegex, (substring, templateKey) => {
+  const template = JSON.stringify(data);
+  template.replaceAll(replaceRegex, (substring, templateKey) => {
     if (dataFromTemplate[templateKey] === undefined) {
       dataFromTemplate[templateKey] = '';
     }

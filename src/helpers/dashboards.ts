@@ -1,7 +1,7 @@
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
 import { extractTemplateData, updateCardTemplate } from './templates';
 
-export const parseDashboards = (data) => {
+export const parseDashboards = (data: Dashboard[]): Record<string, Dashboard> => {
   const dashboards: Record<string, Dashboard> = {};
   data.forEach((dashboard) => {
     if (dashboard.mode == 'storage') {
