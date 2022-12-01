@@ -11,7 +11,8 @@ export const parseDashboards = (data: Dashboard[]): Record<string, Dashboard> =>
   return dashboards;
 };
 
-export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const parseDashboardGenerator = (dashboardId: string, dashboardUrl: string) => {
   const func = async (dashboardConfig: DashboardConfig) => {
     const response = {
       templates: {},
@@ -22,7 +23,7 @@ export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
     };
     if (dashboardConfig.template) {
       dashboardConfig.views.forEach((view) => {
-        if (view.cards?.length == 1) {
+        if (view.cards?.length == 1 && view.path) {
           response.templates[`${view.path}`] = view.cards[0];
         }
       });
