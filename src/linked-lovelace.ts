@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HomeAssistant } from 'custom-card-helpers';
 import { log } from './helpers';
-import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from './types';
+import { Dashboard, DashboardConfig } from './types';
 
 class LinkedLovelace {
-  templates: Record<string, DashboardCard> = {};
-  views: Record<string, DashboardView> = {};
-  dashboards: Record<string, Dashboard> = {};
   hass!: HomeAssistant;
   debug = false;
   dryRun = false;
