@@ -1,15 +1,5 @@
-import { Dashboard, DashboardCard, DashboardView } from '../types';
+import { DashboardCard } from '../types';
 import TemplateController from './template';
-import ViewController from './view';
-
-const dashboard: Dashboard = {
-  id: 'test',
-  mode: 'storage',
-  require_admin: false,
-  show_in_sidebar: false,
-  title: 'test',
-  url_path: 'test',
-};
 
 describe('[class] ViewController', () => {
   test('sets up as expected', () => {

@@ -1,6 +1,6 @@
-import replaceAllInserter from 'string.prototype.replaceall';
+// import replaceAllInserter from 'string.prototype.replaceall';
 
-replaceAllInserter.shim();
+// replaceAllInserter.shim();
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
