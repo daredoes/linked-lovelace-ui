@@ -23,7 +23,7 @@ log(`${localize('common.version')} ${LIB_VERSION}`);
   while (customElements.get('home-assistant') === undefined)
     await new Promise((resolve) => window.setTimeout(resolve, 100));
 
-  StaticLinkedLovelace.instance.getLinkedLovelaceData();
+  StaticLinkedLovelace.instance.log('initialized');
 })();
 
 import './view';
@@ -34,8 +34,8 @@ import './linked-lovelace-template';
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
   type: 'linked-lovelace-ui',
-  name: 'Linked Lovelace Card',
-  description: 'A card that handles Linked Lovelace',
+  name: 'Linked Lovelace Card (Deprecated)',
+  description: 'A card that handles Linked Lovelace.',
 });
 
 @customElement('linked-lovelace-ui')
@@ -162,13 +162,11 @@ export class LinkedLovelaceCard extends LitElement {
       >
         <div class="card-content">${this.renderLinkedLovelaceData()}</div>
         <div class="card-actions">
-          ${
-            !this.config.dryRun
-              ? html`
+          ${!this.config.dryRun
+            ? html`
                 <ha-progress-button @click=${this.handleReloadClick}> ${localize('common.reload')} </ha-progress-button>
               `
-              : ''
-          }
+            : ''}
           <ha-progress-button @click=${this.handleClick}>
             ${localize(this.config.dryRun ? 'common.reload' : 'common.update_all')}
           </ha-progress-button>
