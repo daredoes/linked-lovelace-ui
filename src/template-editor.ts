@@ -10,7 +10,7 @@ import { formfieldDefinition } from '../elements/formfield';
 import { selectDefinition } from '../elements/select';
 import { switchDefinition } from '../elements/switch';
 import { textfieldDefinition } from '../elements/textfield';
-import StaticLinkedLovelace from './shared-linked-lovelace';
+import HassController from './controllers/hass';
 
 @customElement('linked-lovelace-template-editor')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,6 +20,9 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
   @state() private _config?: LinkedLovelaceTemplateCardConfig;
 
   @state() private _helpers?: any;
+  @state() private _loaded = false;
+
+  private _controller: HassController = new HassController();
 
   private _initialized = false;
 
@@ -36,16 +39,36 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
     this.loadCardHelpers();
   }
 
+  async firstUpdated() {
+    // Give the browser a chance to paint
+    await new Promise((r) => setTimeout(r, 0));
+    await this._controller.refresh();
+    this._loaded = true;
+  }
+
   protected shouldUpdate(): boolean {
     if (!this._initialized) {
       this._initialize();
     }
-
     return true;
   }
 
   get _template(): string {
     return this._config?.template || '';
+  }
+
+  protected renderTemplates(): TemplateResult | void {
+    if (!this._loaded) {
+      return html`<p>loading</p>`;
+    }
+    return html`
+      <p>Options:</p>
+      <div class="linked-lovelace-chips">
+        ${Object.keys(this._controller.linkedLovelaceController.templateController.templates).map(
+          (template) => html`<button>${template}</button>`,
+        )}
+      </div>
+    `;
   }
 
   protected render(): TemplateResult | void {
@@ -57,14 +80,12 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
       <div class="linked-lovelace-config">
         <mwc-textfield
           label="Template Name"
+          placeholder="Fill me in, and switch to code editor"
           .value=${this._template}
           .configValue=${'template'}
           @input=${this._valueChanged}
         ></mwc-textfield>
-        <p>Options:</p>
-        <ul>
-          ${Object.keys(StaticLinkedLovelace.instance.templates).map((template) => html`<li>${template}</li>`)}
-        </ul>
+        ${this.renderTemplates()}
       </div>
     `;
   }
@@ -73,6 +94,8 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
     if (this.hass === undefined) return;
     if (this._config === undefined) return;
     if (this._helpers === undefined) return;
+    if (!this._loaded) return;
+
     this._initialized = true;
   }
 
@@ -99,7 +122,8 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
       } else {
         let templateData = {};
         if (target.configValue === 'template') {
-          const template: DashboardCard | undefined = StaticLinkedLovelace.instance.templates[target.value];
+          const template: DashboardCard | undefined =
+            this._controller?.linkedLovelaceController.templateController.templates[target.value]; // StaticLinkedLovelace.instance.templates[target.value];
           if (template) {
             templateData = template.template_data || {};
           }
@@ -122,6 +146,11 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
     .linked-lovelace-config > * {
       margin-top: 10px;
       margin-bottom: 10px;
+    }
+    .linked-lovelace-chips {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
     }
     mwc-select,
     mwc-textfield {

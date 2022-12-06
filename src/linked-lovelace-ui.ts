@@ -1,3 +1,6 @@
+// import replaceAllInserter from 'string.prototype.replaceall';
+
+// replaceAllInserter.shim();
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -20,7 +23,7 @@ log(`${localize('common.version')} ${LIB_VERSION}`);
   while (customElements.get('home-assistant') === undefined)
     await new Promise((resolve) => window.setTimeout(resolve, 100));
 
-  StaticLinkedLovelace.instance.getLinkedLovelaceData();
+  StaticLinkedLovelace.instance.log('initialized');
 })();
 
 import './view';
@@ -31,8 +34,8 @@ import './linked-lovelace-template';
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
   type: 'linked-lovelace-ui',
-  name: 'Linked Lovelace Card',
-  description: 'A card that handles Linked Lovelace',
+  name: 'Linked Lovelace Card (Deprecated)',
+  description: 'A card that handles Linked Lovelace.',
 });
 
 @customElement('linked-lovelace-ui')

@@ -1,7 +1,7 @@
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
 import { extractTemplateData, updateCardTemplate } from './templates';
 
-export const parseDashboards = (data) => {
+export const parseDashboards = (data: Dashboard[]): Record<string, Dashboard> => {
   const dashboards: Record<string, Dashboard> = {};
   data.forEach((dashboard) => {
     if (dashboard.mode == 'storage') {
@@ -11,7 +11,8 @@ export const parseDashboards = (data) => {
   return dashboards;
 };
 
-export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const parseDashboardGenerator = (dashboardId: string, dashboardUrl: string) => {
   const func = async (dashboardConfig: DashboardConfig) => {
     const response = {
       templates: {},
@@ -22,7 +23,7 @@ export const parseDashboardGenerator = (dashboardId, dashboardUrl) => {
     };
     if (dashboardConfig.template) {
       dashboardConfig.views.forEach((view) => {
-        if (view.cards?.length == 1) {
+        if (view.cards?.length == 1 && view.path) {
           response.templates[`${view.path}`] = view.cards[0];
         }
       });
@@ -59,4 +60,22 @@ export const updateDashboardConfigTemplates = (data: DashboardConfig, templateDa
   // Replace the views in the config
   data.views = views;
   return data;
+};
+
+export const updateOrAddViewsToDashboardConfig = (
+  dashboard: Dashboard,
+  config: DashboardConfig,
+  views: Record<string, DashboardView>,
+): DashboardConfig => {
+  const updatedConfig = { ...config };
+  const viewsCopy = { ...views };
+  config.views.forEach((view, index) => {
+    const key = `${dashboard.id}${view.path ? `.${view.path}` : ''}`;
+    if (viewsCopy[key]) {
+      updatedConfig.views[index] = viewsCopy[key];
+      delete viewsCopy[key];
+    }
+  });
+  updatedConfig.views = updatedConfig.views.concat(Object.values(viewsCopy));
+  return updatedConfig;
 };

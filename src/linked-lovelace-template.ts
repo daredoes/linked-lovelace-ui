@@ -8,8 +8,8 @@ import type { LinkedLovelaceTemplateCardConfig } from './types';
 import './types';
 import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
-import StaticLinkedLovelace from './shared-linked-lovelace';
 import { log } from './helpers';
+import HassController from './controllers/hass';
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
@@ -42,8 +42,9 @@ export class LinkedLovelaceTemplateCard extends LitElement {
   }
 
   private handleClick = async () => {
-    await StaticLinkedLovelace.instance.getLinkedLovelaceData();
-    await StaticLinkedLovelace.instance.updateLinkedLovelace();
+    const controller = new HassController();
+    await controller.refresh();
+    await controller.updateAll();
     this._repaint();
   };
 
@@ -117,68 +118,6 @@ export class LinkedLovelaceTemplateCard extends LitElement {
       .linked-lovelace-container {
         background-color: rgba(0, 0, 0, 0);
         border: 1px solid;
-      }
-      .lovelace-items-header {
-        font-weight: bolder;
-        font-size: large;
-      }
-      .lovelace-dashboard-template {
-        font-weight: bolder;
-      }
-      .lovelace-items-grid {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5em;
-      }
-      .card-header.dashboard {
-        font-size: 16px;
-        line-height: 24px;
-      }
-      .card-header.view {
-        font-size: 14px;
-        line-height: 24px;
-      }
-      .lovelace-items-grid > div {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
-        gap: 1em;
-        margin-top: 0.75em;
-        margin-bottom: 0.75em;
-      }
-      .lovelace-items-grid .card-content {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 1em;
-      }
-      .lovelace-items-grid > ha-card {
-        border: 1px solid;
-      }
-      .lovelace-items-grid .card-content > span {
-        border-radius: 5px;
-        padding: 2px;
-        border: 1px solid;
-      }
-      .linked-lovelace-config {
-        display: flex;
-        flex-direction: column;
-      }
-      .linked-lovelace-config > * {
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-      mwc-select,
-      mwc-textfield {
-        margin-bottom: 16px;
-        display: block;
-      }
-      mwc-formfield {
-        padding-bottom: 8px;
-      }
-      mwc-switch {
-        --mdc-theme-secondary: var(--switch-checked-color);
       }
     `;
   }

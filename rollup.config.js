@@ -32,10 +32,14 @@ const plugins = [
       'yaml': [ 'parse' ]
     }
   }),
-  typescript(),
+  typescript({
+    tsconfigOverride: {
+      exclude: ["**/__tests__", "**/*.test.ts"]
+    }
+  }),
   json(),
   babel({
-    exclude: 'node_modules/**',
+    exclude: ['node_modules/**', 'src/**/*.test.ts'],
   }),
   dev && serve(serveopts),
   !dev && terser(),
@@ -50,7 +54,7 @@ export default [
     output: {
       dir: 'dist',
       format: 'es',
-      inlineDynamicImports: true,
+      inlineDynamicImports: true
     },
     plugins: [...plugins],
   },
