@@ -11,6 +11,7 @@ import { selectDefinition } from '../elements/select';
 import { switchDefinition } from '../elements/switch';
 import { textfieldDefinition } from '../elements/textfield';
 import HassController from './controllers/hass';
+import { extractTemplateData } from './helpers/templates';
 
 @customElement('linked-lovelace-template-editor')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -125,7 +126,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
           const template: DashboardCard | undefined =
             this._controller?.linkedLovelaceController.templateController.templates[target.value]; // StaticLinkedLovelace.instance.templates[target.value];
           if (template) {
-            templateData = template.template_data || {};
+            templateData = extractTemplateData(template).template_data || {};
           }
         }
         this._config = {

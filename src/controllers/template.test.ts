@@ -1,7 +1,7 @@
 import { DashboardCard } from '../types';
 import TemplateController from './template';
 
-describe('[class] ViewController', () => {
+describe('[class] TemplateController', () => {
   test('sets up as expected', () => {
     const controller = new TemplateController();
     expect(controller).toBeDefined;
