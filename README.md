@@ -2,7 +2,7 @@
 
 ![Linked Lovelace Demo](/docs/imgs/LinkedLoveLace.gif)
 
-A Javascript/Websocket way to do templating in the Lovelace UI
+A front-end only implementation of re-usable cards between Home Assistant Dashboards (excluding Overview)
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
@@ -23,12 +23,16 @@ Hey you! Help me out for a couple of :beers: or a :coffee:!
 
 * Create cards in the Lovelace UI that can be **linked** to multiple dashboards
 * Provide *basic* templating when creating linked cards
+  * Wrap a string with `$` to create a variable. Ex: `name: $name$`
+  * Pass Template Data with parameter `template_data`
+  * Variables are passed down to their children templates
+  * Look at some examples in the Wiki until the guide is updated.
 
 ---
 
 ## Installation
 
-Add through  [HACS](https://github.com/custom-components/hacs)
+Add through [HACS](https://github.com/custom-components/hacs)
 
 ---
 
@@ -36,7 +40,7 @@ Add through  [HACS](https://github.com/custom-components/hacs)
 
 | Name              | Type    | Requirement  | Description                                 | Default             |
 | ----------------- | ------- | ------------ | ------------------------------------------- | ------------------- |
-| type              | string  | **Required** | `custom:linked-lovelace-ui`                   |
+| type              | string  | **Required** | `custom:linked-lovelace-template`                   |
 | name              | string  | **Optional** | Card name                                   | ``       |
 
 ## Templates
@@ -44,6 +48,8 @@ Add through  [HACS](https://github.com/custom-components/hacs)
 ---
 
 ### Creating a template dashboard
+
+> **Check the wiki for a starter dashboard!**
 
 The first thing needed when creating a template card is a dashboard to hold these templates.
 
@@ -86,30 +92,8 @@ First, we'll create a view called `Version Card` with the path `version-card`.
 Next, we'll make a card that has a version in the bottom-right corner. Create a new card, and throw this YAML into it.
 
 ```yaml
-type: custom:mushroom-template-card
-primary: ''
-secondary: $version$
-icon: ''
-badge_icon: ''
-badge_color: ''
-fill_container: false
-layout: horizontal
-multiline_secondary: false
-tap_action:
-  action: none
-hold_action:
-  action: none
-double_tap_action:
-  action: none
-card_mod:
-  style: |
-    ha-card.type-custom-mushroom-template-card {
-      background-color: rgba(0,0,0,0);
-      text-align: right;
-      padding-top: 0px;
-      margin-top: -26px;
-      z-index: 0;
-    }
+type: markdown
+content: $version$
 ```
 
 Now, let's use that `version-card` in something! How about another template!?
@@ -125,8 +109,8 @@ type: vertical-stack
 cards:
   - type: vertical-stack
     cards:
-      - type: custom:linked-lovelace-ui
-  - type: custom:mushroom-template-card
+      - type: custom:linked-lovelace-template
+  - type: markdown
     template_data:
       version: v0.0.1
     template: version-card
@@ -143,31 +127,9 @@ type: vertical-stack
 cards:
   - type: vertical-stack
     cards:
-      - type: custom:linked-lovelace-ui
-  - type: custom:mushroom-template-card
-    primary: ''
-    secondary: v0.0.1
-    icon: ''
-    badge_icon: ''
-    badge_color: ''
-    fill_container: false
-    layout: horizontal
-    multiline_secondary: false
-    tap_action:
-      action: none
-    hold_action:
-      action: none
-    double_tap_action:
-      action: none
-    card_mod:
-      style: |
-        ha-card.type-custom-mushroom-template-card {
-          background-color: rgba(0,0,0,0);
-          text-align: right;
-          padding-top: 0px;
-          margin-top: -26px;
-          z-index: 0;
-        }
+      - type: custom:linked-lovelace-template
+  - type: markdown
+    content: v0.0.1
     template_data:
       version: v0.0.1
     template: version-card
@@ -188,8 +150,8 @@ template_data:
 #### **Card Using Template Data**
 
 ```yaml
-type: custom:mushroom-template-card
-secondary: $version$
+type: custom:markdown
+content: $version$
 ```
 
 
