@@ -66,7 +66,9 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
       <p>Options:</p>
       <div class="linked-lovelace-chips">
         ${Object.keys(this._controller.linkedLovelaceController.templateController.templates).map(
-          (template) => html`<button>${template}</button>`,
+          (template) => html`<button .value=${template}
+          .configValue=${'template'}
+          @click=${this._valueChanged}>${template}</button>`,
         )}
       </div>
     `;
@@ -152,6 +154,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
       display: flex;
       flex-direction: row;
       gap: 1rem;
+      flex-wrap: wrap;
     }
     mwc-select,
     mwc-textfield {
