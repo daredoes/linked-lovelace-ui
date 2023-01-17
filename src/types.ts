@@ -34,6 +34,7 @@ export interface Dashboard {
 
 export interface DashboardCard extends LovelaceCardConfig {
   cards?: DashboardCard[];
+  card?: DashboardCard;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template?: string;
   template_data?: Record<string, any>;
