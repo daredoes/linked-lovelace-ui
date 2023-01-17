@@ -9,6 +9,9 @@ export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
       return getTemplatesUsedInCard(c);
     });
   }
+  if (card.card) {
+    return getTemplatesUsedInCard(card.card)
+  }
   return [];
 };
 
@@ -80,6 +83,13 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
     });
     data.cards = cards;
+  }
+  if (data.card) {
+    if (dataFromTemplate) {
+      // Pass template data down to children
+      data.card.template_data = { ...(data.card.template_data || {}), ...dataFromTemplate };
+    }
+    data.card = Object.assign({}, updateCardTemplate(data.card, templateData));
   }
   return data;
 };

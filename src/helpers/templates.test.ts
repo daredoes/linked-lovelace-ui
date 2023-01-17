@@ -48,6 +48,18 @@ describe('[function] getTemplatesUsedInCard', () => {
     };
     expect(getTemplatesUsedInCard(card)).toStrictEqual(['true', 'true']);
   });
+
+  test('works on single child card if card is not a template', () => {
+    const card: DashboardCard = {
+      type: 'fake',
+      card:
+      {
+        type: 'fake',
+        template: 'true',
+      },
+    };
+    expect(getTemplatesUsedInCard(card)).toStrictEqual(['true']);
+  });
 });
 
 describe('[function] getTemplatesUsedInView', () => {
@@ -197,6 +209,28 @@ describe('[function] updateCardTemplate', () => {
       ],
     });
   });
+
+  test('replaces child card with template', () => {
+    const template: DashboardCard = {
+      type: 'template',
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      card:
+      {
+        type: 'test',
+        template: 'template',
+      }
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'test',
+      card: {
+        type: 'template',
+        template: 'template',
+      },
+    });
+  });
+
   test('replaces card with template and updates data', () => {
     const template: DashboardCard = {
       type: 'template',
