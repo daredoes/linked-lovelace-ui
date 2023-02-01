@@ -252,4 +252,47 @@ describe('[function] updateCardTemplate', () => {
       },
     });
   });
+
+  test('ignores invalid characters in varible names', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      name: '$cool {{}{$ $cool$ man',
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      template_data: {
+        cool: 'yes',
+      },
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      name: '$cool {{}{$ yes man',
+      template_data: {
+        cool: 'yes',
+      },
+    });
+  });
+  test('allows for alphanumeric and underscores in varible names', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      name: '$cool_123$ man',
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      template_data: {
+        cool_123: 'yes',
+      },
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      name: 'yes man',
+      template_data: {
+        cool_123: 'yes',
+      },
+    });
+  });
 });
