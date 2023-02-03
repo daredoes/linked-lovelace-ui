@@ -71,25 +71,37 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     }
     // Put template key back in card
     data = { ...{ template: templateKey, ...data }, template: templateKey };
-  }
-  if (data.cards) {
-    // Update any cards in the card
-    const cards: DashboardCard[] = [];
-    data.cards.forEach((card) => {
+  } else {
+    if (data.cards) {
+      // Update any cards in the card
+      const cards: DashboardCard[] = [];
+      data.cards.forEach((card) => {
+        if (dataFromTemplate) {
+          // Pass template data down to children
+          card.template_data = { ...(card.template_data || {}), ...dataFromTemplate };
+        }
+        cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
+      });
+      data.cards = cards;
+    }
+    if (data.card) {
       if (dataFromTemplate) {
         // Pass template data down to children
-        card.template_data = { ...(card.template_data || {}), ...dataFromTemplate };
+        data.card.template_data = { ...(data.card.template_data || {}), ...dataFromTemplate };
       }
-      cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
-    });
-    data.cards = cards;
-  }
-  if (data.card) {
-    if (dataFromTemplate) {
-      // Pass template data down to children
-      data.card.template_data = { ...(data.card.template_data || {}), ...dataFromTemplate };
+      data.card = Object.assign({}, updateCardTemplate(data.card, templateData));
     }
-    data.card = Object.assign({}, updateCardTemplate(data.card, templateData));
+    // this handles all nested objects that may contain a template, like tap actions
+    const cardKeys = Object.keys(data);
+    const updatedData = {}
+    cardKeys.forEach((cardKey) => {
+      if (typeof data[cardKey] === 'object') {
+        updatedData[cardKey] = updateCardTemplate(data[cardKey], templateData)
+      }
+    })
+    Object.keys(updatedData).forEach((k) => {
+      data[k] = updatedData[k]
+    })
   }
   return data;
 };
