@@ -23,7 +23,7 @@ export const getTemplatesUsedInView = (view: DashboardView): string[] => {
   );
 };
 
-const replaceRegex = /(?<!\\)\$([^\$]+)(?!\\)\$/gm;
+const replaceRegex = /(?<!\\)\$([a-z|A-Z|0-9|\_]+)(?!\\)\$/gm;
 
 export const extractTemplateData = (data: DashboardCard): DashboardCard => {
   const dataFromTemplate = data.template_data || {};
