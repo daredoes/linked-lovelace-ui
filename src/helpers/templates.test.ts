@@ -253,6 +253,79 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
+  test('does not replace child card with template if card is template', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      card: {
+        type: 'swapped',
+        template: 'template'
+      }
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      card:
+      {
+        type: 'test',
+        template: 'template',
+      }
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      card: {
+        type: 'swapped',
+        template: 'template',
+      },
+    });
+  });
+
+  test('does not replace child card with template if card is template', () => {
+    const template: DashboardCard = {
+      type: 'new',
+      card: {
+        type: 'swapped',
+        template: 'template'
+      }
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      tap_action: {
+        action: 'fire-dom-event',
+        browser_mod: {
+          service: 'browser_mod.popup',
+          data: {
+            title: '',
+            content: {
+              type: 'old',
+              template: 'template'
+            }
+          }
+        }
+      }
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'test',
+      tap_action: {
+        action: 'fire-dom-event',
+        browser_mod: {
+          service: 'browser_mod.popup',
+          data: {
+            title: '',
+            content: {
+              type: 'new',
+              template: 'template',
+              card: {
+                type: 'swapped',
+                template: 'template'
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+
   test('ignores invalid characters in varible names', () => {
     const template: DashboardCard = {
       type: 'template',
@@ -274,6 +347,7 @@ describe('[function] updateCardTemplate', () => {
       },
     });
   });
+  
   test('allows for alphanumeric and underscores in varible names', () => {
     const template: DashboardCard = {
       type: 'template',
