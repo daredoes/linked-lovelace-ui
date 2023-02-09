@@ -54,10 +54,14 @@ class LinkedLovelaceController {
   };
 
   getUpdatedDashboardConfigRecord = (dashboardId: string): Record<string, DashboardConfig> => {
-    const url_path = this.dashboardController.dashboards[dashboardId].url_path;
-    return {
-      [url_path]: this.getUpdatedDashboardConfig(dashboardId),
-    };
+    const db = this.dashboardController.dashboards[dashboardId]
+    if (db) {
+      const url_path = db.url_path;
+      return {
+        [url_path]: this.getUpdatedDashboardConfig(dashboardId),
+      };
+    }
+    return {};
   };
 }
 

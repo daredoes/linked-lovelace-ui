@@ -1,4 +1,4 @@
-import { Dashboard, DashboardConfig, DashboardView } from '../types';
+import { Dashboard, DashboardConfig } from '../types';
 import DashboardController, { AddDashboardConfigResponse } from './dashboard';
 
 const dashboard: Dashboard = {
@@ -14,7 +14,7 @@ const config: DashboardConfig = {
   views: []
 }
 
-describe('[class] ViewController', () => {
+describe('[class] DashboardController', () => {
   test('sets up as expected', () => {
     const controller = new DashboardController();
     expect(controller).toBeDefined;
