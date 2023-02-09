@@ -1,6 +1,6 @@
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
 
-interface AddDashboardConfigResponse {
+export interface AddDashboardConfigResponse {
   templates: Record<string, DashboardCard>;
   views: Record<string, DashboardView>;
 }
