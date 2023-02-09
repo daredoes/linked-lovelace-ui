@@ -62,7 +62,7 @@ describe('[class] ViewController', () => {
     expect(controller.dashboards[dashboard.id]).toEqual(modifiedDashboard)
   });
 
-  test('constructs key with view id properly', () => {
+  test('constructs key with without view id properly', () => {
     const controller = new DashboardController();
     const testConfig: DashboardConfig = {...config, views: [{title: 'best'}]}
     const response: AddDashboardConfigResponse = {
@@ -70,6 +70,21 @@ describe('[class] ViewController', () => {
       views: {
         [dashboard.id]: {
           title: 'best'
+        }
+      }
+    }
+    expect(controller.addDashboardConfig(dashboard, testConfig)).toEqual(response);
+  });
+
+  test('constructs key with with view id properly', () => {
+    const controller = new DashboardController();
+    const testConfig: DashboardConfig = {...config, views: [{title: 'best', id: 'yes'}]}
+    const response: AddDashboardConfigResponse = {
+      templates: {},
+      views: {
+        [dashboard.id + ".yes" ]: {
+          title: 'best',
+          id: "yes"
         }
       }
     }
