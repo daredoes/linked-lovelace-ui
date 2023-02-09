@@ -78,13 +78,13 @@ describe('[class] ViewController', () => {
 
   test('constructs key with with view id properly', () => {
     const controller = new DashboardController();
-    const testConfig: DashboardConfig = {...config, views: [{title: 'best', id: 'yes'}]}
+    const testConfig: DashboardConfig = {...config, views: [{title: 'best', path: 'yes'}]}
     const response: AddDashboardConfigResponse = {
       templates: {},
       views: {
         [dashboard.id + ".yes" ]: {
           title: 'best',
-          id: "yes"
+          path: "yes"
         }
       }
     }
