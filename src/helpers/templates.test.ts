@@ -347,7 +347,7 @@ describe('[function] updateCardTemplate', () => {
       },
     });
   });
-  
+
   test('allows for alphanumeric and underscores in varible names', () => {
     const template: DashboardCard = {
       type: 'template',

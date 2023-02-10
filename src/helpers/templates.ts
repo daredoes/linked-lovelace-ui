@@ -95,8 +95,12 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     const cardKeys = Object.keys(data);
     const updatedData = {}
     cardKeys.forEach((cardKey) => {
-      if (typeof data[cardKey] === 'object') {
-        updatedData[cardKey] = updateCardTemplate(data[cardKey], templateData)
+      if (cardKey !== 'card' && typeof data[cardKey] === 'object') {
+        try {
+          updatedData[cardKey] = updateCardTemplate(data[cardKey], templateData)
+        } catch (e) {
+          console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, data, e)
+        }
       }
     })
     Object.keys(updatedData).forEach((k) => {
