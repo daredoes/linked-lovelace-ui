@@ -247,7 +247,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       name: 'yes man',
-      template_data: {
+      ll_data: {
         cool: 'yes',
       },
     });
@@ -342,9 +342,76 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       name: '$cool {{}{$ yes man',
-      template_data: {
+      ll_data: {
         cool: 'yes',
       },
+    });
+  });
+
+  test('leaves numbers as numbers', () => {
+    const template: DashboardCard = {
+      type: 'template',
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      ll_data: {
+        number: 6
+      },
+      ll_keys: ['number']
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      number: 6,
+      ll_keys: ['number'],
+      ll_data: {
+        number: 6
+      },
+    });
+  });
+
+  test('ll_keys changes row values', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      number: 3
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      ll_data: {
+        number: 6
+      },
+      ll_keys: ['number']
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      number: 6,
+      ll_keys: ['number'],
+      ll_data: {
+        number: 6
+      },
+    });
+  });
+
+  test('ll_keys does nothing when key is missing from data', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      number: 3
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      ll_data: {},
+      ll_keys: ['number']
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      number: 3,
+      ll_keys: ['number'],
+      ll_data: {},
     });
   });
 
@@ -364,7 +431,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       name: 'yes man',
-      template_data: {
+      ll_data: {
         cool_123: 'yes',
       },
     });
