@@ -7,16 +7,18 @@ on:
 jobs:
   release:
     name: Prepare release
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       # Build
-      - name: Build the file
-        run: |
-          cd $GITHUB_WORKSPACE
-          yarn
-          yarn build
+      - name: Build
+        uses: actions/setup-node@v3
+        with:
+          node-version: '12.x'
+      - run: cd $GITHUB_WORKSPACE
+      - run: yarn
+      - run: yarn build
 
       # Upload build file to the releas as an asset.
       - name: Upload zip to release
