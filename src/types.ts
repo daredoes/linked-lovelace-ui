@@ -38,6 +38,8 @@ export interface DashboardCard extends LovelaceCardConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template?: string;
   template_data?: Record<string, any>;
+  ll_data?: Record<string, any>;
+  ll_keys?: string[];
 }
 
 export interface DashboardView {

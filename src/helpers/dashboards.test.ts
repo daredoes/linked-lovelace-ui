@@ -206,7 +206,7 @@ describe('[function] updateDashboardConfigTemplates', () => {
         {
           type: 'test',
           template: 'template',
-          template_data: {
+          ll_data: {
             dynamic: 'yes',
           },
         },
@@ -218,7 +218,7 @@ describe('[function] updateDashboardConfigTemplates', () => {
     const response = updateDashboardConfigTemplates(dbConfig, { template });
     const expectedResponse: DashboardConfig = {
       views: [
-        { ...view, cards: [{ ...template, template: 'template', name: 'yes', template_data: { dynamic: 'yes' } }] },
+        { ...view, cards: [{ ...template, template: 'template', name: 'yes', ll_data: { dynamic: 'yes' } }] },
       ],
     };
     expect(response).toStrictEqual(expectedResponse);

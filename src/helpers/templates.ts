@@ -44,7 +44,8 @@ export const extractTemplateData = (data: DashboardCard): DashboardCard => {
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template
   const templateKey = data.template;
-  const dataFromTemplate: Record<string, any> | undefined = data.template_data;
+  const dataFromTemplate: Record<string, any> | undefined = data.ll_data || data.template_data;
+  const originalCardData = Object.assign({}, data);
   if (templateKey && templateData[templateKey]) {
     if (dataFromTemplate) {
       // If data in template, find and replace each key
@@ -64,13 +65,20 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         data = templateData[templateKey];
       }
       // Put template data back in card
-      data = { ...{ template_data: dataFromTemplate, ...data }, template_data: dataFromTemplate };
+      data = { ...{ ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
+      // TODO: Implement key swap
+      originalCardData.ll_keys?.forEach((ll_key) => {
+        const linkedLovelaceKeyData = originalCardData.ll_data ? originalCardData.ll_data[ll_key] : undefined;
+        if (linkedLovelaceKeyData) {
+          data[ll_key] = linkedLovelaceKeyData
+        }
+      });
     } else {
       // Put template value as new value
       data = templateData[templateKey];
     }
     // Put template key back in card
-    data = { ...{ template: templateKey, ...data }, template: templateKey };
+    data = { ...{ template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, template: templateKey, ll_keys: originalCardData.ll_keys };
   } else {
     if (data.cards) {
       // Update any cards in the card
@@ -78,7 +86,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       data.cards.forEach((card) => {
         if (dataFromTemplate) {
           // Pass template data down to children
-          card.template_data = { ...(card.template_data || {}), ...dataFromTemplate };
+          card.ll_data = { ...(card.ll_data || {}), ...dataFromTemplate };
         }
         cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
       });
@@ -87,7 +95,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     if (data.card) {
       if (dataFromTemplate) {
         // Pass template data down to children
-        data.card.template_data = { ...(data.card.template_data || {}), ...dataFromTemplate };
+        data.card.ll_data = { ...(data.card.ll_data || {}), ...dataFromTemplate };
       }
       data.card = Object.assign({}, updateCardTemplate(data.card, templateData));
     }
@@ -106,6 +114,9 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     Object.keys(updatedData).forEach((k) => {
       data[k] = updatedData[k]
     })
+  }
+  if (data.hasOwnProperty('ll_keys') && typeof data.ll_keys === 'undefined') {
+    delete data.ll_keys;
   }
   return data;
 };
