@@ -395,6 +395,30 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
+  test('ll_keys works with template data for now', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      number: 3
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      template_data: {
+        number: 6
+      },
+      ll_keys: ['number']
+    };
+    expect(updateCardTemplate(card, { template })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      number: 6,
+      ll_keys: ['number'],
+      ll_data: {
+        number: 6
+      },
+    });
+  });
+
   test('ll_keys does nothing when key is missing from data', () => {
     const template: DashboardCard = {
       type: 'template',

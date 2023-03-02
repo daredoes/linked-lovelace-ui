@@ -97,16 +97,16 @@ export class LinkedLovelaceTemplateCard extends LitElement {
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
+    //  Finish edit mode
+    const editMode = false;
     return html`
-      <ha-card
-        .header=${this.config.name}
-        tabindex="0"
-        .label=${`Linked Lovelace Template`}
-        class="linked-lovelace-container"
-      >
+      <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
+        class="linked-lovelace-container">
         <div class="card-content">${this.config.template}</div>
         <div class="card-actions">
-          <ha-progress-button @click=${this.handleClick}> ${localize('common.update_all')} </ha-progress-button>
+          <ha-progress-button .disabled=${editMode ? "true" : "false" } @click=${!editMode ? this.handleClick : undefined}>
+            ${localize('common.update_all')}
+          </ha-progress-button>
         </div>
       </ha-card>
     `;

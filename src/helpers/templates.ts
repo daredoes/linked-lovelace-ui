@@ -44,7 +44,8 @@ export const extractTemplateData = (data: DashboardCard): DashboardCard => {
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template
   const templateKey = data.template;
-  const dataFromTemplate: Record<string, any> | undefined = data.ll_data || data.template_data;
+  // TODO: Remove ternary operator when dropping support for template_data card arg
+  const dataFromTemplate: Record<string, any> | undefined = data.ll_data ? data.ll_data : data.template_data;
   const originalCardData = Object.assign({}, data);
   if (templateKey && templateData[templateKey]) {
     if (dataFromTemplate) {
@@ -66,9 +67,8 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       }
       // Put template data back in card
       data = { ...{ ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
-      // TODO: Implement key swap
       originalCardData.ll_keys?.forEach((ll_key) => {
-        const linkedLovelaceKeyData = originalCardData.ll_data ? originalCardData.ll_data[ll_key] : undefined;
+        const linkedLovelaceKeyData = dataFromTemplate ? dataFromTemplate[ll_key] : undefined;
         if (linkedLovelaceKeyData) {
           data[ll_key] = linkedLovelaceKeyData
         }

@@ -119,7 +119,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
         const tmpConfig = { ...this._config };
         delete tmpConfig[target.configValue];
         if (target.configValue === 'template') {
-          tmpConfig['template_data'] = {};
+          tmpConfig['ll_data'] = {};
         }
         this._config = tmpConfig;
       } else {
@@ -133,7 +133,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
         }
         this._config = {
           ...this._config,
-          template_data: templateData,
+          ll_data: templateData,
           [target.configValue]: target.checked !== undefined ? target.checked : target.value,
         };
       }
