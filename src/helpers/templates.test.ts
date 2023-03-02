@@ -427,7 +427,52 @@ describe('[function] updateCardTemplate', () => {
       ll_keys: ['cards'],
       ll_data: {
         cards: [
-          { template: 'nested', cards: [], type: 'nested' }
+          { template: 'nested' }
+        ]
+      },
+    });
+  });
+
+  test('ll_keys supports values to be templatized including arrays', () => {
+    const template: DashboardCard = {
+      type: 'template',
+      cards: []
+    };
+    const nested: DashboardCard = {
+      type: 'nested',
+      cards: []
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      template: 'template',
+      ll_data: {
+        cards: [
+          { template: 'nested' },
+          { template: 'template' },
+        ]
+      },
+      ll_keys: ['cards']
+    };
+    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+      type: 'template',
+      template: 'template',
+      cards: [
+        {
+          type: 'nested',
+          template: 'nested',
+          cards: []
+        },
+        {
+          type: 'template',
+          template: 'template',
+          cards: []
+        }
+      ],
+      ll_keys: ['cards'],
+      ll_data: {
+        cards: [
+          { template: 'nested' },
+          { template: 'template' }
         ]
       },
     });
