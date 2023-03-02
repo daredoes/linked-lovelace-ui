@@ -65,14 +65,34 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         // Return original value if parse fails
         data = templateData[templateKey];
       }
-      // Put template data back in card
-      data = { ...{ ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
       originalCardData.ll_keys?.forEach((ll_key) => {
         const linkedLovelaceKeyData = dataFromTemplate ? dataFromTemplate[ll_key] : undefined;
         if (linkedLovelaceKeyData) {
           data[ll_key] = linkedLovelaceKeyData
         }
       });
+      const updatedData = {}
+      originalCardData.ll_keys?.forEach((cardKey) => {
+        if (typeof dataFromTemplate[cardKey] === 'object') {
+          if (dataFromTemplate[cardKey]['length']) {
+            updatedData[cardKey] = [];
+            for (let i = 0; i < dataFromTemplate[cardKey]['length']; i++) {
+              updatedData[cardKey].push(updateCardTemplate(dataFromTemplate[cardKey][i], templateData))
+            }
+          }
+          try {
+            updatedData[cardKey] = updateCardTemplate(dataFromTemplate[cardKey], templateData)
+          } catch (e) {
+            console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, data, e)
+          }
+        }
+      })
+      console.log(updatedData)
+      Object.keys(updatedData).forEach((k) => {
+        data[k] = updatedData[k]
+      })
+      // Put template data back in card
+      data = { ...{ ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
     } else {
       // Put template value as new value
       data = templateData[templateKey];

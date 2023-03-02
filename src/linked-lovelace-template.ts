@@ -104,7 +104,7 @@ export class LinkedLovelaceTemplateCard extends LitElement {
         class="linked-lovelace-container">
         <div class="card-content">${this.config.template}</div>
         <div class="card-actions">
-          <ha-progress-button .disabled=${editMode ? "true" : "false" } @click=${!editMode ? this.handleClick : undefined}>
+          <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
             ${localize('common.update_all')}
           </ha-progress-button>
         </div>
