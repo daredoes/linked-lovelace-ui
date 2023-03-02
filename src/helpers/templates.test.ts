@@ -478,6 +478,81 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
+  test('ll_keys supports values to be templatized including nested arrays', () => {
+    const modes: DashboardCard = {
+      type: 'custom:vertical-stack-in-card',
+      card_mod: {
+        style: {}
+      },
+      cards: []
+    };
+
+    const info: DashboardCard = {
+      type: 'custom:vertical-stack-in-card',
+      cards: []
+    };
+    const chips: DashboardCard = {
+      type: 'custom:mushroom-chips-card',
+      chips: []
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      cards: [
+        { template: 'info', type: 'test' },
+        {
+          template: 'modes', type: 'test', ll_data: {
+            cards: [
+              { template: 'info', type: 'test' },
+              { template: 'info', type: 'test' },
+            ]
+          }, ll_keys: ['cards']
+        },
+        { template: 'chips', type: 'test' },
+      ]
+    };
+    expect(updateCardTemplate(card, { modes, chips, info })).toStrictEqual({
+      type: 'test',
+      cards: [
+        {
+          type: 'custom:vertical-stack-in-card',
+          template: 'info',
+          cards: []
+        },
+        {
+          type: 'custom:vertical-stack-in-card',
+          card_mod: {
+            style: {}
+          },
+          template: 'modes',
+          ll_data: {
+            cards: [
+              { template: 'info', type: 'test' },
+              { template: 'info', type: 'test' },
+            ]
+          },
+          ll_keys: ['cards'],
+          cards: [
+            {
+              type: 'custom:vertical-stack-in-card',
+              template: 'info',
+              cards: []
+            },
+            {
+              type: 'custom:vertical-stack-in-card',
+              template: 'info',
+              cards: []
+            }
+          ]
+        },
+        {
+          type: 'custom:mushroom-chips-card',
+          template: 'chips',
+          chips: []
+        },
+      ],
+    });
+  });
+
   test('ll_keys works with template data for now', () => {
     const template: DashboardCard = {
       type: 'template',
