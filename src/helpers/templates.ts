@@ -78,11 +78,24 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
           if (originalDataFromTemplate[cardKey]['length']) {
             updatedData[cardKey] = [];
             for (let i = 0; i < originalDataFromTemplate[cardKey]['length']; i++) {
-              updatedData[cardKey].push(updateCardTemplate(originalDataFromTemplate[cardKey][i], templateData))
+
+              const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_data, ...originalDataFromTemplate };
+              delete newLLData[cardKey]
+              const oldData = { ...{ ll_data: newLLData }, ...{ ...originalDataFromTemplate[cardKey][i] }, ...{ ll_data: newLLData } };
+              if (typeof oldData.ll_data !== undefined && Object.keys(oldData.ll_data).length == 0) {
+                delete oldData.ll_data;
+              }
+              console.log(newLLData, originalDataFromTemplate[cardKey][i], oldData)
+              const result = updateCardTemplate(oldData, templateData);
+              console.log(oldData, result)
+              updatedData[cardKey].push(result)
             }
           } else {
             try {
-              updatedData[cardKey] = updateCardTemplate(Object.assign({}, originalDataFromTemplate[cardKey]), templateData)
+              const newLLData = { ...originalDataFromTemplate };
+              delete newLLData[cardKey]
+              const oldData = { ...originalDataFromTemplate[cardKey], ll_data: newLLData };
+              updatedData[cardKey] = updateCardTemplate(oldData, templateData)
             } catch (e) {
               console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, data, e)
             }
