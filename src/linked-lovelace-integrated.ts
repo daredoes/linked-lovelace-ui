@@ -99,9 +99,7 @@ const getTemplatesUsedInView = (view: DashboardView): string[] => {
 const parseDashboards = (data) => {
   const dashboards: Record<string, Dashboard> = {};
   data.forEach((dashboard) => {
-    if (dashboard.mode == 'storage') {
-      dashboards[dashboard.id] = dashboard;
-    }
+    dashboards[dashboard.id] = dashboard;
   });
   return dashboards;
 };

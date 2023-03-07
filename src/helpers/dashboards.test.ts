@@ -25,7 +25,7 @@ describe('[function] parseDashboards', () => {
       [dashboard.id]: dashboard,
     });
   });
-  test('results ignore non-storage mode dashboards', () => {
+  test('results include non-storage mode dashboards', () => {
     const dashboard: Dashboard = {
       id: 'test',
       mode: 'storage',
@@ -34,10 +34,11 @@ describe('[function] parseDashboards', () => {
       title: 'test',
       url_path: 'test-name',
     };
-    const badDashboard = { ...dashboard, mode: 'failure', id: 'badTest' };
+    const badDashboard = { ...dashboard, mode: 'yaml', id: 'badTest' };
     const dashboards: Dashboard[] = [dashboard, badDashboard];
     expect(parseDashboards(dashboards)).toStrictEqual({
       [dashboard.id]: dashboard,
+      [badDashboard.id]: badDashboard
     });
   });
 });
