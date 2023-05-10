@@ -2,20 +2,17 @@
 import { HomeAssistant } from 'custom-card-helpers';
 import { log } from './helpers';
 import { Dashboard, DashboardConfig } from './types';
+import { Debug } from './debug';
 
-class LinkedLovelace {
+class LinkedLovelaceApi {
   hass!: HomeAssistant;
-  debug = false;
-  dryRun = false;
 
-  constructor(hass: HomeAssistant, debug = false, dryRun = false) {
+  constructor(hass: HomeAssistant) {
     this.hass = hass;
-    this.debug = debug;
-    this.dryRun = dryRun;
   }
 
   getDashboards = async (): Promise<Dashboard[]> => {
-    if (this.debug) {
+    if (Debug.instance.debug) {
       log('Getting Lovelace User-Created Dashboards');
     }
     return this.hass.callWS<Dashboard[]>({
@@ -24,7 +21,7 @@ class LinkedLovelace {
   };
 
   getDashboardConfig = async (urlPath: string): Promise<DashboardConfig> => {
-    if (this.debug) {
+    if (Debug.instance.debug) {
       log(`Getting Lovelace User-Created Dashboard: ${urlPath}`);
     }
     return this.hass.callWS<DashboardConfig>({
@@ -44,10 +41,10 @@ class LinkedLovelace {
   };
 
   setDashboardConfig = async (urlPath: string, config: Record<string, any>): Promise<null> => {
-    if (this.debug) {
-      log(`${this.dryRun ? 'Not Actually ' : ''}Setting Lovelace User-Created Dashboard: ${urlPath}`, config);
+    if (Debug.instance.debug) {
+      log(`${Debug.instance.dryRun ? 'Not Actually ' : ''}Setting Lovelace User-Created Dashboard: ${urlPath}`, config);
     }
-    if (!this.dryRun) {
+    if (!Debug.instance.dryRun) {
       return this.hass.callWS({
         type: 'lovelace/config/save',
         url_path: urlPath,
@@ -58,4 +55,4 @@ class LinkedLovelace {
   };
 }
 
-export default LinkedLovelace;
+export default LinkedLovelaceApi;
