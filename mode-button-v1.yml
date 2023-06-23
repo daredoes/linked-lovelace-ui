@@ -1,0 +1,81 @@
+type: vertical-stack
+cards:
+  - type: custom:mushroom-template-card
+    primary: ''
+    secondary: $mode$
+    icon: |-
+      {% set mode = '$mode$'|lower %}
+      {% if mode == 'passive' %}
+      mdi:peace
+      {% elif mode == 'gaming' %}
+      mdi:controller
+      {% elif mode == 'chill' %}
+      mdi:sunglasses
+      {% elif mode == 'off' %}
+      mdi:power
+      {% elif mode == 'romance' %}
+      mdi:heart
+      {% elif mode == 'party' %}
+      mdi:party-popper
+      {% elif mode == 'meeting' %}
+      mdi:briefcase-account
+      {% elif mode == 'movie' %}
+      mdi:video
+      {% elif mode == 'sleeping' %}
+      mdi:sleep
+      {% elif mode == 'nightlight' %}
+      mdi:ninja
+      {% else %}
+      mdi:progress-question
+      {% endif %}
+    entity: $entity_id$
+    badge_icon: |-
+      {% set myMode = '$mode$' %}
+      {% if is_state(entity, myMode) %}
+      mdi:check-circle-outline
+      {% endif %}
+    badge_color: green
+    layout: vertical
+    tap_action:
+      action: call-service
+      service: input_select.select_option
+      data:
+        option: $mode$
+      target:
+        entity_id: $entity_id$
+    icon_color: |-
+      {% set mode = '$mode$'|lower %}
+      {% if mode == 'passive' %}
+
+      {% elif mode == 'gaming' %}
+      purple
+      {% elif mode == 'chill' %}
+      blue
+      {% elif mode == 'off' %}
+      red
+      {% elif mode == 'romance' %}
+      pink
+      {% elif mode == 'party' %}
+      yellow
+      {% elif mode == 'meeting' %}
+      red
+      {% elif mode == 'movie' %}
+      orange
+      {% elif mode == 'sleeping' %}
+
+      {% elif mode == 'nightlight' %}
+
+      {% else %}
+
+      {% endif %}
+    fill_container: true
+    multiline_secondary: true
+    template_data:
+      mode: ''
+      entity_id: ''
+    ll_data:
+      mode: ''
+      entity_id: ''
+template_data:
+  mode: ''
+  entity_id: ''

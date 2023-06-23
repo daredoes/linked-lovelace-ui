@@ -1,0 +1,350 @@
+ll_context:
+ll_data:
+  
+type: custom:vertical-stack-in-card
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: >-
+              {{ "Source: " if state_attr(entity, 'source') else "" }} {{
+              state_attr(entity, 'source') or "" }}
+            secondary: >
+              {% set dict_item = state_attr('sensor.snapcast_sources',
+              'streams') %}
+
+              {% set source = state_attr(entity, 'source') %}
+
+              {% set status = dict_item[source] if source else "" %}
+
+              {% if status and status != 'idle' %}
+
+              {{ status|title }}
+
+              {% endif %}
+            icon: ''
+            entity: $snapcast_entity$
+            tap_action:
+              action: more-info
+            hold_action:
+              action: more-info
+            double_tap_action:
+              action: none
+            fill_container: true
+            layout: horizontal
+            multiline_secondary: false
+            card_mod:
+              style: |
+                ha-card {
+                }
+      - type: custom:mushroom-template-card
+        primary: ''
+        secondary: ''
+        icon_color: ' '
+        layout: vertical
+        multiline_secondary: true
+        tap_action:
+          action: none
+        double_tap_action:
+          action: none
+        badge_icon: ''
+        badge_color: ''
+        fill_container: true
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: template
+            entity: $input_select_entity$
+            content: >-
+              {{ "Mode: " if states(entity) != "unknown" else "" }}{{
+              states(entity)|capitalize if states(entity) != "unknown" else ""
+              }}
+            tap_action:
+              action: more-info
+        alignment: end
+  - type: horizontal-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - template: room-mode-button
+            ll_data:
+              mode: 'Off'
+              entity_id: $input_select_entity$
+            type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: ''
+                secondary: 'Off'
+                icon: |-
+                  {% set mode = 'Off'|lower %}
+                  {% if mode == 'passive' %}
+                  mdi:peace
+                  {% elif mode == 'gaming' %}
+                  mdi:controller
+                  {% elif mode == 'chill' %}
+                  mdi:sunglasses
+                  {% elif mode == 'off' %}
+                  mdi:power
+                  {% elif mode == 'romance' %}
+                  mdi:heart
+                  {% elif mode == 'party' %}
+                  mdi:party-popper
+                  {% elif mode == 'meeting' %}
+                  mdi:briefcase-account
+                  {% elif mode == 'movie' %}
+                  mdi:video
+                  {% elif mode == 'sleeping' %}
+                  mdi:sleep
+                  {% elif mode == 'nightlight' %}
+                  mdi:ninja
+                  {% else %}
+                  mdi:progress-question
+                  {% endif %}
+                entity: $input_select_entity$
+                badge_icon: |-
+                  {% set myMode = 'Off' %}
+                  {% if is_state(entity, myMode) %}
+                  mdi:check-circle-outline
+                  {% endif %}
+                badge_color: green
+                layout: vertical
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  data:
+                    option: 'Off'
+                  target:
+                    entity_id: $input_select_entity$
+                icon_color: |-
+                  {% set mode = 'Off'|lower %}
+                  {% if mode == 'passive' %}
+
+                  {% elif mode == 'gaming' %}
+                  purple
+                  {% elif mode == 'chill' %}
+                  blue
+                  {% elif mode == 'off' %}
+                  red
+                  {% elif mode == 'romance' %}
+                  pink
+                  {% elif mode == 'party' %}
+                  yellow
+                  {% elif mode == 'meeting' %}
+                  red
+                  {% elif mode == 'movie' %}
+                  orange
+                  {% elif mode == 'sleeping' %}
+
+                  {% elif mode == 'nightlight' %}
+
+                  {% else %}
+
+                  {% endif %}
+                fill_container: true
+                multiline_secondary: true
+                template_data:
+                  mode: ''
+                  entity_id: ''
+                ll_data:
+                  mode: ''
+                  entity_id: ''
+            template_data:
+              mode: ''
+              entity_id: ''
+          - template: room-mode-button
+            ll_data:
+              mode: Passive
+              entity_id: $input_select_entity$
+            type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: ''
+                secondary: Passive
+                icon: |-
+                  {% set mode = 'Passive'|lower %}
+                  {% if mode == 'passive' %}
+                  mdi:peace
+                  {% elif mode == 'gaming' %}
+                  mdi:controller
+                  {% elif mode == 'chill' %}
+                  mdi:sunglasses
+                  {% elif mode == 'off' %}
+                  mdi:power
+                  {% elif mode == 'romance' %}
+                  mdi:heart
+                  {% elif mode == 'party' %}
+                  mdi:party-popper
+                  {% elif mode == 'meeting' %}
+                  mdi:briefcase-account
+                  {% elif mode == 'movie' %}
+                  mdi:video
+                  {% elif mode == 'sleeping' %}
+                  mdi:sleep
+                  {% elif mode == 'nightlight' %}
+                  mdi:ninja
+                  {% else %}
+                  mdi:progress-question
+                  {% endif %}
+                entity: $input_select_entity$
+                badge_icon: |-
+                  {% set myMode = 'Passive' %}
+                  {% if is_state(entity, myMode) %}
+                  mdi:check-circle-outline
+                  {% endif %}
+                badge_color: green
+                layout: vertical
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  data:
+                    option: Passive
+                  target:
+                    entity_id: $input_select_entity$
+                icon_color: |-
+                  {% set mode = 'Passive'|lower %}
+                  {% if mode == 'passive' %}
+
+                  {% elif mode == 'gaming' %}
+                  purple
+                  {% elif mode == 'chill' %}
+                  blue
+                  {% elif mode == 'off' %}
+                  red
+                  {% elif mode == 'romance' %}
+                  pink
+                  {% elif mode == 'party' %}
+                  yellow
+                  {% elif mode == 'meeting' %}
+                  red
+                  {% elif mode == 'movie' %}
+                  orange
+                  {% elif mode == 'sleeping' %}
+
+                  {% elif mode == 'nightlight' %}
+
+                  {% else %}
+
+                  {% endif %}
+                fill_container: true
+                multiline_secondary: true
+                template_data:
+                  mode: ''
+                  entity_id: ''
+                ll_data:
+                  mode: ''
+                  entity_id: ''
+            template_data:
+              mode: ''
+              entity_id: ''
+          - template: room-mode-button
+            ll_data:
+              mode: Movie
+              entity_id: $input_select_entity$
+            type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: ''
+                secondary: Movie
+                icon: |-
+                  {% set mode = 'Movie'|lower %}
+                  {% if mode == 'passive' %}
+                  mdi:peace
+                  {% elif mode == 'gaming' %}
+                  mdi:controller
+                  {% elif mode == 'chill' %}
+                  mdi:sunglasses
+                  {% elif mode == 'off' %}
+                  mdi:power
+                  {% elif mode == 'romance' %}
+                  mdi:heart
+                  {% elif mode == 'party' %}
+                  mdi:party-popper
+                  {% elif mode == 'meeting' %}
+                  mdi:briefcase-account
+                  {% elif mode == 'movie' %}
+                  mdi:video
+                  {% elif mode == 'sleeping' %}
+                  mdi:sleep
+                  {% elif mode == 'nightlight' %}
+                  mdi:ninja
+                  {% else %}
+                  mdi:progress-question
+                  {% endif %}
+                entity: $input_select_entity$
+                badge_icon: |-
+                  {% set myMode = 'Movie' %}
+                  {% if is_state(entity, myMode) %}
+                  mdi:check-circle-outline
+                  {% endif %}
+                badge_color: green
+                layout: vertical
+                tap_action:
+                  action: call-service
+                  service: input_select.select_option
+                  data:
+                    option: Movie
+                  target:
+                    entity_id: $input_select_entity$
+                icon_color: |-
+                  {% set mode = 'Movie'|lower %}
+                  {% if mode == 'passive' %}
+
+                  {% elif mode == 'gaming' %}
+                  purple
+                  {% elif mode == 'chill' %}
+                  blue
+                  {% elif mode == 'off' %}
+                  red
+                  {% elif mode == 'romance' %}
+                  pink
+                  {% elif mode == 'party' %}
+                  yellow
+                  {% elif mode == 'meeting' %}
+                  red
+                  {% elif mode == 'movie' %}
+                  orange
+                  {% elif mode == 'sleeping' %}
+
+                  {% elif mode == 'nightlight' %}
+
+                  {% else %}
+
+                  {% endif %}
+                fill_container: true
+                multiline_secondary: true
+                template_data:
+                  mode: ''
+                  entity_id: ''
+                ll_data:
+                  mode: ''
+                  entity_id: ''
+            template_data:
+              mode: ''
+              entity_id: ''
+  - type: horizontal-stack
+    cards:
+      - type: custom:slider-button-card
+        entity: $snapcast_entity$
+        slider:
+          direction: left-right
+          background: triangle
+          use_state_color: false
+          use_percentage_bg_opacity: false
+          show_track: true
+          toggle_on_click: false
+          force_square: false
+        show_name: false
+        show_state: true
+        compact: true
+        icon:
+          show: true
+          use_state_color: false
+          icon: ''
+        action_button:
+          mode: toggle
+          icon: mdi:power
+          show: false
+          show_spinner: true
+          tap_action:
+            action: none
