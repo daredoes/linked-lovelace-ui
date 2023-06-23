@@ -1,6 +1,6 @@
 {
   "name": "linked-lovelace-ui",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Linked Lovelace UI",
   "keywords": [
     "home-assistant",
@@ -64,8 +64,9 @@
   },
   "scripts": {
     "start": "export ROLLUP_WATCH=true && rollup -c --watch",
-    "prestart": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
-    "prebuild": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "make-version": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts && echo '\n// This file is auto-generated.' >> src/version.ts",
+    "prestart": "npm run make-version",
+    "prebuild": "npm run make-version",
     "build": "npm run lint && npm run rollup",
     "lint": "eslint src/*.ts",
     "test": "jest",

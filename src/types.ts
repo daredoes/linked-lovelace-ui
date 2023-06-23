@@ -2,7 +2,7 @@ import { LovelaceCard, LovelaceCardConfig, LovelaceCardEditor } from 'custom-car
 
 declare global {
   interface HTMLElementTagNameMap {
-    'linked-lovelace-card-editor': LovelaceCardEditor;
+    'linked-lovelace-template-editor': LovelaceCardEditor;
     'hui-error-card': LovelaceCard;
   }
 }
