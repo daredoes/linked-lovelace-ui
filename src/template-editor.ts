@@ -6,10 +6,6 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { DashboardCard, LinkedLovelaceTemplateCardConfig } from './types';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
-import { formfieldDefinition } from '../elements/formfield';
-import { selectDefinition } from '../elements/select';
-import { switchDefinition } from '../elements/switch';
-import { textfieldDefinition } from '../elements/textfield';
 import HassController from './controllers/hass';
 import { extractTemplateData } from './helpers/templates';
 
@@ -28,10 +24,6 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
   private _initialized = false;
 
   static elementDefinitions = {
-    ...textfieldDefinition,
-    ...selectDefinition,
-    ...switchDefinition,
-    ...formfieldDefinition,
   };
 
   public setConfig(config: LinkedLovelaceTemplateCardConfig): void {
