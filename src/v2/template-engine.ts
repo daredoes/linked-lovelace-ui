@@ -1,10 +1,11 @@
-import { log } from "../helpers";
-import { Debug } from "../debug";
-import { Eta } from "eta";
+
+import { Eta } from 'eta';
+
+export const engine = new Eta({ varName: 'context', autoEscape: false });
 
 export class TemplateEngine {
   static self?: TemplateEngine
-  eta!: Eta
+  eta = engine;
 
   constructor() {
     this.eta = new Eta({ varName: 'context', autoEscape: false });

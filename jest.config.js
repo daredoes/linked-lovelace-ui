@@ -1,6 +1,6 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  preset: 'rollup-jest',
+  preset: 'ts-jest',
   testEnvironment: 'node',
   setupFilesAfterEnv: ["<rootDir>/jestSetup.ts"]
 };

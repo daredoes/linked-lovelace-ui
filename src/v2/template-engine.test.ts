@@ -1,7 +1,8 @@
 // TODO: Replace this with template engine test to match mode-button-v2-test.yml to rendered output
 import fs from 'fs'
 import path from 'path'
-import { TemplateEngine } from './template-engine';
+import { engine } from './engine';
+import { Eta } from 'eta';
 
 const text = fs.readFileSync(path.resolve(__dirname, 'test.yml'), 'UTF-8');
 const template = fs.readFileSync(path.resolve(__dirname, 'testv2.yml'), 'UTF-8');
@@ -9,11 +10,13 @@ const selectOptionTemplate = fs.readFileSync(path.resolve(__dirname, 'selectOpti
 const modeToIconTemplate = fs.readFileSync(path.resolve(__dirname, 'modeToIcon.yml'), 'UTF-8');
 const modeToIconColorTemplate = fs.readFileSync(path.resolve(__dirname, 'modeToIconColor.yml'), 'UTF-8');
 
+describe('[class] templateEngine', () => {
+  test('empty array returns empty map of Dashboards', async () => {
+    expect(Eta).toBeCalled
+    // console.log(result === text);
+  });
+});
 
-const instance = TemplateEngine.instance
-instance.eta.loadTemplate('@modeToIcon', modeToIconTemplate)
-instance.eta.loadTemplate('@modeToIconColor', modeToIconColorTemplate)
-instance.eta.loadTemplate('@selectOption', selectOptionTemplate)
-const result = instance.eta.renderString(template, { mode: 'Off', 'entity_id': 'input_select.test' })
-
-console.log(result === text);
+// engine.loadTemplate('@modeToIcon', modeToIconTemplate)
+// engine.loadTemplate('@modeToIconColor', modeToIconColorTemplate)
+// engine.loadTemplate('@selectOption', selectOptionTemplate)

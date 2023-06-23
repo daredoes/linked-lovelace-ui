@@ -30,7 +30,7 @@
     "@mdi/js": "^7.0.96",
     "@swc/helpers": "^0.5.1",
     "custom-card-helpers": "^1.7.2",
-    "eta": "3",
+    "eta": "^3.0.3",
     "home-assistant-js-websocket": "^5.11.1",
     "lit": "^2.7.5",
     "string.prototype.replaceall": "^1.0.7",
