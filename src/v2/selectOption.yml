@@ -1,0 +1,6 @@
+action: call-service
+service: input_select.select_option
+data:
+  option: <%= context.option %>
+target:
+  entity_id: <%= context.entity_id %>
