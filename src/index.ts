@@ -1,9 +1,8 @@
-import {Eta} from 'eta';
-const eta = new Eta();
-// const res = eta.renderString('Hi, my name is <%= it.name %>', { name: "Ben" });
-const res = eta.renderString("<%= it.name %>", { name: "Ben" });
-console.log(res)
+import './types';
+import { LIB_VERSION } from './version';
+import { log } from './helpers';
+import { initialize } from './instance';
+import './linked-lovelace-template';
 
-// Render a template
+initialize(() => {log(`Version: ${LIB_VERSION}`);})
 
-console.log(res); // Hi Ben!

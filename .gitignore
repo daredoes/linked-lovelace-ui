@@ -5,3 +5,4 @@ package-lock.json
 src/version.ts
 /coverage
 .parcel-cache/
+*.log

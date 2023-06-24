@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2023", "DOM", "DOM.Iterable"],
+    "lib": ["ES2019", "DOM", "DOM.Iterable","ES2021.String"],
     "module": "Node16",
-    "target": "es2022",
+    "target": "es2019",
 
     "strict": true,
     "esModuleInterop": true,
