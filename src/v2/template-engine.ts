@@ -8,7 +8,7 @@ export class TemplateEngine {
   eta = engine;
 
   constructor() {
-    this.eta = new Eta({ varName: 'context', autoEscape: false });
+    this.refresh()
   }
 
   static get instance(): TemplateEngine {
@@ -17,5 +17,9 @@ export class TemplateEngine {
     }
     this.self = new TemplateEngine();
     return this.self;
+  }
+
+  refresh() {
+    this.eta = new Eta({ varName: 'context', autoEscape: false });
   }
 }

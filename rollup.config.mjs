@@ -5,6 +5,10 @@ import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import serve from 'rollup-plugin-serve';
 import json from '@rollup/plugin-json';
+import eta from 'rollup-plugin-eta';
+import nodeExternals from 'rollup-plugin-node-externals'
+
+
 
 const dev = process.env.ROLLUP_WATCH;
 
@@ -19,7 +23,7 @@ const serveopts = {
 };
 
 const plugins = [
-  nodeResolve({}),
+  nodeResolve(),
   commonjs({
     namedExports: {
       // left-hand side can be an absolute path, a path
@@ -39,6 +43,10 @@ const plugins = [
   }),
   dev && serve(serveopts),
   !dev && terser(),
+  eta({
+    include: ['**/*.eta', '**/*.html'], // optional, '**/*.eta' by default
+    exclude: ['**/index.html'], // optional, undefined by default
+}),
 ];
 
 export default [
@@ -49,6 +57,6 @@ export default [
       format: 'es',
       inlineDynamicImports: true
     },
-    plugins: [...plugins],
+    plugins: [...plugins]
   },
 ];

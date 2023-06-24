@@ -19,8 +19,8 @@ class HassController {
     );
   };
 
-  update = async (dashboardId: string): Promise<void> => {
-    const records = this.linkedLovelaceController.getUpdatedDashboardConfigRecord(dashboardId);
+  update = async (dashboardId: string, v2 = false): Promise<void> => {
+    const records = this.linkedLovelaceController.getUpdatedDashboardConfigRecord(dashboardId, v2);
     await Promise.all(Object.keys(records).map(async (urlPath) => {
       const config = records[urlPath];
       try {
@@ -32,8 +32,8 @@ class HassController {
     }));
   };
 
-  updateAll = async (): Promise<void> => {
-    const records = this.linkedLovelaceController.getUpdatedDashboardConfigs();
+  updateAll = async (v2 = false): Promise<void> => {
+    const records = this.linkedLovelaceController.getUpdatedDashboardConfigs(v2);
     await Promise.all(Object.keys(records).map(async (urlPath) => {
       const config = records[urlPath];
       try {
