@@ -1,0 +1,23 @@
+type: vertical-stack
+cards:
+  - type: custom:mushroom-template-card
+    primary: ''
+    secondary: Off
+    icon: mdi:power
+    entity: input_select.test
+    badge_icon: |-
+      {% if is_state(entity, 'Off') %}
+      mdi:check-circle-outline
+      {% endif %}
+    badge_color: green
+    layout: vertical
+    tap_action:
+      action: call-service
+      service: input_select.select_option
+      data:
+        option: Off
+      target:
+        entity_id: input_select.test
+    icon_color: red
+    fill_container: true
+    multiline_secondary: true

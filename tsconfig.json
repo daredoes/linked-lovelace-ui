@@ -1,23 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "lib": [
-      "es2019",
-      "ES2021.String",
-      "dom",
-      "dom.iterable"
-    ],
-    "noEmit": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
+    "lib": ["es2023", "DOM", "DOM.Iterable"],
+    "module": "Node16",
+    "target": "es2022",
+
     "strict": true,
-    "noImplicitAny": false,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "experimentalDecorators": true
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node"
   }
 }

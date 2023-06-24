@@ -1,8 +1,0 @@
-resources:
-  - url: http://127.0.0.1:5000/linked-lovelace-ui.js
-    type: module
-views:
-  - cards:
-      - type: custom:linked-lovelace-ui
-        name: Linked Lovelace Development
-        test_gui: true

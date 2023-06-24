@@ -4,3 +4,4 @@ package-lock.json
 /dist
 src/version.ts
 /coverage
+.parcel-cache/
