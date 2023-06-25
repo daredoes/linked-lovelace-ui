@@ -50,4 +50,15 @@ describe('[class] LinkedLovelaceController', () => {
       [dashboard.url_path]: config
     });
   });
+
+  test('gets something with something when given an ID', () => {
+    const controller = new LinkedLovelaceController();
+    controller.templateController.templates
+    controller.registerTemplates({'test': {
+      type: 'test'
+    }})
+    expect(Object.keys(controller.templateController.templates)).toHaveLength(1)
+  });
+  
+  
 });

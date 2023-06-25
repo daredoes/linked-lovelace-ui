@@ -42,7 +42,7 @@ export const extractTemplateData = (data: DashboardCard): DashboardCard => {
   return data;
 };
 
-export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}, v2 = false): DashboardCard => {
+export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}, v2 = true): DashboardCard => {
   // Get key and data for template
   const templateKey = data.template;
   // TODO: Remove ternary operator when dropping support for template_data card arg
@@ -52,16 +52,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     if (dataFromTemplate) {
       // If data in template, find and replace each key
       let template = JSON.stringify(templateData[templateKey]);
-      if (v2) {
-        template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
-      } else {
-        template = template.replaceAll(replaceRegex, (substring, templateKey) => {
-          if (dataFromTemplate[templateKey] === undefined) {
-            dataFromTemplate[templateKey] = '';
-          }
-          return dataFromTemplate[templateKey] || substring;
-        });
-      }
+      template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
       try {
         // Convert rendered string back to JSON
         data = JSON.parse(template);
@@ -70,6 +61,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         // Return original value if parse fails
         data = templateData[templateKey];
       }
+      console.log(templateData[templateKey], dataFromTemplate, data)
       originalCardData.ll_keys?.forEach((ll_key) => {
         const linkedLovelaceKeyData = dataFromTemplate ? dataFromTemplate[ll_key] : undefined;
         if (linkedLovelaceKeyData) {

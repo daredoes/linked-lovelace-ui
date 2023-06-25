@@ -1,7 +1,6 @@
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
 
 export interface AddDashboardConfigResponse {
-  templates: Record<string, DashboardCard>;
   views: Record<string, DashboardView>;
 }
 
@@ -27,16 +26,10 @@ class DashboardController {
   addDashboardConfig(dashboard: Dashboard, config: DashboardConfig, overwrite = true): AddDashboardConfigResponse {
     const didAdd = this._addDashboardConfig(dashboard, config, overwrite);
     const response: AddDashboardConfigResponse = {
-      templates: {},
       views: {},
     };
     if (didAdd) {
       config.views.forEach((view) => {
-        if (config.template) {
-          if (view.cards?.length == 1 && view.path) {
-            response.templates[view.path] = view.cards[0];
-          }
-        }
         response.views[`${dashboard.id}${view.path ? `.${view.path}` : ''}`] = view;
       });
     }

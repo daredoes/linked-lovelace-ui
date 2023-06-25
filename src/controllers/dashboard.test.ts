@@ -23,7 +23,6 @@ describe('[class] DashboardController', () => {
   test('adds nothing when given an empty config as expected', () => {
     const controller = new DashboardController();
     const emptyResponse: AddDashboardConfigResponse = {
-      templates: {},
       views: {}
     }
     expect(controller.addDashboardConfig(dashboard, config)).toEqual(emptyResponse);
@@ -66,7 +65,6 @@ describe('[class] DashboardController', () => {
     const controller = new DashboardController();
     const testConfig: DashboardConfig = {...config, views: [{title: 'best'}]}
     const response: AddDashboardConfigResponse = {
-      templates: {},
       views: {
         [dashboard.id]: {
           title: 'best'
@@ -80,7 +78,6 @@ describe('[class] DashboardController', () => {
     const controller = new DashboardController();
     const testConfig: DashboardConfig = {...config, views: [{title: 'best', path: 'yes'}]}
     const response: AddDashboardConfigResponse = {
-      templates: {},
       views: {
         [dashboard.id + ".yes" ]: {
           title: 'best',

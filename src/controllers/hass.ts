@@ -1,4 +1,4 @@
-import { Dashboard, DashboardConfig } from 'src/types';
+import { Dashboard, DashboardCard, DashboardConfig } from 'src/types';
 import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from './linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';
@@ -20,11 +20,19 @@ class HassController {
         return [undefined, undefined]
       }),
     );
+    const templates: Record<string, DashboardCard> = {};
     await Promise.all(dashboardConfigs.map(async (dbcs) => {
       const config = dbcs[0] as DashboardConfig
       if (config) {
         return config.views.map(async (view) => {
           return view.cards?.map(async (card) => {
+            if (card.ll_key) {
+              if (templates[card.ll_key] && (templates[card.ll_key].ll_priority || 0) < (card.ll_priority || 0)) { 
+                console.log(`Template already exists with tag ${card.ll_key}`)
+              } else {
+                templates[card.ll_key] = card
+              }
+            }
             this.linkedLovelaceController.etaController.addTemplatesFromCard(card)
           })
         })
@@ -33,6 +41,7 @@ class HassController {
     }))
     this.linkedLovelaceController.etaController.loadTemplates()
     TemplateEngine.instance.eta = this.linkedLovelaceController.etaController.engine.eta
+    this.linkedLovelaceController.registerTemplates(templates)
     await Promise.all(
       dashboardConfigs.map(async (dbcs) => {
         const config = dbcs[0] as DashboardConfig

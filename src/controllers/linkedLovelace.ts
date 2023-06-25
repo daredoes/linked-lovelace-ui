@@ -12,11 +12,18 @@ class LinkedLovelaceController {
   etaController: EtaTemplateController = new EtaTemplateController();
 
   registerDashboard = (dashboard: Dashboard, config: DashboardConfig): void => {
-    const { templates, views } = this.dashboardController.addDashboardConfig(dashboard, config);
+    const { views } = this.dashboardController.addDashboardConfig(dashboard, config);
     Object.values(views).forEach((view) => {
       this.viewController.addView(dashboard, view);
     });
-    Object.keys(templates).forEach((key) => {
+  };
+
+  registerTemplates = (templates: Record<string, DashboardCard>): void => {
+    Object.keys(templates).sort((kA, kB) => {
+      const priorityA = templates[kA].ll_priority || 0
+      const priorityB = templates[kB].ll_priority || 0
+      return priorityA - priorityB
+    }).forEach((key) => {
       const template = templates[key];
       this.templateController.renderAndAddTemplate(key, template, template.ll_v2);
     });

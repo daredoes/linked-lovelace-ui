@@ -19,8 +19,11 @@ class TemplateController {
   }
 
   renderAndAddTemplate(key: string, template: DashboardCard, v2 = false): boolean {
-    const renderedTemplate = updateCardTemplate(template, this.templates, v2);
-    return this.addTemplate(key, renderedTemplate, true);
+    const data = {...template}
+    delete data.ll_key
+    delete data.ll_priority
+    const renderedTemplate = updateCardTemplate(data, this.templates, v2);
+    return this.addTemplate(key, data, true);
   }
 
   renderCard(card: DashboardCard, v2 = false): DashboardCard {
