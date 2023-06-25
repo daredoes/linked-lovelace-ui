@@ -111,21 +111,22 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
         const tmpConfig = { ...this._config };
         delete tmpConfig[target.configValue];
         if (target.configValue === 'template') {
-          tmpConfig['ll_data'] = {};
+          tmpConfig['ll_data'] = undefined;
         }
         this._config = tmpConfig;
       } else {
-        let templateData = {};
+        let templateData: Record<string, any> | undefined = undefined;
         if (target.configValue === 'template') {
           const template: DashboardCard | undefined =
             this._controller?.linkedLovelaceController.templateController.templates[target.value];
           if (template) {
-            templateData = extractTemplateData(template).template_data || {};
+            templateData = extractTemplateData(template).template_data || undefined;
           }
         }
         this._config = {
           ...this._config,
           ll_data: templateData,
+          ll_v2: true,
           [target.configValue]: target.checked !== undefined ? target.checked : target.value,
         };
       }

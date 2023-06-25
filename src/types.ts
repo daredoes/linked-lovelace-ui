@@ -42,6 +42,8 @@ export interface DashboardCard extends LovelaceCardConfig {
   ll_data?: Record<string, any>;
   ll_keys?: string[];
   ll_v2?: boolean;
+  ll_key?: string
+  ll_priority?: number
 }
 
 export interface LinkedLovelaceTemplate {

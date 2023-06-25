@@ -31,7 +31,7 @@ class HassController {
       }
       return undefined
     }))
-    console.log(this.linkedLovelaceController.etaController.loadTemplates())
+    this.linkedLovelaceController.etaController.loadTemplates()
     TemplateEngine.instance.eta = this.linkedLovelaceController.etaController.engine.eta
     await Promise.all(
       dashboardConfigs.map(async (dbcs) => {

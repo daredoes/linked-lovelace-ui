@@ -183,7 +183,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'test',
       template: 'template',
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({ type: 'template', template: 'template' });
+    expect(updateCardTemplate(card, { template })).toStrictEqual({ type: 'template', template: 'template', ll_v2: false });
   });
 
   test('replaces child cards with template', () => {
@@ -204,6 +204,7 @@ describe('[function] updateCardTemplate', () => {
       cards: [
         {
           type: 'template',
+          ll_v2: false,
           template: 'template',
         },
       ],
@@ -226,6 +227,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'test',
       card: {
         type: 'template',
+        ll_v2: false,
         template: 'template',
       },
     });
@@ -246,6 +248,7 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       name: 'yes man',
       ll_data: {
         cool: 'yes',
@@ -273,6 +276,7 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       card: {
         type: 'swapped',
         template: 'template',
@@ -315,6 +319,7 @@ describe('[function] updateCardTemplate', () => {
             content: {
               type: 'new',
               template: 'template',
+              ll_v2: false,
               card: {
                 type: 'swapped',
                 template: 'template'
@@ -341,6 +346,7 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       name: '$cool {{}{$ yes man',
       ll_data: {
         cool: 'yes',
@@ -364,6 +370,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       number: 6,
+      ll_v2: false,
       ll_keys: ['number'],
       ll_data: {
         number: 6
@@ -388,6 +395,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       number: 6,
+      ll_v2: false,
       ll_keys: ['number'],
       ll_data: {
         number: 6
@@ -417,10 +425,12 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       cards: [
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: false,
           cards: []
         }
       ],
@@ -456,15 +466,18 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       cards: [
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: false,
           cards: []
         },
         {
           type: 'template',
           template: 'template',
+          ll_v2: false,
           cards: []
         }
       ],
@@ -502,17 +515,20 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       cards: [
         {
           type: 'nested',
           template: 'nested',
           ll_data: { name: 'Cool' },
+          ll_v2: false,
           name: 'Cool',
           cards: []
         },
         {
           type: 'template',
           template: 'template',
+          ll_v2: false,
           cards: []
         }
       ],
@@ -554,6 +570,7 @@ describe('[function] updateCardTemplate', () => {
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: false,
           ll_data: { name: 'Cool' },
           ll_keys: ['name'],
           name: 'Cool',
@@ -562,10 +579,12 @@ describe('[function] updateCardTemplate', () => {
         {
           type: 'template',
           template: 'template',
+          ll_v2: false,
           cards: []
         }
       ],
       ll_keys: ['cards'],
+      ll_v2: false,
       ll_data: {
         cards: [
           { template: 'nested', ll_data: { name: 'Cool' }, ll_keys: ['name'], },
@@ -600,10 +619,12 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       cards: [
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: false,
           ll_data: { name: 'Uncool' },
           name: 'Uncool',
           cards: []
@@ -611,6 +632,7 @@ describe('[function] updateCardTemplate', () => {
         {
           type: 'template',
           ll_data: { name: 'Uncool' },
+          ll_v2: false,
           template: 'template',
           cards: []
         }
@@ -664,6 +686,7 @@ describe('[function] updateCardTemplate', () => {
         {
           type: 'custom:vertical-stack-in-card',
           template: 'info',
+          ll_v2: false,
           cards: []
         },
         {
@@ -672,6 +695,7 @@ describe('[function] updateCardTemplate', () => {
             style: {}
           },
           template: 'modes',
+          ll_v2: false,
           ll_data: {
             cards: [
               { template: 'info', type: 'test' },
@@ -683,11 +707,13 @@ describe('[function] updateCardTemplate', () => {
             {
               type: 'custom:vertical-stack-in-card',
               template: 'info',
+              ll_v2: false,
               cards: []
             },
             {
               type: 'custom:vertical-stack-in-card',
               template: 'info',
+              ll_v2: false,
               cards: []
             }
           ]
@@ -695,6 +721,7 @@ describe('[function] updateCardTemplate', () => {
         {
           type: 'custom:mushroom-chips-card',
           template: 'chips',
+          ll_v2: false,
           chips: []
         },
       ],
@@ -718,6 +745,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       number: 6,
+      ll_v2: false,
       ll_keys: ['number'],
       ll_data: {
         number: 6
@@ -740,6 +768,7 @@ describe('[function] updateCardTemplate', () => {
       type: 'template',
       template: 'template',
       number: 3,
+      ll_v2: false,
       ll_keys: ['number'],
       ll_data: {},
     });
@@ -760,6 +789,7 @@ describe('[function] updateCardTemplate', () => {
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: false,
       name: 'yes man',
       ll_data: {
         cool_123: 'yes',
@@ -804,7 +834,7 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'test',
       template: 'template',
     };
-    expect(updateCardTemplate(card, { template }, true)).toStrictEqual({ type: 'template', template: 'template' });
+    expect(updateCardTemplate(card, { template }, true)).toStrictEqual({ ll_v2: true, type: 'template', template: 'template' });
   });
 
   test('replaces child cards with template', () => {
@@ -825,6 +855,7 @@ describe('[function] updateCardTemplate v2', () => {
       cards: [
         {
           type: 'template',
+          ll_v2: true,
           template: 'template',
         },
       ],
@@ -847,6 +878,7 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'test',
       card: {
         type: 'template',
+        ll_v2: true,
         template: 'template',
       },
     });
@@ -868,6 +900,7 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'template',
       template: 'template',
       name: 'yes man',
+      ll_v2: true,
       ll_data: {
         cool: 'yes',
       },
@@ -894,6 +927,7 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { template }, true)).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: true,
       card: {
         type: 'swapped',
         template: 'template',
@@ -936,6 +970,7 @@ describe('[function] updateCardTemplate v2', () => {
             content: {
               type: 'new',
               template: 'template',
+              ll_v2: true,
               card: {
                 type: 'swapped',
                 template: 'template'
@@ -963,6 +998,7 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'template',
       template: 'template',
       number: 6,
+      ll_v2: true,
       ll_keys: ['number'],
       ll_data: {
         number: 6
@@ -987,6 +1023,7 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'template',
       template: 'template',
       number: 6,
+      ll_v2: true,
       ll_keys: ['number'],
       ll_data: {
         number: 6
@@ -1016,10 +1053,12 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { template, nested }, true)).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: true,
       cards: [
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: true,
           cards: []
         }
       ],
@@ -1055,15 +1094,18 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { template, nested }, true)).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: true,
       cards: [
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: true,
           cards: []
         },
         {
           type: 'template',
           template: 'template',
+          ll_v2: true,
           cards: []
         }
       ],
@@ -1101,10 +1143,12 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { template, nested }, true)).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: true,
       cards: [
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: true,
           ll_data: { name: 'Cool' },
           name: 'Cool',
           cards: []
@@ -1112,6 +1156,7 @@ describe('[function] updateCardTemplate v2', () => {
         {
           type: 'template',
           template: 'template',
+          ll_v2: true,
           cards: []
         }
       ],
@@ -1153,6 +1198,7 @@ describe('[function] updateCardTemplate v2', () => {
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: true,
           ll_data: { name: 'Cool' },
           ll_keys: ['name'],
           name: 'Cool',
@@ -1160,11 +1206,13 @@ describe('[function] updateCardTemplate v2', () => {
         },
         {
           type: 'template',
+          ll_v2: true,
           template: 'template',
           cards: []
         }
       ],
       ll_keys: ['cards'],
+      ll_v2: true,
       ll_data: {
         cards: [
           { template: 'nested', ll_data: { name: 'Cool' }, ll_keys: ['name'], },
@@ -1203,6 +1251,7 @@ describe('[function] updateCardTemplate v2', () => {
         {
           type: 'nested',
           template: 'nested',
+          ll_v2: true,
           ll_data: { name: 'Uncool' },
           name: 'Uncool',
           cards: []
@@ -1211,10 +1260,12 @@ describe('[function] updateCardTemplate v2', () => {
           type: 'template',
           ll_data: { name: 'Uncool' },
           template: 'template',
+          ll_v2: true,
           cards: []
         }
       ],
       ll_keys: ['cards'],
+      ll_v2: true,
       ll_data: {
         name: 'Uncool',
         cards: [
@@ -1263,6 +1314,7 @@ describe('[function] updateCardTemplate v2', () => {
         {
           type: 'custom:vertical-stack-in-card',
           template: 'info',
+          ll_v2: true,
           cards: []
         },
         {
@@ -1270,6 +1322,7 @@ describe('[function] updateCardTemplate v2', () => {
           card_mod: {
             style: {}
           },
+          ll_v2: true,
           template: 'modes',
           ll_data: {
             cards: [
@@ -1281,11 +1334,13 @@ describe('[function] updateCardTemplate v2', () => {
           cards: [
             {
               type: 'custom:vertical-stack-in-card',
+              ll_v2: true,
               template: 'info',
               cards: []
             },
             {
               type: 'custom:vertical-stack-in-card',
+              ll_v2: true,
               template: 'info',
               cards: []
             }
@@ -1293,6 +1348,7 @@ describe('[function] updateCardTemplate v2', () => {
         },
         {
           type: 'custom:mushroom-chips-card',
+          ll_v2: true,
           template: 'chips',
           chips: []
         },
@@ -1316,6 +1372,7 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { template }, true)).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: true,
       number: 6,
       ll_keys: ['number'],
       ll_data: {
@@ -1338,6 +1395,7 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { template }, true)).toStrictEqual({
       type: 'template',
       template: 'template',
+      ll_v2: true,
       number: 3,
       ll_keys: ['number'],
       ll_data: {},
@@ -1360,6 +1418,7 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'template',
       template: 'template',
       name: 'yes man',
+      ll_v2: true,
       ll_data: {
         cool_123: 'yes',
       },
