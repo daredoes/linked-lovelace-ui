@@ -39,6 +39,7 @@ class EtaTemplateController {
     const templates:  Record<string, LinkedLovelaceTemplate> = {};
     if (card.type === 'custom:linked-lovelace-templates') {
       const parentCard: DashboardTemplatesCard = card as DashboardTemplatesCard;
+      console.log(parentCard)
       const parsing = parentCard.templates?.map(async (possibleTemplate) => {
         if (possibleTemplate.key) {
           if (possibleTemplate.url) {

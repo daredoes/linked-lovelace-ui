@@ -18,6 +18,7 @@ export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
 
 export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
   type: string;
+  ll_v2?: boolean;
   template: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template_data: Record<string, any>

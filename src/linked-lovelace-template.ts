@@ -2,7 +2,7 @@
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
-import { HomeAssistant, hasConfigOrEntityChanged, LovelaceCardEditor, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
+import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
 import type { LinkedLovelaceTemplateCardConfig } from './types';
 import './types';
@@ -48,9 +48,9 @@ export class LinkedLovelaceTemplateCard extends LitElement {
     this._repaint();
   };
 
-  public static async getConfigElement(): Promise<LovelaceCardEditor> {
+  public static async getConfigElement(): Promise<LinkedLovelaceTemplateCardEditor> {
     await import('./template-editor');
-    return document.createElement('linked-lovelace-template-editor') as LinkedLovelaceTemplateCardEditor;
+    return document.createElement('linked-lovelace-template-editor') as unknown as LinkedLovelaceTemplateCardEditor;
   }
 
   public static getStubConfig(): Record<string, unknown> {

@@ -86,7 +86,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
 
               const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_data, ...originalDataFromTemplate };
               delete newLLData[cardKey]
-              const oldData = { ...{ ll_data: newLLData }, ...{ ...originalDataFromTemplate[cardKey][i] }, ...{ ll_data: newLLData } };
+              const oldData = { ...{ ll_data: newLLData, ll_v2: v2 }, ...{ ...originalDataFromTemplate[cardKey][i] }, ...{ ll_data: newLLData } };
               if (typeof oldData.ll_data !== undefined && Object.keys(oldData.ll_data).length == 0) {
                 delete oldData.ll_data;
               }
@@ -109,13 +109,13 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         data[k] = updatedData[k]
       })
       // Put template data back in card
-      data = { ...{ ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
+      data = { ...{ ll_v2: v2, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
     } else {
       // Put template value as new value
       data = templateData[templateKey];
     }
     // Put template key back in card
-    data = { ...{ template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, template: templateKey, ll_keys: originalCardData.ll_keys };
+    data = { ...{ ll_v2: v2, template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, template: templateKey, ll_keys: originalCardData.ll_keys };
   } else {
     if (data.cards) {
       // Update any cards in the card
