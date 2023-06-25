@@ -1,4 +1,4 @@
-// import { TemplateEngine } from '../v2/template-engine';
+import { TemplateEngine } from '../v2/template-engine';
 import { DashboardCard, DashboardView } from '../types';
 
 export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
@@ -53,7 +53,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       // If data in template, find and replace each key
       let template = JSON.stringify(templateData[templateKey]);
       if (v2) {
-        // template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
+        template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
       } else {
         template = template.replaceAll(replaceRegex, (substring, templateKey) => {
           if (dataFromTemplate[templateKey] === undefined) {

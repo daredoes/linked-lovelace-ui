@@ -40,6 +40,7 @@ export interface DashboardCard extends LovelaceCardConfig {
   template_data?: Record<string, any>;
   ll_data?: Record<string, any>;
   ll_keys?: string[];
+  ll_v2?: boolean;
 }
 
 export interface DashboardView {

@@ -16,7 +16,7 @@ class LinkedLovelaceController {
     });
     Object.keys(templates).forEach((key) => {
       const template = templates[key];
-      this.templateController.renderAndAddTemplate(key, template, v2);
+      this.templateController.renderAndAddTemplate(key, template, v2 && template.ll_v2);
     });
   };
 
@@ -33,7 +33,7 @@ class LinkedLovelaceController {
       if (view.cards) {
         // For every card in the config, store a copy of the rendered card
         view.cards.forEach((card) => {
-          const newCard = this.templateController.renderCard(card, v2);
+          const newCard = this.templateController.renderCard(card, v2 && card.ll_v2);
           cards.push(newCard);
         });
         // Replace the cards in the view

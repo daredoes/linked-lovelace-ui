@@ -6,10 +6,11 @@
   "repository": "https://github.com/daredoes/linked-lovelace-ui",
   "author": "Daniel Evans <me@daredoes.work>",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@lit-labs/scoped-registry-mixin": "^1.0.1",
     "custom-card-helpers": "^1.9.0",
-    "eta": "^3.0.3",
+    "eta": "./eta-3.0.3.tgz",
     "home-assistant-js-websocket": "^8.0.1",
     "jest": "^29.5.0",
     "lit": "^2.0.0",

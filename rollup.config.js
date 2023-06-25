@@ -7,6 +7,7 @@ import serve from 'rollup-plugin-serve';
 import json from '@rollup/plugin-json';
 import eta from 'rollup-plugin-eta';
 import nodeExternals from 'rollup-plugin-node-externals'
+import nodePolyfills from 'rollup-plugin-node-polyfills'
 
 
 
@@ -23,13 +24,19 @@ const serveopts = {
 };
 
 const plugins = [
-  nodeResolve(),
+  nodePolyfills({
+    fs: true
+  }),
+  nodeResolve({
+    preferBuiltins: false,
+    browser: true
+  }),
   commonjs({
     namedExports: {
       // left-hand side can be an absolute path, a path
       // relative to the current directory, or the name
       // of a module in node_modules
-      'yaml': [ 'parse' ]
+      'yaml': [ 'parse' ],
     }
   }),
   typescript({
