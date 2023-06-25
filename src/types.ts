@@ -43,6 +43,19 @@ export interface DashboardCard extends LovelaceCardConfig {
   ll_v2?: boolean;
 }
 
+export interface LinkedLovelaceTemplate {
+  key?: string
+  url?: string
+  template?: string
+  render?: boolean
+  priority?: number
+}
+
+export interface DashboardTemplatesCard extends LovelaceCardConfig {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  templates?: LinkedLovelaceTemplate[];
+}
+
 export interface DashboardView {
   title: string;
   path?: string;

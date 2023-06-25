@@ -1084,7 +1084,7 @@ describe('[function] updateCardTemplate v2', () => {
     };
     const nested: DashboardCard = {
       type: 'nested',
-      name: '$name$',
+      name: '<%= context.name %>',
       cards: []
     };
     const card: DashboardCard = {
@@ -1181,7 +1181,7 @@ describe('[function] updateCardTemplate v2', () => {
     };
     const nested: DashboardCard = {
       type: 'nested',
-      name: '$name$',
+      name: '<%= context.name %>',
       cards: []
     };
     const card: DashboardCard = {

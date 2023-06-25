@@ -2,17 +2,22 @@ import { updateOrAddViewsToDashboardConfig } from '../helpers/dashboards';
 import { Dashboard, DashboardCard, DashboardConfig, DashboardView } from '../types';
 import DashboardController from './dashboard';
 import TemplateController from './template';
+import EtaTemplateController from './templateV2';
 import ViewController from './view';
 
 class LinkedLovelaceController {
   dashboardController: DashboardController = new DashboardController();
   viewController: ViewController = new ViewController();
   templateController: TemplateController = new TemplateController();
+  etaController: EtaTemplateController = new EtaTemplateController();
 
   registerDashboard = (dashboard: Dashboard, config: DashboardConfig, v2 = false): void => {
     const { templates, views } = this.dashboardController.addDashboardConfig(dashboard, config);
     Object.values(views).forEach((view) => {
       this.viewController.addView(dashboard, view);
+      view.cards?.forEach((card) => {
+        this.etaController.addTemplatesFromCard(card)
+      })
     });
     Object.keys(templates).forEach((key) => {
       const template = templates[key];
