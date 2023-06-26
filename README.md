@@ -63,7 +63,7 @@ A `partial` object has the following shape
 
 1. Install Linked Lovelace 2.0
 2. Navigate to a user-created dashboard. (pretty much anything but Overview I think)
-3. Put the content from `sample-dashboard.yml` into your dashboard using the raw configuration editor. The result should look like ![V2 Before Dashboard](/docs/imgs/v2before.png)
+3. Put the content from [sample-dashboard.yml](https://github.com/daredoes/linked-lovelace-ui/blob/master/sample-dashboard.yml) into your dashboard using the raw configuration editor. The result should look like ![V2 Before Dashboard](/docs/imgs/v2before.png)
 4. Click "Update All" and it should now look like ![V2 After Dashboard](/docs/imgs/v2after.png)
 Before -> After
 ![Linked Lovelace V2 Demo](/docs/imgs/llv2.gif)
