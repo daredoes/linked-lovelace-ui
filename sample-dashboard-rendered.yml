@@ -1,0 +1,71 @@
+views:
+  - title: test
+    path: test
+    badges: []
+    cards:
+      - type: custom:linked-lovelace-partials
+        partials:
+          - key: stateToIcon
+            priority: 0
+            template: >-
+              <% let state = context.state ? context.state.toLowerCase() : ''
+              _%>
+
+              <%_ if (state === "passive") { _%>
+
+              mdi:peace
+
+              <%_ } else if (state === 'movie') { _%>
+
+              mdi:movie
+
+              <%_ } else if (state === 'off') { _%>
+
+              mdi:power
+
+              <%_ } else { _%>
+
+              mdi:progress-question
+
+              <%_ } _%>
+          - key: stateToIconColor
+            priority: 0
+            url: https://pastebin.com/raw/FWpkRqxz
+      - type: vertical-stack
+        cards:
+          - type: custom:linked-lovelace-template
+            ll_template: status
+            ll_context:
+              entity: person.daniel_evans
+              mode: Movie
+          - type: custom:linked-lovelace-template
+            ll_template: status
+            ll_context:
+              entity: person.daniel_evans
+      - type: markdown
+        ll_key: text
+        content: <%= context.content %> <%= context.suffix %>
+        title: <%=context.title %>
+      - type: vertical-stack
+        cards:
+          - type: picture
+            image: https://demo.home-assistant.io/stub_config/t-shirt-promo.png
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - ll_template: text
+            ll_context:
+              title: This is a unique title
+              content: This is some dang ole unique content
+            type: markdown
+            content: This is some dang ole unique content undefined
+            title: This is a unique title
+          - ll_template: text
+            ll_context:
+              title: This is also a unique title
+              content: This is some real cool unique content
+              suffix: ' with a period.'
+            type: markdown
+            content: This is some real cool unique content  with a period.
+            title: This is also a unique title

@@ -4,24 +4,22 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { LinkedLovelaceTemplateCardConfig } from './types';
+import { LINKED_LOVELACE_PARTIALS, type DashboardPartialsCard } from './types';
 import './types';
 import { localize } from './localize/localize';
-import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import { log } from './helpers';
-import HassController from './controllers/hass';
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
-  type: 'linked-lovelace-template',
-  name: 'Linked Lovelace Template Card',
-  description: 'Help select an existing template for a card',
+  type: LINKED_LOVELACE_PARTIALS,
+  name: 'Linked Lovelace Partials Card',
+  description: 'Use this card to add ETA partials',
 });
 
-@customElement('linked-lovelace-template')
+@customElement(LINKED_LOVELACE_PARTIALS)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export class LinkedLovelaceTemplateCard extends LitElement {
+export class LinkedLovelaceTemplatesCard extends LitElement {
   constructor() {
     super();
   }
@@ -41,18 +39,6 @@ export class LinkedLovelaceTemplateCard extends LitElement {
     this._repaint();
   }
 
-  private handleClick = async () => {
-    const controller = new HassController();
-    await controller.refresh();
-    await controller.updateAll();
-    this._repaint();
-  };
-
-  public static async getConfigElement(): Promise<LinkedLovelaceTemplateCardEditor> {
-    await import('./template-editor');
-    return document.createElement('linked-lovelace-template-editor') as unknown as LinkedLovelaceTemplateCardEditor;
-  }
-
   public static getStubConfig(): Record<string, unknown> {
     return {};
   }
@@ -62,10 +48,10 @@ export class LinkedLovelaceTemplateCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() public loaded = false;
 
-  @state() private config!: LinkedLovelaceTemplateCardConfig;
+  @state() private config!: DashboardPartialsCard;
 
   // https://lit.dev/docs/components/properties/#accessors-custom
-  public setConfig(config: LinkedLovelaceTemplateCardConfig): void {
+  public setConfig(config: DashboardPartialsCard): void {
     // TODO Check for required fields and that they are of the proper format
     if (!config) {
       throw new Error(localize('common.invalid_configuration'));
@@ -75,7 +61,7 @@ export class LinkedLovelaceTemplateCard extends LitElement {
       getLovelace().setEditMode(true);
     }
 
-    const name = `Linked Lovelace Template`;
+    const name = `Linked Lovelace Eta JS Partials`;
 
     this.config = {
       ...config,
@@ -97,16 +83,11 @@ export class LinkedLovelaceTemplateCard extends LitElement {
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    //  Finish edit mode
-    const editMode = false;
     return html`
-      <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
+      <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Eta JS Partials`}
         class="linked-lovelace-container">
-        <div class="card-content">${this.config.template}</div>
+        <div class="card-content">${Object.values(this.config.partials || {}).map((t) => t.key).join(" ")}</div>
         <div class="card-actions">
-          <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
-            ${localize('common.update_all')}
-          </ha-progress-button>
         </div>
       </ha-card>
     `;

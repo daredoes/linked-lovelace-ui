@@ -15,7 +15,7 @@ jobs:
       - name: Build
         uses: actions/setup-node@v3
         with:
-          node-version: '12.x'
+          node-version: '16.x'
       - run: cd $GITHUB_WORKSPACE
       - run: yarn
       - run: yarn build

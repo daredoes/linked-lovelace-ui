@@ -1,8 +1,6 @@
-# Linked Lovelace by [@daredoes](https://www.github.com/daredoes)
+# Linked Lovelace UI by [@daredoes](https://www.github.com/daredoes)
 
-![Linked Lovelace Demo](/docs/imgs/LinkedLoveLace.gif)
-
-A front-end only implementation of re-usable cards between Home Assistant Dashboards (excluding Overview)
+A pure JS client-side implementation of re-usable cards between Home Assistant Dashboards (excluding Overview).
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
@@ -19,14 +17,12 @@ Hey you! Help me out for a couple of :beers: or a :coffee:!
 
 ---
 
-##  Features
+## Features
 
 * Create cards in the Lovelace UI that can be **linked** to multiple dashboards
-* Provide *basic* templating when creating linked cards
-  * Wrap a string with `$` to create a variable. Ex: `name: $name$`
-  * Pass Template Data with parameter `template_data`
-  * Variables are passed down to their children templates
-  * Look at some examples in the Wiki until the guide is updated.
+* Provide templating when creating linked cards using [https://eta.js.org/](EtaJS)
+  * Create dynamic partials from local templates, or online templates!
+  * Access Template Data with variable `context` e.g. `<%= context.name %>`
 
 ---
 
@@ -38,127 +34,60 @@ Add through [HACS](https://github.com/custom-components/hacs)
 
 ## Options
 
-| Name              | Type    | Requirement  | Description                                 | Default             |
-| ----------------- | ------- | ------------ | ------------------------------------------- | ------------------- |
-| type              | string  | **Required** | `custom:linked-lovelace-template`                   |
-| name              | string  | **Optional** | Card name                                   | ``       |
+| Name              | Type    | Requirement  | Description                                                | Default             |
+| ----------------- | ------- | ------------ | ---------------------------------------------------------- | ------------------- |
+| type              | string  | **Required** | While normally required, this will be replaced             |                     |
+| ll_template       | string  | **Optional** | ll_key name                                                | ``                  |
+| ll_context        | object  | **Optional** | An object that can be accessed inside of EtaJS as `context`| ``                  |
 
-## Templates
+| Name              | Type    | Requirement  | Description                                                                                               | Default             |
+| ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
+| type              | string  | **Required** | A normal Lovelace card type                                                                               |                     |
+| ll_key            | string  | **Required** | The name you want to use for this template                                                                | ``                  |
+| ll_priority       | number  | **Optional** | Used in sorting the order that templates are added to the system for nesting. Lowest number comes first.  | `0`                 |
+
+| Name              | Type    | Requirement  | Description                                                                                               | Default             |
+| ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
+| type              | string  | **Required** | `custom:linked-lovelace-partials`                                                                         |                     |
+| partials          | list    | **Optional** | A list of partials you want to use in Eta JS                                                              | ``                  |
+
+A `partial` object has the following shape
+| Name              | Type    | Requirement  | Description                                                                                               | Default             |
+| ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
+| key               | string  | **Required** | The name you want to use for this partial in Eta JS                                                       |                     |
+| priority          | number  | **Optional** | Used in sorting the order that templates are added to the system for nesting. Lowest number comes first.  | `0`                 |
+| url               | string  | **Optional** | A url that will have a GET request made to it, and have its response body used as `template`.             | ``                  |
+| template          | string  | **Required** | The content that will be used as the Eta JS. If `url` is given, it will be downloaded and replace this.   | ``                  |
+
+## _Instructions_ (if you can call them that)
+
+1. Install Linked Lovelace 2.0
+2. Navigate to a user-created dashboard. (pretty much anything but Overview I think)
+3. Put the content from `sample-dashboard.yml` into your dashboard using the raw configuration editor. The result should look like ![V2 Before Dashboard](/docs/imgs/v2before.png)
+4. Click "Update All" and it should now look like ![V2 After Dashboard](/docs/imgs/v2after.png)
+Before -> After
+![Linked Lovelace V2 Demo](/docs/imgs/llv2.gif)
+5. Reverse engineer it for your own needs, or file an issue, or [join the discord](https://discord.gg/WbsNtASKau) to chat with me directly about it.
+
+## V1 to V2 conversion (or useful information)
+
+* You no longer need "Template Dashboards". Make any top-level card in a view on any user-created dashboard a template by adding `ll_key: template_name` to the config. 
+
+  * If you need to choose the order these templates are processed for nested templates you can use `ll_priority: 0`. 
+  * The templates are sorted by lowest number first, so if you want to use `templateA` in `templateB`, `templateB` should have `ll_priority: 1` to be rendered after `templateA` has been added to our collection of available templates.
+* `template_data` or `ll_data` must now be set to `ll_context`
+* `template` must now be set to `ll_template`
+* `ll_keys` mostly works still. two tests involving overriding context failed if someone wants to fix them. I'm considering removing this feature entirely.
+* To convert an old template data variable, `$example$`, just swap the first `$` to `<%=` and the second `$` to `%>`, and retrieve the variable from `context`.
+  * example: `<%= context.example %>`
+
+* ### file an issue if I forgot something plz UwU
 
 ---
 
-### Creating a template dashboard
-
-> **Check the wiki for a starter dashboard!**
-
-The first thing needed when creating a template card is a dashboard to hold these templates.
-
-Create a dashboard inside of Hassio at `http://YOUR_INSTANCE.local:8123/config/lovelace/dashboards`
-
-   ![Add New Dashboard](/docs/imgs/LovelaceDashboards.png)
-
-For our example, we'll create a `Templates` dashboard with the path `lovelace-templates`. The settings here don't really matter, it only matters that we have a dashboard.
-
-   ![Add Template Dashboard](/docs/imgs/AddNewDashboard.png)
-
-1. On the `Templates` dashboard, click the `⋮` to access a menu, and click `Edit Dashboard`.
-
-   ![Edit Dashboard](/docs/imgs/EditDashboard.png)
-2. Once again, click the `⋮` to access another menu, and click `Raw configuration editor`.
-
-   ![Edit Dashboard Header](/docs/imgs/RawConfigurationEditorMenu.png)
-3. Add `template: true` to the top of the configuration file
-
-   ![Configuration](/docs/imgs/Configuration.png)
-
-That's it! Any view in this dashboard that has exactly one card in it will now be converted into a template.
-
-#### **Remember, the path of each view in the dashboard will be the name of the template.**
-
-### What is a template?
-
-> A template is a 'view' that contains exactly one 'card'. The 'path' of the view determines the 'key' we use to identify the template in other cards.
-
-### What can be in a template?
-
-So, *amateur hour here*, a template can be any valid card, where any term surrounded by the `$` character can be used as a key for replacement.
-
-How does data make it into the template to be replaced? `template_data` *duh?*
-
-Need an example? Okay!
-
-First, we'll create a view called `Version Card` with the path `version-card`.
-
-Next, we'll make a card that has a version in the bottom-right corner. Create a new card, and throw this YAML into it.
-
-```yaml
-type: markdown
-content: $version$
-```
-
-Now, let's use that `version-card` in something! How about another template!?
-
-First, we'll create a view called `Update Button` with the path `update-button`.
-
-Next, we'll make a card that contains a vertical stack, with the button and our version as the two elements in the stack.
-
-Here's the YAML
-
-```yaml
-type: vertical-stack
-cards:
-  - type: vertical-stack
-    cards:
-      - type: custom:linked-lovelace-template
-  - type: markdown
-    template_data:
-      version: v0.0.1
-    template: version-card
-```
-
-![Broken Template Card](/docs/imgs/BrokenTemplate.png)
-
-Wait, that doesn't look like a very useful card. Maybe it'll be more useful once we render it. Save the card, and then click it! You may be prompted to refresh the page, if not, refresh anyways since the changes won't appear until we do.
-
-Click edit, and look that that filled in YAML.
-
-```yaml
-type: vertical-stack
-cards:
-  - type: vertical-stack
-    cards:
-      - type: custom:linked-lovelace-template
-  - type: markdown
-    content: v0.0.1
-    template_data:
-      version: v0.0.1
-    template: version-card
-```
-
-![Working Template Card](/docs/imgs/WorkingTemplate.png)
-
-The main takeaway here is where `template_data`, `version`, and `$version$` are used.
-
-#### **Card Using Template**
-
-```yaml
-template: version-card
-template_data:
-    version: v0.0.1
-```
-
-#### **Card Using Template Data**
-
-```yaml
-type: custom:markdown
-content: $version$
-```
-
-
 [commits-shield]: https://img.shields.io/github/commit-activity/y/daredoes/linked-lovelace-ui.svg
 [commits]: https://github.com/daredoes/linked-lovelace-ui/commits/master
-[devcontainer]: https://code.visualstudio.com/docs/remote/containers
 [license-shield]: https://img.shields.io/github/license/daredoes/linked-lovelace-ui.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2022
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2023
 [releases-shield]: https://img.shields.io/github/release/daredoes/linked-lovelace-ui.svg
 [releases]: https://github.com/daredoes/linked-lovelace-ui/releases

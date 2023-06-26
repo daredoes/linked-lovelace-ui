@@ -6,10 +6,6 @@ import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { DashboardCard, LinkedLovelaceTemplateCardConfig } from './types';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
-import { formfieldDefinition } from '../elements/formfield';
-import { selectDefinition } from '../elements/select';
-import { switchDefinition } from '../elements/switch';
-import { textfieldDefinition } from '../elements/textfield';
 import HassController from './controllers/hass';
 import { extractTemplateData } from './helpers/templates';
 
@@ -28,10 +24,6 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
   private _initialized = false;
 
   static elementDefinitions = {
-    ...textfieldDefinition,
-    ...selectDefinition,
-    ...switchDefinition,
-    ...formfieldDefinition,
   };
 
   public setConfig(config: LinkedLovelaceTemplateCardConfig): void {
@@ -119,21 +111,22 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
         const tmpConfig = { ...this._config };
         delete tmpConfig[target.configValue];
         if (target.configValue === 'template') {
-          tmpConfig['ll_data'] = {};
+          tmpConfig['ll_data'] = undefined;
         }
         this._config = tmpConfig;
       } else {
-        let templateData = {};
+        let templateData: Record<string, any> | undefined = undefined;
         if (target.configValue === 'template') {
           const template: DashboardCard | undefined =
             this._controller?.linkedLovelaceController.templateController.templates[target.value];
           if (template) {
-            templateData = extractTemplateData(template).template_data || {};
+            templateData = extractTemplateData(template).ll_context || undefined;
           }
         }
         this._config = {
           ...this._config,
           ll_data: templateData,
+          ll_v2: true,
           [target.configValue]: target.checked !== undefined ? target.checked : target.value,
         };
       }

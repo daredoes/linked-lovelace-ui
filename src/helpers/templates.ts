@@ -1,8 +1,9 @@
+import { TemplateEngine } from '../v2/template-engine';
 import { DashboardCard, DashboardView } from '../types';
 
 export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
-  if (card.template) {
-    return [card.template];
+  if (card.ll_template) {
+    return [card.ll_template];
   }
   if (card.cards) {
     return card.cards.flatMap((c) => {
@@ -26,7 +27,7 @@ export const getTemplatesUsedInView = (view: DashboardView): string[] => {
 const replaceRegex = /(?<!\\)\$([a-z|A-Z|0-9|\_]+)(?!\\)\$/gm;
 
 export const extractTemplateData = (data: DashboardCard): DashboardCard => {
-  const dataFromTemplate = data.template_data || {};
+  const dataFromTemplate = data.ll_context || {};
   const template = JSON.stringify(data);
   template.replaceAll(replaceRegex, (substring, templateKey) => {
     if (dataFromTemplate[templateKey] === undefined) {
@@ -34,29 +35,24 @@ export const extractTemplateData = (data: DashboardCard): DashboardCard => {
     }
     return dataFromTemplate[templateKey] || substring;
   });
-  data.template_data = { ...data.template_data, ...dataFromTemplate };
-  if (Object.keys(data.template_data).length == 0) {
-    delete data.template_data;
+  data.ll_context = { ...data.ll_context, ...dataFromTemplate };
+  if (Object.keys(data.ll_context || {}).length == 0) {
+    delete data.ll_context;
   }
   return data;
 };
 
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template
-  const templateKey = data.template;
+  const templateKey = data.ll_template;
   // TODO: Remove ternary operator when dropping support for template_data card arg
-  const dataFromTemplate: Record<string, any> | undefined = data.ll_data ? data.ll_data : data.template_data;
+  const dataFromTemplate: Record<string, any> | undefined = data.ll_context;
   const originalCardData = Object.assign({}, data);
   if (templateKey && templateData[templateKey]) {
     if (dataFromTemplate) {
       // If data in template, find and replace each key
       let template = JSON.stringify(templateData[templateKey]);
-      template = template.replaceAll(replaceRegex, (substring, templateKey) => {
-        if (dataFromTemplate[templateKey] === undefined) {
-          dataFromTemplate[templateKey] = '';
-        }
-        return dataFromTemplate[templateKey] || substring;
-      });
+      template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
       try {
         // Convert rendered string back to JSON
         data = JSON.parse(template);
@@ -65,36 +61,37 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         // Return original value if parse fails
         data = templateData[templateKey];
       }
-      originalCardData.ll_keys?.forEach((ll_key) => {
-        const linkedLovelaceKeyData = dataFromTemplate ? dataFromTemplate[ll_key] : undefined;
-        if (linkedLovelaceKeyData) {
-          data[ll_key] = linkedLovelaceKeyData
+      Object.keys(originalCardData.ll_keys || {}).forEach((ll_key) => {
+        const key = (originalCardData.ll_keys || {})[ll_key]
+        if (key) {
+          const linkedLovelaceKeyData = dataFromTemplate ? dataFromTemplate[key] : undefined;
+          if (linkedLovelaceKeyData) {
+            data[key] = linkedLovelaceKeyData
+          }
         }
       });
       const updatedData = {}
-      originalCardData.ll_keys?.forEach((cardKey) => {
+      Object.keys(originalCardData.ll_keys || {}).forEach((cardKey) => {
         const originalDataFromTemplate = Object.assign({}, dataFromTemplate)
         if (typeof originalDataFromTemplate[cardKey] === 'object') {
           if (originalDataFromTemplate[cardKey]['length']) {
             updatedData[cardKey] = [];
             for (let i = 0; i < originalDataFromTemplate[cardKey]['length']; i++) {
 
-              const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_data, ...originalDataFromTemplate };
+              const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_context, ...originalDataFromTemplate };
               delete newLLData[cardKey]
-              const oldData = { ...{ ll_data: newLLData }, ...{ ...originalDataFromTemplate[cardKey][i] }, ...{ ll_data: newLLData } };
-              if (typeof oldData.ll_data !== undefined && Object.keys(oldData.ll_data).length == 0) {
-                delete oldData.ll_data;
+              const oldData = { ...{ ll_context: newLLData }, ...{ ...originalDataFromTemplate[cardKey][i] }, ...{ ll_data: newLLData } };
+              if (typeof oldData.ll_context !== undefined && Object.keys(oldData.ll_context).length == 0) {
+                delete oldData.ll_context;
               }
-              console.log(newLLData, originalDataFromTemplate[cardKey][i], oldData)
               const result = updateCardTemplate(oldData, templateData);
-              console.log(oldData, result)
               updatedData[cardKey].push(result)
             }
           } else {
             try {
               const newLLData = { ...originalDataFromTemplate };
               delete newLLData[cardKey]
-              const oldData = { ...originalDataFromTemplate[cardKey], ll_data: newLLData };
+              const oldData = { ...originalDataFromTemplate[cardKey], ll_context: newLLData };
               updatedData[cardKey] = updateCardTemplate(oldData, templateData)
             } catch (e) {
               console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, data, e)
@@ -106,13 +103,13 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         data[k] = updatedData[k]
       })
       // Put template data back in card
-      data = { ...{ ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_data: dataFromTemplate, ll_keys: originalCardData.ll_keys };
+      data = { ...{ ll_context: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_context: dataFromTemplate, ll_keys: originalCardData.ll_keys };
     } else {
       // Put template value as new value
       data = templateData[templateKey];
     }
     // Put template key back in card
-    data = { ...{ template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, template: templateKey, ll_keys: originalCardData.ll_keys };
+    data = { ...{ ll_template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, ll_template: templateKey, ll_keys: originalCardData.ll_keys };
   } else {
     if (data.cards) {
       // Update any cards in the card
@@ -120,7 +117,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       data.cards.forEach((card) => {
         if (dataFromTemplate) {
           // Pass template data down to children
-          card.ll_data = { ...(card.ll_data || {}), ...dataFromTemplate };
+          card.ll_context = { ...(card.ll_data || {}), ...dataFromTemplate };
         }
         cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
       });
@@ -129,7 +126,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     if (data.card) {
       if (dataFromTemplate) {
         // Pass template data down to children
-        data.card.ll_data = { ...(data.card.ll_data || {}), ...dataFromTemplate };
+        data.card.ll_context = { ...(data.card.ll_context || {}), ...dataFromTemplate };
       }
       data.card = Object.assign({}, updateCardTemplate(data.card, templateData));
     }

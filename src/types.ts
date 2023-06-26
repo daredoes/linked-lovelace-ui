@@ -18,9 +18,9 @@ export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
 
 export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
   type: string;
-  template: string;
+  ll_template?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template_data: Record<string, any>
+  ll_context?: Record<string, any>
 }
 
 export interface Dashboard {
@@ -32,14 +32,35 @@ export interface Dashboard {
   url_path: string;
 }
 
-export interface DashboardCard extends LovelaceCardConfig {
+export interface LLCard extends LovelaceCardConfig {
+  ll_template?: string
+  ll_context?: Record<string, any>
+  // A map from a key in the current level of the card to a key in the current context data
+  ll_keys?: Record<string, string>
+  [x: string]: any;
+}
+
+export interface LLTemplateCard extends LovelaceCardConfig {
+  ll_key?: string
+  ll_priority?: number
+  [x: string]: any;
+}
+
+export interface DashboardCard extends LLCard, LLTemplateCard {
   cards?: DashboardCard[];
   card?: DashboardCard;
+}
+
+export interface LinkedLovelacePartial {
+  key?: string
+  url?: string
+  template?: string
+  priority?: number
+}
+
+export interface DashboardPartialsCard extends LovelaceCardConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template?: string;
-  template_data?: Record<string, any>;
-  ll_data?: Record<string, any>;
-  ll_keys?: string[];
+  partials?: LinkedLovelacePartial[];
 }
 
 export interface DashboardView {
@@ -55,8 +76,13 @@ export interface DashboardView {
 }
 
 export interface DashboardConfig {
-  template?: boolean;
   views: DashboardView[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
 }
+
+interface LLDashboard extends Dashboard {
+  config?: DashboardConfig
+}
+
+export const LINKED_LOVELACE_PARTIALS = 'linked-lovelace-partials'
