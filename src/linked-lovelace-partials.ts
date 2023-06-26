@@ -4,7 +4,7 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { DashboardTemplatesCard } from './types';
+import { LINKED_LOVELACE_PARTIALS, type DashboardPartialsCard } from './types';
 import './types';
 import { localize } from './localize/localize';
 import { log } from './helpers';
@@ -12,12 +12,12 @@ import { log } from './helpers';
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
-  type: 'linked-lovelace-templates',
-  name: 'Linked Lovelace Templates Card',
+  type: LINKED_LOVELACE_PARTIALS,
+  name: 'Linked Lovelace Partials Card',
   description: 'Use this card to add ETA partials',
 });
 
-@customElement('linked-lovelace-templates')
+@customElement(LINKED_LOVELACE_PARTIALS)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceTemplatesCard extends LitElement {
   constructor() {
@@ -48,10 +48,10 @@ export class LinkedLovelaceTemplatesCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() public loaded = false;
 
-  @state() private config!: DashboardTemplatesCard;
+  @state() private config!: DashboardPartialsCard;
 
   // https://lit.dev/docs/components/properties/#accessors-custom
-  public setConfig(config: DashboardTemplatesCard): void {
+  public setConfig(config: DashboardPartialsCard): void {
     // TODO Check for required fields and that they are of the proper format
     if (!config) {
       throw new Error(localize('common.invalid_configuration'));
@@ -83,11 +83,10 @@ export class LinkedLovelaceTemplatesCard extends LitElement {
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    const editMode = false;
     return html`
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Eta JS Partials`}
         class="linked-lovelace-container">
-        <div class="card-content">${Object.values(this.config.templates || {}).map((t) => t.key).join(" ")}</div>
+        <div class="card-content">${Object.values(this.config.partials || {}).map((t) => t.key).join(" ")}</div>
         <div class="card-actions">
         </div>
       </ha-card>

@@ -18,16 +18,16 @@ class TemplateController {
     return false;
   }
 
-  renderAndAddTemplate(key: string, template: DashboardCard, v2 = false): boolean {
+  renderAndAddTemplate(key: string, template: DashboardCard): boolean {
     const data = {...template}
     delete data.ll_key
     delete data.ll_priority
-    const renderedTemplate = updateCardTemplate(data, this.templates, v2);
-    return this.addTemplate(key, data, true);
+    const renderedTemplate = updateCardTemplate(data, this.templates);
+    return this.addTemplate(key, renderedTemplate, true);
   }
 
-  renderCard(card: DashboardCard, v2 = false): DashboardCard {
-    const renderedCard = updateCardTemplate(card, this.templates, v2);
+  renderCard(card: DashboardCard): DashboardCard {
+    const renderedCard = updateCardTemplate(card, this.templates);
     // If top-level of card is a template, pull the template data out of the card
     if (renderedCard.template) {
       return extractTemplateData(renderedCard);

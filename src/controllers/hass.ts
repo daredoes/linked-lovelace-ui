@@ -1,6 +1,6 @@
-import { Dashboard, DashboardCard, DashboardConfig } from 'src/types';
+import { DashboardCard, DashboardConfig } from 'src/types';
 import { GlobalLinkedLovelace } from '../instance';
-import LinkedLovelaceController from './linkedLovelace';
+import LinkedLovelaceController from '../v2/linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';
 
 class HassController {
@@ -33,51 +33,35 @@ class HassController {
                 templates[card.ll_key] = card
               }
             }
-            this.linkedLovelaceController.etaController.addTemplatesFromCard(card)
+            this.linkedLovelaceController.etaController.addPartialsFromCard(card)
           })
         })
       }
       return undefined
     }))
-    this.linkedLovelaceController.etaController.loadTemplates()
-    TemplateEngine.instance.eta = this.linkedLovelaceController.etaController.engine.eta
+    // The above await puts the partials into the controller
+    this.linkedLovelaceController.etaController.loadPartials()
+    TemplateEngine.instance.eta = this.linkedLovelaceController.eta
     this.linkedLovelaceController.registerTemplates(templates)
-    await Promise.all(
-      dashboardConfigs.map(async (dbcs) => {
-        const config = dbcs[0] as DashboardConfig
-        const db = dbcs[1] as Dashboard
-        try {
-          this.linkedLovelaceController.registerDashboard(db, config);
-        } catch (e) {
-          console.error(`Failed to get/register DB`, db, e)
-        }
-      }),
-    );
-
   };
 
-  update = async (dashboardId: string): Promise<void> => {
-    const records = this.linkedLovelaceController.getUpdatedDashboardConfigRecord(dashboardId);
-    await Promise.all(Object.keys(records).map(async (urlPath) => {
-      const config = records[urlPath];
+  update = async (urlPath: string): Promise<void | null | undefined> => {
+    try {
+      const config = await this.linkedLovelaceController.getUpdatedDashboardConfig(urlPath);
       try {
-        return GlobalLinkedLovelace.instance.api.setDashboardConfig(urlPath, config);
+        await GlobalLinkedLovelace.instance.api.setDashboardConfig(urlPath, config);
       } catch (e) {
         console.error(`Failed to update DB`, urlPath, config, e)
       }
-      return null
-    }));
+    } catch (e) {
+      console.error(`Failed to get DB`, urlPath, e)
+    }
   };
 
   updateAll = async (): Promise<void> => {
-    const records = this.linkedLovelaceController.getUpdatedDashboardConfigs();
-    await Promise.all(Object.keys(records).map(async (urlPath) => {
-      const config = records[urlPath];
-      try {
-        return GlobalLinkedLovelace.instance.api.setDashboardConfig(urlPath, config);
-      } catch (e) {
-        console.error(`Failed to update DB`, urlPath, config, e)
-      }
+    const records = await GlobalLinkedLovelace.instance.api.getDashboards();
+    await Promise.all(records.map(async (dashboard) => {
+      await this.update(dashboard.url_path)
       return null
     }));
   };

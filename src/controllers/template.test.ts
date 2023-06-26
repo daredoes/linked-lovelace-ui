@@ -44,11 +44,11 @@ describe('[class] TemplateController', () => {
   test('renders a template card as expected', () => {
     const controller = new TemplateController();
     const card: DashboardCard = {
-      type: '$test$',
+      type: '<%= context.test %>',
     };
     controller.addTemplate('test', card);
     expect(
-      controller.renderAndAddTemplate('new', { type: 'old', template: 'test', template_data: { test: 'new' } }),
+      controller.renderAndAddTemplate('new', { type: 'old', ll_template: 'test', ll_context: { test: 'new' } }),
     ).toBe(true);
     expect(controller.templates['new'].type).toEqual('new');
   });
@@ -56,10 +56,10 @@ describe('[class] TemplateController', () => {
   test('renders a card as expected', () => {
     const controller = new TemplateController();
     const card: DashboardCard = {
-      type: '$test$',
+      type: '<%= context.test %>',
     };
     controller.addTemplate('test', card);
-    expect(controller.renderCard({ type: 'old', template: 'test', template_data: { test: 'new' } }).type).toEqual(
+    expect(controller.renderCard({ type: 'old', ll_template: 'test', ll_context: { test: 'new' } }).type).toEqual(
       'new',
     );
   });
@@ -67,7 +67,7 @@ describe('[class] TemplateController', () => {
   test('renders a card as expected', () => {
     const controller = new TemplateController();
     const card: DashboardCard = {
-      type: '$test$',
+      type: '<%= context.test %>',
     };
     controller.addTemplate('test', card);
     expect(controller.renderCard({ type: 'old' }).type).toEqual('old');
@@ -75,7 +75,7 @@ describe('[class] TemplateController', () => {
 
   test('renders a card as expected when lacking templates', () => {
     const controller = new TemplateController();
-    const card: DashboardCard = { type: 'old', template: 'test', template_data: { test: 'new' } };
+    const card: DashboardCard = { type: 'old', ll_template: 'test', ll_context: { test: 'new' } };
     expect(controller.renderCard(card)).toStrictEqual(card);
   });
 });

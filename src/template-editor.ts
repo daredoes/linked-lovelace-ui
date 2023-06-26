@@ -120,7 +120,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
           const template: DashboardCard | undefined =
             this._controller?.linkedLovelaceController.templateController.templates[target.value];
           if (template) {
-            templateData = extractTemplateData(template).template_data || undefined;
+            templateData = extractTemplateData(template).ll_context || undefined;
           }
         }
         this._config = {
