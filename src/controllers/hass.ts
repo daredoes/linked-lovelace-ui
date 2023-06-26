@@ -24,7 +24,7 @@ class HassController {
     await Promise.all(dashboardConfigs.map(async (dbcs) => {
       const config = dbcs[0] as DashboardConfig
       if (config) {
-        return config.views.map(async (view) => {
+        return await Promise.all(config.views.map(async (view) => {
           return view.cards?.map(async (card) => {
             if (card.ll_key) {
               if (templates[card.ll_key] && (templates[card.ll_key].ll_priority || 0) < (card.ll_priority || 0)) { 
@@ -33,9 +33,9 @@ class HassController {
                 templates[card.ll_key] = card
               }
             }
-            this.linkedLovelaceController.etaController.addPartialsFromCard(card)
+            this.linkedLovelaceController.registerPartials(card)
           })
-        })
+        }))
       }
       return undefined
     }))
