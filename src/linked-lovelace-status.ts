@@ -1,0 +1,159 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { customElement, property, state } from 'lit/decorators';
+import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
+
+import type { Dashboard, DashboardCard, LinkedLovelacePartial, LinkedLovelaceStatusCardConfig } from './types';
+import './types';
+import { localize } from './localize/localize';
+import { LinkedLovelaceTemplateCardEditor } from './template-editor';
+import { log } from './helpers';
+import HassController from './controllers/hass';
+import { LinkedLovelaceTemplateCard } from './linked-lovelace-template';
+import { GlobalLinkedLovelace } from './instance';
+
+// This puts your card into the UI card picker dialog
+(window as any).customCards = (window as any).customCards || [];
+(window as any).customCards.push({
+  type: 'linked-lovelace-status',
+  name: 'Linked Lovelace Status Card',
+  description: 'An overview card for Linked Lovelace',
+});
+
+@customElement('linked-lovelace-status')
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export class LinkedLovelaceStatusCard extends LitElement {
+  constructor() {
+    super();
+  }
+
+  @state() private _partials: LinkedLovelacePartial[] = [];
+  @state() private _templates: DashboardCard[] = [];
+  @state() private _dashboards: Dashboard[] = [];
+
+  private _controller?: HassController;
+
+  log(msg, ...values) {
+    if (this.config.debug) {
+      log(msg, ...values);
+    }
+  }
+
+  private _repaint() {
+    this.loaded = !this.loaded;
+  }
+  async firstUpdated() {
+    // Give the browser a chance to paint
+    await new Promise((r) => setTimeout(r, 0));
+    this._repaint();
+  }
+
+  private handleClick = async () => {
+    this._controller = new HassController();
+    await this._controller.refresh();
+    this._partials = Object.values(this._controller.linkedLovelaceController.etaController.partials)
+    this._templates = Object.values(this._controller.linkedLovelaceController.templateController.templates)
+    this._dashboards =  await GlobalLinkedLovelace.instance.api.getDashboards()
+    console.log(this._partials, this._templates)
+    this._repaint();
+  };
+
+  public static async getConfigElement(): Promise<LinkedLovelaceTemplateCardEditor> {
+    await import('./template-editor');
+    return document.createElement('linked-lovelace-status-editor') as unknown as LinkedLovelaceTemplateCardEditor;
+  }
+
+  public static getStubConfig(): Record<string, unknown> {
+    return {};
+  }
+
+  // TODO Add any properities that should cause your element to re-render here
+  // https://lit.dev/docs/components/properties/
+  @property({ attribute: false }) public hass!: HomeAssistant;
+  @state() public loaded = false;
+
+  @state() private config!: LinkedLovelaceStatusCardConfig;
+
+  // https://lit.dev/docs/components/properties/#accessors-custom
+  public setConfig(config: LinkedLovelaceStatusCardConfig): void {
+    // TODO Check for required fields and that they are of the proper format
+    if (!config) {
+      throw new Error(localize('common.invalid_configuration'));
+    }
+
+    if (config.test_gui) {
+      getLovelace().setEditMode(true);
+    }
+
+    const name = `Linked Lovelace Status`;
+
+    this.config = {
+      ...config,
+      name,
+    };
+  }
+
+  // https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-performing
+  protected shouldUpdate(changedProps: PropertyValues): boolean {
+    if (!this.config) {
+      return false;
+    }
+    if (changedProps.get('loaded') !== undefined) {
+      return true;
+    }
+
+    return hasConfigOrEntityChanged(this, changedProps, false);
+  }
+
+  // https://lit.dev/docs/components/rendering/
+  protected render(): TemplateResult | void {
+    //  Finish edit mode
+    const editMode = false;
+    return html`
+      <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
+        class="linked-lovelace-container">
+        <div class="card-content">
+        <div>
+        ${this.config.template}
+        </div>
+        <div>
+        Dashboards: ${this._dashboards.length}
+      
+        <div>
+        ${this._dashboards.map((partial) => {
+          return html`<ul>
+          <li>${partial.id}</li>
+          <li>${partial.title}</li>
+          <li>${partial.mode}</li>
+          <li>${partial.url_path}</li>
+          </ul>`
+        })}
+        </div>
+        </div>
+        <div>
+        ${this._partials.length}
+        ${this._partials.map((partial) => {
+          return html`<span>${partial.key}</span>`
+        })}
+        </div>
+        </div>
+        <div class="card-actions">
+          <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
+            ${localize('common.update_all')}
+          </ha-progress-button>
+        </div>
+      </ha-card>
+    `;
+  }
+
+  // https://lit.dev/docs/components/styles/
+  static get styles(): CSSResultGroup {
+    return css`
+      .linked-lovelace-container {
+        background-color: rgba(0, 0, 0, 0);
+        border: 1px solid;
+      }
+    `;
+  }
+}

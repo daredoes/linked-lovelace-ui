@@ -24,6 +24,7 @@ class HassController {
     await Promise.all(dashboardConfigs.map(async (dbcs) => {
       const config = dbcs[0] as DashboardConfig
       if (config) {
+        console.log(config)
         return await Promise.all(config.views.map(async (view) => {
           return view.cards?.map(async (card) => {
             if (card.ll_key) {
@@ -45,7 +46,7 @@ class HassController {
     this.linkedLovelaceController.registerTemplates(templates)
   };
 
-  update = async (urlPath: string): Promise<void | null | undefined> => {
+  update = async (urlPath: string | null): Promise<void | null | undefined> => {
     try {
       const config = await this.linkedLovelaceController.getUpdatedDashboardConfig(urlPath);
       try {
