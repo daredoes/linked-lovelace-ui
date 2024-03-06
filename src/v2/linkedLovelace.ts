@@ -22,8 +22,8 @@ class LinkedLovelaceController {
     });
   };
 
-  registerPartials = async (card: DashboardCard): Promise<void> => {
-    await this.etaController.addPartialsFromCard(card)
+  registerPartials = async (card: DashboardCard): Promise<Record<string, LinkedLovelacePartial>> => {
+    return await this.etaController.addPartialsFromCard(card)
   };
 
   get eta() {

@@ -10,7 +10,6 @@ import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import { log } from './helpers';
 import HassController from './controllers/hass';
-import { LinkedLovelaceTemplateCard } from './linked-lovelace-template';
 import { GlobalLinkedLovelace } from './instance';
 import Diff from './helpers/diff';
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
@@ -22,6 +21,12 @@ const stringify = (text) => {
 
 const getS = (array) => {
   return array.length !== 1 ? 's' : ''
+}
+
+const hasDiff = (obj1, obj2) => {
+  const differ = new Diff()
+  const di = differ.main(stringify(obj1), stringify(obj2), false, 0) 
+  return di.length > 1;
 }
 
 const makeDiff = (obj1, obj2) => {
@@ -48,11 +53,12 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   @state() private _partials: Record<string, LinkedLovelacePartial> = {};
   @state() private _templates: Record<string, DashboardCard> = {};
-  @state() private _dashboards: Dashboard[] = [];
+  @state() private _dashboards: Record<string,Dashboard> = {};
+  @state() private _diffedDashboards: Record<string, string> = {};
   @state() private _backedUpDashboardConfigs: Record<string, DashboardConfig | null | undefined> = {};
   @state() private _backupString: string = "";
-  @state() private _dashboardConfigs: Record<string, DashboardConfig | null | undefined> = {};
   @state() private _loaded = false;
+  @state() private _show_difference = false;
   @state() private _difference = "";
 
   private _controller?: HassController;
@@ -72,6 +78,21 @@ export class LinkedLovelaceStatusCard extends LitElement {
     this._repaint();
   }
 
+  private handleDryRun = async () => {
+    // await this.handleClick()
+    const newDashboardConfigs = await this._controller!.updateAll(true)
+    this._difference = makeDiff(this._backedUpDashboardConfigs, newDashboardConfigs)
+    this._diffedDashboards = {};
+    Object.keys(newDashboardConfigs).forEach((dashboardKey) => {
+      const dashboardData = newDashboardConfigs[dashboardKey]
+      const oldDashboardData = this._backedUpDashboardConfigs[dashboardKey]
+      if (hasDiff(oldDashboardData, dashboardData)) {
+        this._diffedDashboards[dashboardKey] = makeDiff(oldDashboardData, dashboardData)
+      }
+    })
+    this._repaint()
+  }
+
   private handleClick = async () => {
     this._difference = "";
     this._controller = new HassController();
@@ -81,26 +102,42 @@ export class LinkedLovelaceStatusCard extends LitElement {
     await this._controller.refresh();
     this._partials = this._controller.linkedLovelaceController.etaController.partials
     this._templates = this._controller.linkedLovelaceController.templateController.templates
-    this._dashboards =  await GlobalLinkedLovelace.instance.api.getDashboards()
+    const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards()
+    dashboards.forEach((dashboard) => {
+      this._dashboards[dashboard.url_path ? dashboard.url_path : ''] = dashboard
+    })
+    await this.handleDryRun()
     this._loaded = true;
     this._repaint();
   };
 
-  private handleDryRun = async () => {
-    const newDashboardConfigs = await this._controller!.updateAll(true)
-    this._dashboardConfigs = newDashboardConfigs;
-    this._difference = makeDiff(this._backedUpDashboardConfigs, newDashboardConfigs)
-    this._repaint()
-  }
-  private handleRun = async () => {
-    const newDashboardConfigs = await this._controller!.updateAll(false)
-    this._dashboardConfigs = newDashboardConfigs;
-    this._difference = makeDiff(this._backedUpDashboardConfigs, newDashboardConfigs)
+  
+  
+
+  private toggleShowDryRun = async () => {
+    this._show_difference = !this._show_difference;
     this._repaint()
   }
 
+  private overwriteDashboard = async (dashboardKey, skipConfirm = false) => {
+    if (skipConfirm || confirm(`This will overwrite the contents of the dashboard located at the url '${window.location.origin}/${dashboardKey}'. Proceed at your own risk. Be sure to back up your system before making changes you are not sure about.`)) {
+      const newDashboard = await this._controller!.update(dashboardKey)
+      this._repaint()
+    }
+  }
+
+  private handleRun = async () => {
+    if (confirm(`This will overwrite the contents of all modified dashboards. Proceed at your own risk. Be sure to back up your system before making changes you are not sure about.`)) {
+      const dashboardKeys = Object.keys(this._diffedDashboards)
+      for(let i = 0; i < dashboardKeys.length; i++) {
+        await this.overwriteDashboard(dashboardKeys[i], true)
+      }
+      this._repaint()
+    }
+  }
+
   public static async getConfigElement(): Promise<LinkedLovelaceTemplateCardEditor> {
-    await import('./template-editor');
+    await import('./status-editor');
     return document.createElement('linked-lovelace-status-editor') as unknown as LinkedLovelaceTemplateCardEditor;
   }
 
@@ -152,6 +189,8 @@ export class LinkedLovelaceStatusCard extends LitElement {
     const editMode = false;
     const partialKeys = Object.keys(this._partials);
     const templateKeys = Object.keys(this._templates);
+    const dashboardKeys = Object.keys(this._dashboards);
+    const diffedDashboardKeys = Object.keys(this._diffedDashboards);
     return html`
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
         class="linked-lovelace-container">
@@ -159,21 +198,44 @@ export class LinkedLovelaceStatusCard extends LitElement {
         <div>
         <ul>
         <li>${this._loaded ? 'Retrieved' : 'Waiting to Retrieve'} Dashboards via Websocket</li>
-        <ul><li>Found ${this._dashboards.length} Dashboard${getS(this._dashboards.length)}</li></ul>
+        ${this._loaded ? html`<ul>
+        <li>Found ${dashboardKeys.length} Dashboard${getS(dashboardKeys)}</li>
+        <li>
+        <div class="header">
+        <span>${diffedDashboardKeys.length} Out-of-Date Dashboard${getS(diffedDashboardKeys)}</span>
+        <ha-progress-button  @click=${this.toggleShowDryRun}>
+            ${this._show_difference ? 'Hide' : 'Show'}
+        </ha-progress-button>
+        </div>
+        </li>
+        </ul>` : ''}
         <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Partials</li>
-        <ul><li>Found ${partialKeys.length} Partial${getS(partialKeys.length)}</li></ul>
+        ${this._loaded ? html`<ul><li>Found ${partialKeys.length} Partial${getS(partialKeys)}</li></ul>` : ''}
         <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Templates</li>
-        <ul><li>Found ${templateKeys.length} Template${getS(templateKeys.length)}</li></ul>
+        ${this._loaded ? html`<ul><li>Found ${templateKeys.length} Template${getS(templateKeys)}</li></ul>` : ''}
         </ul>
         </div>
         <div class="unsafe-html">
         ${this._difference && html`
-        <h4>Dry Run Results</h4>
-        <pre>
-        <code>
-        ${unsafeHTML(this._difference)}
-        </code>
-        </pre>
+        ${this._show_difference ? html`<div>
+        ${diffedDashboardKeys.map((dashboardKey) => {
+          const dashboardData = this._dashboards[dashboardKey]
+          const myDiff = this._diffedDashboards[dashboardKey]
+          return html`
+          <div class="header">
+            <p>${dashboardData.title}</p>
+            <ha-progress-button @click=${() => {this.overwriteDashboard(dashboardKey)}}>
+                 Update
+            </ha-progress-button>
+          </div>
+          <pre class="${this._show_difference ? '' : 'hidden'}">
+          <code>
+          ${unsafeHTML(myDiff)}
+          </code>
+          </pre>
+          `
+        })}
+        </div>` : ''}
         `}
         </div>
         <div class="card-actions">
@@ -183,17 +245,14 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
             Refresh
           </ha-progress-button>
-          <ha-progress-button @click=${!editMode ? this.handleDryRun : undefined}>
-            Dry Run
-          </ha-progress-button>
-          <a href="data:${this._backupString}" download="linked-lovelace-dashboards-backup.json">
+          <a class="download" href="data:${this._backupString}" download="linked-lovelace-dashboards-backup.json">
           <ha-progress-button>
           Download Backup
           </ha-progress-button>
-          <ha-progress-button @click=${!editMode ? this.handleRun : undefined}>
-            Overwrite Dashboards
-          </ha-progress-button>
           </a>
+          <ha-progress-button @click=${!editMode ? this.handleRun : undefined}>
+            Update All
+          </ha-progress-button>
           ` }
         </div>
       </ha-card>
@@ -207,16 +266,32 @@ export class LinkedLovelaceStatusCard extends LitElement {
         background-color: rgba(0, 0, 0, 0);
         border: 1px solid;
       }
+      .header {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      .download {
+        text-decoration: none;
+      }
       .unsafe-html {
         pre {
           overflow: auto;
           max-height: 400px;
           background-color: var(--text-primary-color);
+          &.hidden {
+            display: none;
+          }
         }
         code {
           max-width: 100%;
           background-color: var(--text-primary-color);
           color: var(--card-background-color);
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
         }
         del {
           background-color: var(--error-color);

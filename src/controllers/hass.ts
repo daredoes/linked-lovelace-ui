@@ -1,13 +1,17 @@
-import { DashboardCard, DashboardConfig } from 'src/types';
+import { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial } from 'src/types';
 import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from '../v2/linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';
 
 class HassController {
   linkedLovelaceController: LinkedLovelaceController = new LinkedLovelaceController();
+  dashboardsToPartials: Record<string, Record<string, LinkedLovelacePartial>> = {}
+  dashboardsToTemplates: Record<string, Record<string, DashboardCard>> = {}
+
 
   refresh = async (): Promise<void> => {
     this.linkedLovelaceController = new LinkedLovelaceController();
+    this.dashboardsToPartials = {}
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();
     const dashboardConfigs = await Promise.all(
       dashboards.map(async (db) => {
@@ -23,8 +27,12 @@ class HassController {
     const templates: Record<string, DashboardCard> = {};
     await Promise.all(dashboardConfigs.map(async (dbcs) => {
       const config = dbcs[0] as DashboardConfig
+      const dashboard = dbcs[1] as Dashboard
       if (config) {
-        console.log(config)
+        const dashboardPath = dashboard.url_path ? dashboard.url_path : '';
+        if (!this.dashboardsToTemplates[dashboardPath]) {
+          this.dashboardsToTemplates[dashboardPath] = {}
+        }
         return await Promise.all(config.views.map(async (view) => {
           return view.cards?.map(async (card) => {
             if (card.ll_key) {
@@ -33,8 +41,11 @@ class HassController {
               } else {
                 templates[card.ll_key] = card
               }
+              this.dashboardsToTemplates[dashboardPath] = {...this.dashboardsToTemplates[dashboardPath], ...{[card.ll_key]: card}}
             }
-            this.linkedLovelaceController.registerPartials(card)
+            
+            const partials = await this.linkedLovelaceController.registerPartials(card)
+            this.dashboardsToPartials[dashboardPath] = partials;
           })
         }))
       }
@@ -44,6 +55,7 @@ class HassController {
     this.linkedLovelaceController.etaController.loadPartials()
     TemplateEngine.instance.eta = this.linkedLovelaceController.eta
     this.linkedLovelaceController.registerTemplates(templates)
+    console.log(this.dashboardsToPartials, this.dashboardsToTemplates)
   };
 
   update = async (urlPath: string | null, dryRun = false): Promise<DashboardConfig | null | undefined> => {
