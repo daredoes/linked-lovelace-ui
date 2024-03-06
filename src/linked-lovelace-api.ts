@@ -19,14 +19,13 @@ class LinkedLovelaceApi {
       type: 'lovelace/dashboards/list',
     }).then((data) => {
       const overviewDashboard: Dashboard = {
-        url_path: null,
+        url_path: '',
         id: "overview",
         title: "Overview",
         mode: "unknown",
         require_admin: false,
         show_in_sidebar: false,
       }
-      console.log(overviewDashboard)
       return [overviewDashboard,...data]
     });
   };

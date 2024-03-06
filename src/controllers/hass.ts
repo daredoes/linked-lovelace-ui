@@ -46,25 +46,32 @@ class HassController {
     this.linkedLovelaceController.registerTemplates(templates)
   };
 
-  update = async (urlPath: string | null): Promise<void | null | undefined> => {
+  update = async (urlPath: string | null, dryRun = false): Promise<DashboardConfig | null | undefined> => {
+    const validatedUrlPath = urlPath === '' ? null : urlPath;
     try {
-      const config = await this.linkedLovelaceController.getUpdatedDashboardConfig(urlPath);
-      try {
-        await GlobalLinkedLovelace.instance.api.setDashboardConfig(urlPath, config);
-      } catch (e) {
-        console.error(`Failed to update DB`, urlPath, config, e)
+      const config = await this.linkedLovelaceController.getUpdatedDashboardConfig(validatedUrlPath);
+      if (!dryRun) {
+        try {
+          await GlobalLinkedLovelace.instance.api.setDashboardConfig(validatedUrlPath, config);
+        } catch (e) {
+          console.error(`Failed to update DB`, validatedUrlPath, config, e)
+        }
       }
+      return config
     } catch (e) {
-      console.error(`Failed to get DB`, urlPath, e)
+      console.error(`Failed to get DB`, validatedUrlPath, e)
+      return null;
     }
   };
 
-  updateAll = async (): Promise<void> => {
+  updateAll = async (dryRun = false): Promise<Record<string, DashboardConfig | null | undefined>> => {
     const records = await GlobalLinkedLovelace.instance.api.getDashboards();
+    const configs = {}
     await Promise.all(records.map(async (dashboard) => {
-      await this.update(dashboard.url_path)
-      return null
+      const newConfig = await this.update(dashboard.url_path, dryRun)
+      configs[dashboard.url_path ? dashboard.url_path : ''] = newConfig;
     }));
+    return configs
   };
 }
 
