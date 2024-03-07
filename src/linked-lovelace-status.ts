@@ -59,6 +59,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
   @state() private _backupString: string = "";
   @state() private _loaded = false;
   @state() private _show_difference = false;
+  @state() private _show_logs = false;
   @state() private _difference = "";
 
   private _controller?: HassController;
@@ -121,6 +122,11 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private toggleShowDryRun = async () => {
     this._show_difference = !this._show_difference;
+    this._repaint()
+  }
+
+  private toggleShowLogs = async () => {
+    this._show_logs = !this._show_logs;
     this._repaint()
   }
 
@@ -201,9 +207,12 @@ export class LinkedLovelaceStatusCard extends LitElement {
         class="linked-lovelace-container">
         <div class="card-content">
         <div>
+        ${this._loaded ? html`
         <div class="unsafe-html">
-        <h4>Logs</h4>
-        <pre>
+        <div class="accordion expanded">
+        <span class="accordion-bar" @click=${this.toggleShowLogs}><span class="icon">${this._show_logs ? html`&#9660;` : html`&#9658;`} </span><span class="title">Logs</span></span>
+        </div>
+        <pre class="${this._show_logs ? '' : 'hidden'}">
         <code>
         ${this._controller?.logs.map((logText) => {
           return html`<p>${logText}</p>`
@@ -211,13 +220,15 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </code>
         </pre>
         </div>
+        `: ''}
         <ul>
         <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Partials</li>
         ${this._loaded ? html`<ul><li>Found ${partialKeys.length} Partial${getS(partialKeys)}</li></ul>` : ''}
         <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Templates</li>
         ${this._loaded ? html`<ul><li>Found ${templateKeys.length} Template${getS(templateKeys)}</li></ul>` : ''}
         <li>${this._loaded ? 'Retrieved' : 'Waiting to Retrieve'} Dashboards via Websocket</li>
-        ${this._loaded ? html`<ul>
+        ${this._loaded ? html`
+        <ul>
         <li>
         <div class="header">
         <span>Can Modify ${diffedDashboardKeys.length}/${dashboardKeys.length} Dashboard${getS(diffedDashboardKeys)}</span>
@@ -229,7 +240,11 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </ul>` : ''}
         </ul>
         </div>
+        ${diffedDashboardKeys.length ? html`
         <div class="unsafe-html">
+        <div class="accordion expanded">
+        <span class="accordion-bar" @click=${this.toggleShowDryRun}><span class="icon">${this._show_difference ? html`&#9660;` : html`&#9658;`} </span><span class="title">Preview Changes</span></span>
+        </div>
         ${this._difference && html`
         ${this._show_difference ? html`<div>
         ${diffedDashboardKeys.map((dashboardKey) => {
@@ -237,7 +252,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
           const myDiff = this._diffedDashboards[dashboardKey]
           return html`
           <div class="header">
-            <p>${dashboardData.title}</p>
+            <p>Dashboard: ${dashboardData.title}</p>
             <ha-progress-button @click=${() => {this.overwriteDashboard(dashboardKey)}}>
                  Update
             </ha-progress-button>
@@ -252,6 +267,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </div>` : ''}
         `}
         </div>
+        ` : ''}
         <div class="card-actions">
           ${!this._loaded ? html`<ha-progress-button @click=${this.handleClick}>
             Load Data
@@ -279,6 +295,15 @@ export class LinkedLovelaceStatusCard extends LitElement {
       .linked-lovelace-container {
         background-color: rgba(0, 0, 0, 0);
         border: 1px solid;
+      }
+      .accordion.expanded {
+        & .accordion-bar {
+          cursor: pointer;
+          font-size: 18px;          
+        }
+        & .icon {
+          transform: rotate(-90deg);
+        }
       }
       .header {
         display: flex;
@@ -314,7 +339,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
           background-color: var(--error-color);
         }
         ins {
-          background-color: var(--primary-color);
+          background-color: var(--success-color);
         }
       }
     `;
