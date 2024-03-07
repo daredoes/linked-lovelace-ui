@@ -98,7 +98,14 @@ export class LinkedLovelaceStatusCard extends LitElement {
     this._difference = "";
     this._controller = new HassController();
     this._controller!.addToLogs("Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled.")
-    const backupDashboardConfigs = await this._controller!.updateAll(true)
+    const backupDashboardConfigs = {}
+    await GlobalLinkedLovelace.instance.api.getDashboards().then(async (dashboards) => {
+      return Promise.all(dashboards.map(async (dashboard) => {
+        const config =  await GlobalLinkedLovelace.instance.api.getDashboardConfig(dashboard.url_path);
+        backupDashboardConfigs[dashboard.url_path ? dashboard.url_path : ''] = config; 
+        return config;
+      }))
+    });
     this._backedUpDashboardConfigs = backupDashboardConfigs;
     this._backupString = "text/json;charset=utf-8," + encodeURIComponent(stringify(backupDashboardConfigs));
     this._controller!.addToLogs("Backed up current dashboard data. Download as JSON via button.")
