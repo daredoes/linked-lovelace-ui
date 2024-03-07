@@ -96,9 +96,11 @@ export class LinkedLovelaceStatusCard extends LitElement {
   private handleClick = async () => {
     this._difference = "";
     this._controller = new HassController();
+    this._controller!.addToLogs("Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled.")
     const backupDashboardConfigs = await this._controller!.updateAll(true)
     this._backedUpDashboardConfigs = backupDashboardConfigs;
     this._backupString = "text/json;charset=utf-8," + encodeURIComponent(stringify(backupDashboardConfigs));
+    this._controller!.addToLogs("Backed up current dashboard data. Download as JSON via button.")
     await this._controller.refresh();
     this._partials = this._controller.linkedLovelaceController.etaController.partials
     this._templates = this._controller.linkedLovelaceController.templateController.templates
@@ -106,7 +108,10 @@ export class LinkedLovelaceStatusCard extends LitElement {
     dashboards.forEach((dashboard) => {
       this._dashboards[dashboard.url_path ? dashboard.url_path : ''] = dashboard
     })
+    this._controller!.addToLogs("Determining Changes. Ignore 'Update' Messages. Dry-Run is enabled.")
     await this.handleDryRun()
+    this._controller!.addToLogs("Determined Changes. Ignore 'Update' Messages. Dry-Run is enabled.")
+    this._controller!.addToLogs("Ready for user input.")
     this._loaded = true;
     this._repaint();
   };
@@ -196,23 +201,32 @@ export class LinkedLovelaceStatusCard extends LitElement {
         class="linked-lovelace-container">
         <div class="card-content">
         <div>
+        <div class="unsafe-html">
+        <h4>Logs</h4>
+        <pre>
+        <code>
+        ${this._controller?.logs.map((logText) => {
+          return html`<p>${logText}</p>`
+        })}
+        </code>
+        </pre>
+        </div>
         <ul>
+        <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Partials</li>
+        ${this._loaded ? html`<ul><li>Found ${partialKeys.length} Partial${getS(partialKeys)}</li></ul>` : ''}
+        <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Templates</li>
+        ${this._loaded ? html`<ul><li>Found ${templateKeys.length} Template${getS(templateKeys)}</li></ul>` : ''}
         <li>${this._loaded ? 'Retrieved' : 'Waiting to Retrieve'} Dashboards via Websocket</li>
         ${this._loaded ? html`<ul>
-        <li>Found ${dashboardKeys.length} Dashboard${getS(dashboardKeys)}</li>
         <li>
         <div class="header">
-        <span>${diffedDashboardKeys.length} Out-of-Date Dashboard${getS(diffedDashboardKeys)}</span>
+        <span>Can Modify ${diffedDashboardKeys.length}/${dashboardKeys.length} Dashboard${getS(diffedDashboardKeys)}</span>
         <ha-progress-button  @click=${this.toggleShowDryRun}>
             ${this._show_difference ? 'Hide' : 'Show'}
         </ha-progress-button>
         </div>
         </li>
         </ul>` : ''}
-        <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Partials</li>
-        ${this._loaded ? html`<ul><li>Found ${partialKeys.length} Partial${getS(partialKeys)}</li></ul>` : ''}
-        <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Templates</li>
-        ${this._loaded ? html`<ul><li>Found ${templateKeys.length} Template${getS(templateKeys)}</li></ul>` : ''}
         </ul>
         </div>
         <div class="unsafe-html">
@@ -292,6 +306,9 @@ export class LinkedLovelaceStatusCard extends LitElement {
           flex-direction: column;
           justify-content: flex-start;
           align-items: flex-start;
+          p {
+            margin: 0;
+          }
         }
         del {
           background-color: var(--error-color);

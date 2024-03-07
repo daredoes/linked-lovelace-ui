@@ -36,7 +36,7 @@ class LinkedLovelaceApi {
     }
     return this.hass.callWS<DashboardConfig>({
       type: 'lovelace/config',
-      url_path: urlPath,
+      url_path: urlPath ? urlPath : null,
     }).then((data) => {
       return {...data, views: data.views || []}
     });
