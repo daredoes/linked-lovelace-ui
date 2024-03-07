@@ -232,9 +232,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
         <li>
         <div class="header">
         <span>Can Modify ${diffedDashboardKeys.length}/${dashboardKeys.length} Dashboard${getS(diffedDashboardKeys)}</span>
-        <ha-progress-button  @click=${this.toggleShowDryRun}>
-            ${this._show_difference ? 'Hide' : 'Show'}
-        </ha-progress-button>
         </div>
         </li>
         </ul>` : ''}
@@ -275,18 +272,21 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
             Refresh
           </ha-progress-button>
-          <a class="download" href="data:${this._backupString}" download="linked-lovelace-dashboards-backup.json">
-          <ha-progress-button>
-          Download Backup
-          </ha-progress-button>
-          </a>
-          <ha-progress-button @click=${!editMode ? this.handleRun : undefined}>
+          
+          ${diffedDashboardKeys.length ? html`<ha-progress-button @click=${!editMode ? this.handleRun : undefined}>
             Update All
-          </ha-progress-button>
+          </ha-progress-button>` : ''}
           ` }
         </div>
       </ha-card>
     `;
+    /*
+    <a class="download" href="data:${this._backupString}" download="linked-lovelace-dashboards-backup.json">
+          <ha-progress-button>
+          Download Backup
+          </ha-progress-button>
+          </a>
+          */
   }
 
   // https://lit.dev/docs/components/styles/
