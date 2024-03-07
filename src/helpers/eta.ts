@@ -3,9 +3,13 @@ import axios from "axios";
 
 export const getCardTemplate = async (possiblePartial: LinkedLovelacePartial) => {
   if (possiblePartial.url) {
-    const response = await axios.get(possiblePartial.url, { responseType: 'text'})
-    if (typeof response.data === 'string') {
-      return response.data
+    try {
+      const response = await axios.get(possiblePartial.url, { responseType: 'text'})
+      if (typeof response.data === 'string') {
+        return response.data
+      }
+    } catch (e) {
+      console.error("Could not fetch data from url", e, possiblePartial)
     }
   } else if (possiblePartial.template) {
     return possiblePartial.template
