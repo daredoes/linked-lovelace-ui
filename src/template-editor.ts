@@ -47,17 +47,26 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
   }
 
   get _template(): string {
-    return this._config?.template || '';
+    return this._config?.ll_template || '';
   }
 
   protected renderTemplates(): TemplateResult | void {
     if (!this._loaded) {
       return html`<p>loading</p>`;
     }
+    const templateKeys = Object.keys(this._controller.linkedLovelaceController.templateController.templates);
+    if (!templateKeys.length) {
+      return html`
+      <p>Options:</p>
+      <div class="linked-lovelace-chips">
+        No templates found/created.
+      </div>
+    `;
+    }
     return html`
       <p>Options:</p>
       <div class="linked-lovelace-chips">
-        ${Object.keys(this._controller.linkedLovelaceController.templateController.templates).map(
+        ${templateKeys.map(
           (template) => html`<button .value=${template}
           .configValue=${'template'}
           @click=${this._valueChanged}>${template}</button>`,
@@ -77,7 +86,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
           label="Template Name"
           placeholder="Fill me in, and switch to code editor"
           .value=${this._template}
-          .configValue=${'template'}
+          .configValue=${'ll_template'}
           @input=${this._valueChanged}
         ></mwc-textfield>
         ${this.renderTemplates()}
@@ -126,7 +135,6 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
         this._config = {
           ...this._config,
           ll_data: templateData,
-          ll_v2: true,
           [target.configValue]: target.checked !== undefined ? target.checked : target.value,
         };
       }

@@ -22,15 +22,15 @@ class LinkedLovelaceController {
     });
   };
 
-  registerPartials = async (card: DashboardCard): Promise<void> => {
-    await this.etaController.addPartialsFromCard(card)
+  registerPartials = async (card: DashboardCard): Promise<Record<string, LinkedLovelacePartial>> => {
+    return await this.etaController.addPartialsFromCard(card)
   };
 
   get eta() {
     return this.etaController.engine.eta
   }
 
-  getUpdatedDashboardConfig = async (urlPath: string): Promise<DashboardConfig> => {
+  getUpdatedDashboardConfig = async (urlPath: string | null): Promise<DashboardConfig> => {
     const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(urlPath);
     const views = config.views;
     Object.keys(views).forEach((viewKey: string) => {
@@ -55,7 +55,7 @@ class LinkedLovelaceController {
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards()
     await Promise.all(dashboards.map(async (dashboard) => {
       const config = await this.getUpdatedDashboardConfig(dashboard.url_path)
-      response[dashboard.url_path] = config
+      response[dashboard.url_path || "null"] = config
     }))
     return response;
   };

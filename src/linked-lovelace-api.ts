@@ -17,16 +17,28 @@ class LinkedLovelaceApi {
     }
     return this.hass.callWS<Dashboard[]>({
       type: 'lovelace/dashboards/list',
+    }).then((data) => {
+      const overviewDashboard: Dashboard = {
+        url_path: '',
+        id: "overview",
+        title: "Overview",
+        mode: "unknown",
+        require_admin: false,
+        show_in_sidebar: false,
+      }
+      return [overviewDashboard,...data]
     });
   };
 
-  getDashboardConfig = async (urlPath: string): Promise<DashboardConfig> => {
+  getDashboardConfig = async (urlPath: string | null): Promise<DashboardConfig> => {
     if (Debug.instance.debug) {
       log(`Getting Lovelace User-Created Dashboard: ${urlPath}`);
     }
     return this.hass.callWS<DashboardConfig>({
       type: 'lovelace/config',
-      url_path: urlPath,
+      url_path: urlPath ? urlPath : null,
+    }).then((data) => {
+      return {...data, views: data.views || []}
     });
   };
 
@@ -40,7 +52,7 @@ class LinkedLovelaceApi {
     return dashboardConfig;
   };
 
-  setDashboardConfig = async (urlPath: string, config: Record<string, any>): Promise<null> => {
+  setDashboardConfig = async (urlPath: string | null, config: Record<string, any>): Promise<null> => {
     if (Debug.instance.debug) {
       log(`${Debug.instance.dryRun ? 'Not Actually ' : ''}Setting Lovelace User-Created Dashboard: ${urlPath}`, config);
     }

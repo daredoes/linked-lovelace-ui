@@ -23,13 +23,17 @@ export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
   ll_context?: Record<string, any>
 }
 
+export interface LinkedLovelaceStatusCardConfig extends LovelaceCardConfig {
+  type: string;
+}
+
 export interface Dashboard {
   id: string;
   mode: string;
   require_admin: boolean;
   show_in_sidebar: boolean;
   title: string;
-  url_path: string;
+  url_path: string | null;
 }
 
 export interface LLCard extends LovelaceCardConfig {
