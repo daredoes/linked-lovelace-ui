@@ -45,6 +45,20 @@ class LinkedLovelaceController {
         // Replace the cards in the view
         views[viewKey].cards = cards;
       }
+      if (view.sections && Array.isArray(view.sections)) {
+        for (let i = 0; i < view.sections.length ; i++) {
+          const cards = view.sections[i].cards
+          if (cards && Array.isArray(cards)) {
+            cards.forEach((card, j) => {
+              const newCard = this.templateController.renderCard(card);
+              view.sections![i].cards![j] = newCard
+            });
+          }
+          // For every card in the config, store a copy of the rendered card
+          // Replace the cards in the section
+          view.sections![i].cards = cards;
+        }
+      }
     });
     config.views = views;
     return config;
