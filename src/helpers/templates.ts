@@ -1,5 +1,6 @@
 import { TemplateEngine } from '../v2/template-engine';
-import { DashboardCard, DashboardView } from '../types';
+import { DashboardCard, DashboardView, LLCard } from '../types';
+import { LovelaceCard } from 'custom-card-helpers';
 
 export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
   if (card.ll_template) {
@@ -110,6 +111,21 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     // Put template key back in card
     data = { ...{ ll_template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, ll_template: templateKey, ll_keys: originalCardData.ll_keys };
   } else {
+    // Support for new sections dashboards.
+    if (data.sections && Array.isArray(data.sections)) {
+      for (let i = 0; i < data.sections.length; i++) {
+        if (data.sections[i].cards && Array.isArray(data.sections[i].cards)) {
+          for (let j = 0; j < (data.sections[i].cards as DashboardCard[]).length; j++ ) {
+            const card = data.sections[i].cards[j] as DashboardCard
+            if (dataFromTemplate) {
+              // Pass template data down to children
+              card.ll_context = { ...(card.ll_context || {}), ...dataFromTemplate };
+            }
+            data.sections[i].cards[j] = updateCardTemplate(card, templateData)
+          }
+        }
+      }
+    }
     if (data.cards) {
       // Update any cards in the card
       const cards: DashboardCard[] = [];
@@ -122,6 +138,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       });
       data.cards = cards;
     }
+    
     if (data.card) {
       if (dataFromTemplate) {
         // Pass template data down to children

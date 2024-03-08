@@ -84,7 +84,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
   }
   @state() private _tab = Object.keys(this._tabs)[0] || ""
 
-  private _controller?: HassController;
+  private _controller?: HassController = new HassController();
 
   log(msg, ...values) {
     if (this.config.debug) {
@@ -118,8 +118,10 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private handleClick = async () => {
     this._difference = "";
+    const oldForward = this._controller?.forwardLogs || false;
     this._controller = new HassController();
-    this._controller!.addToLogs("Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled.")
+    this._controller.forwardLogs = oldForward;
+    this._controller!.addToLogs({msg: "Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled."})
     const backupDashboardConfigs = {}
     await GlobalLinkedLovelace.instance.api.getDashboards().then(async (dashboards) => {
       return Promise.all(dashboards.map(async (dashboard) => {
@@ -130,7 +132,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
     });
     this._backedUpDashboardConfigs = backupDashboardConfigs;
     this._backupString = "text/json;charset=utf-8," + encodeURIComponent(stringify(backupDashboardConfigs));
-    this._controller!.addToLogs("Backed up current dashboard data. Download as JSON via button.")
+    this._controller!.addToLogs({msg: "Backed up current dashboard data. Download as JSON via button."})
     await this._controller.refresh();
     this._partials = this._controller.linkedLovelaceController.etaController.partials
     this._templates = this._controller.linkedLovelaceController.templateController.templates
@@ -138,10 +140,10 @@ export class LinkedLovelaceStatusCard extends LitElement {
     dashboards.forEach((dashboard) => {
       this._dashboards[dashboard.url_path ? dashboard.url_path : ''] = dashboard
     })
-    this._controller!.addToLogs("Determining Changes. Ignore 'Update' Messages. Dry-Run is enabled.")
+    this._controller!.addToLogs({msg: "Determining Changes. Ignore 'Update' Messages. Dry-Run is enabled."})
     await this.handleDryRun()
-    this._controller!.addToLogs("Determined Changes. Ignore 'Update' Messages. Dry-Run is enabled.")
-    this._controller!.addToLogs("Ready for user input.")
+    this._controller!.addToLogs({msg: "Determined Changes. Ignore 'Update' Messages. Dry-Run is enabled."})
+    this._controller!.addToLogs({msg: "Ready for user input."})
     this._loaded = true;
     this._repaint();
   };
@@ -165,6 +167,13 @@ export class LinkedLovelaceStatusCard extends LitElement {
   }
   private toggleShowTemplates = async () => {
     this._show_templates = !this._show_templates;
+    this._repaint()
+  }
+
+  private toggleLogs = async () => {
+    if (this._controller) {
+      this._controller.forwardLogs = !this._controller.forwardLogs;
+    }
     this._repaint()
   }
 
@@ -236,9 +245,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
   protected render(): TemplateResult | void {
     //  Finish edit mode
     const editMode = false;
-    const partialKeys = Object.keys(this._partials);
-    const templateKeys = Object.keys(this._templates);
-    const dashboardKeys = Object.keys(this._dashboards);
     const diffedDashboardKeys = Object.keys(this._diffedDashboards);
     return html`
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
@@ -355,9 +361,17 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </div>
         ` : ''}
         <div class="card-actions">
-          ${!this._loaded ? html`<ha-progress-button @click=${this.handleClick}>
+          ${!this._loaded ? html`
+          <ha-progress-button @click=${this.toggleLogs}>
+            ${this._controller?.forwardLogs ? 'Silence Console Logging' : 'Activate Console Logging'}
+          </ha-progress-button>
+          <ha-progress-button @click=${this.handleClick}>
             Load Data
-          </ha-progress-button>` : html`
+          </ha-progress-button>
+          ` : html`
+          <ha-progress-button @click=${this.toggleLogs}>
+            ${this._controller?.forwardLogs ? 'Silence Console Logging' : 'Activate Console Logging'}
+          </ha-progress-button>
           <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
             Refresh
           </ha-progress-button>

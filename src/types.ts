@@ -38,6 +38,7 @@ export interface Dashboard {
 
 export interface LLCard extends LovelaceCardConfig {
   ll_template?: string
+  sections?: LovelaceCardConfig[]
   ll_context?: Record<string, any>
   // A map from a key in the current level of the card to a key in the current context data
   ll_keys?: Record<string, string>
@@ -74,6 +75,7 @@ export interface DashboardView {
   badges?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cards?: DashboardCard[];
+  sections?: DashboardCard[];
   theme?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
