@@ -74,10 +74,9 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       Object.keys(originalCardData.ll_keys || {}).forEach((cardKey) => {
         const originalDataFromTemplate = Object.assign({}, dataFromTemplate)
         if (typeof originalDataFromTemplate[cardKey] === 'object') {
-          if (originalDataFromTemplate[cardKey]['length']) {
+          if (Array.isArray(originalDataFromTemplate[cardKey]) && typeof originalDataFromTemplate[cardKey][0] === 'object') {
             updatedData[cardKey] = [];
             for (let i = 0; i < originalDataFromTemplate[cardKey]['length']; i++) {
-
               const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_context, ...originalDataFromTemplate };
               delete newLLData[cardKey]
               const oldData = { ...{ ll_context: newLLData }, ...{ ...originalDataFromTemplate[cardKey][i] }, ...{ ll_data: newLLData } };
@@ -117,7 +116,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       data.cards.forEach((card) => {
         if (dataFromTemplate) {
           // Pass template data down to children
-          card.ll_context = { ...(card.ll_data || {}), ...dataFromTemplate };
+          card.ll_context = { ...(card.ll_context || {}), ...dataFromTemplate };
         }
         cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
       });
@@ -134,11 +133,11 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     const cardKeys = Object.keys(data);
     const updatedData = {}
     cardKeys.forEach((cardKey) => {
-      if (cardKey !== 'card' && typeof data[cardKey] === 'object') {
+      if (cardKey !== 'card' && data[cardKey] !== null &&  typeof data[cardKey] === 'object' && (!Array.isArray(data[cardKey]))) {
         try {
           updatedData[cardKey] = updateCardTemplate(data[cardKey], templateData)
         } catch (e) {
-          console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, data, e)
+          console.log(`Couldn't Update card key '${cardKey}'. Provide the following object when submitting an issue to the developer.`, data, e)
         }
       }
     })

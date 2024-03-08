@@ -7,10 +7,15 @@ const getS = (array) => {
   return array.length !== 1 ? 's' : ''
 }
 
+interface View {
+  id: string
+  templates: Record<string, DashboardCard>
+  partials: Record<string, LinkedLovelacePartial>
+}
+
 class HassController {
   linkedLovelaceController: LinkedLovelaceController = new LinkedLovelaceController();
-  dashboardsToPartials: Record<string, Record<string, LinkedLovelacePartial>> = {}
-  dashboardsToTemplates: Record<string, Record<string, DashboardCard>> = {}
+  dashboardsToViews: Record<string, Record<string, View>> = {}
   logs: string[] = [];
   forwardLogs = false;
 
@@ -33,7 +38,7 @@ class HassController {
   refresh = async (): Promise<void> => {
     this.addToLogs(`Beginning Refresh`)
     this.linkedLovelaceController = new LinkedLovelaceController();
-    this.dashboardsToPartials = {}
+    this.dashboardsToViews = {}
     this.addToLogs(`Discovering Dashboards`)
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();
     this.addToLogs(`Discovered ${dashboards.length} Dashboard${getS(dashboards)}`)
@@ -60,10 +65,18 @@ class HassController {
       const dashboard = dbcs[1] as Dashboard
       if (config) {
         const dashboardPath = dashboard.url_path ? dashboard.url_path : '';
-        if (!this.dashboardsToTemplates[dashboardPath]) {
-          this.dashboardsToTemplates[dashboardPath] = {}
+        if (!this.dashboardsToViews[dashboardPath]) {
+          this.dashboardsToViews[dashboardPath] = {}
         }
         return await Promise.all(config.views.map(async (view) => {
+          const viewKey = view.path || '';
+          if (!this.dashboardsToViews[dashboardPath][viewKey]) {
+            this.dashboardsToViews[dashboardPath][viewKey] = {
+              id: viewKey,
+              templates: {},
+              partials: {}
+            }
+          }
           this.addToLogs(`[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`)
           return await Promise.all((view.cards || []).map(async (card) => {
             if (card.ll_key) {
@@ -73,7 +86,7 @@ class HassController {
               } else {
                 templates[card.ll_key] = card
               }
-              this.dashboardsToTemplates[dashboardPath] = {...this.dashboardsToTemplates[dashboardPath], ...{[card.ll_key]: card}}
+              this.dashboardsToViews[dashboardPath][viewKey].templates = {...this.dashboardsToViews[dashboardPath][viewKey].templates, ...{[card.ll_key]: card}}
             }
             
             const partials = await this.linkedLovelaceController.registerPartials(card)
@@ -81,7 +94,7 @@ class HassController {
             if (partialKeys.length) {
               this.addToLogs(`[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovered ${partialKeys.length} Partial${getS(partialKeys)}`)
             }
-            this.dashboardsToPartials[dashboardPath] = partials;
+            this.dashboardsToViews[dashboardPath][viewKey].partials = partials;
           }))
         }))
       }

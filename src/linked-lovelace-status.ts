@@ -44,6 +44,11 @@ const makeDiff = (obj1, obj2) => {
   description: 'An overview card for Linked Lovelace',
 });
 
+const TAB_DASHBOARDS = "dashboards";
+const TAB_TEMPLATES = "templates";
+const TAB_PARTIALS = "partials";
+const TAB_LOGS = "logs";
+
 @customElement('linked-lovelace-status')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceStatusCard extends LitElement {
@@ -60,7 +65,24 @@ export class LinkedLovelaceStatusCard extends LitElement {
   @state() private _loaded = false;
   @state() private _show_difference = false;
   @state() private _show_logs = false;
+  @state() private _show_partials = false;
+  @state() private _show_templates = false;
   @state() private _difference = "";
+  @state() private _tabs = {
+    [TAB_DASHBOARDS]: {
+      name: "Dashboards"
+    },
+    [TAB_TEMPLATES]: {
+      name: "Templates"
+    },
+    [TAB_PARTIALS]: {
+      name: "Partials"
+    },
+    [TAB_LOGS]: {
+      name: "Logs"
+    },
+  }
+  @state() private _tab = Object.keys(this._tabs)[0] || ""
 
   private _controller?: HassController;
 
@@ -134,6 +156,15 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private toggleShowLogs = async () => {
     this._show_logs = !this._show_logs;
+    this._repaint()
+  }
+
+  private toggleShowPartials = async () => {
+    this._show_partials = !this._show_partials;
+    this._repaint()
+  }
+  private toggleShowTemplates = async () => {
+    this._show_templates = !this._show_templates;
     this._repaint()
   }
 
@@ -213,36 +244,87 @@ export class LinkedLovelaceStatusCard extends LitElement {
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
         class="linked-lovelace-container">
         <div class="card-content">
-        <div>
+        <div class="content">
         ${this._loaded ? html`
-        <div class="unsafe-html">
-        <div class="accordion expanded">
-        <span class="accordion-bar" @click=${this.toggleShowLogs}><span class="icon">${this._show_logs ? html`&#9660;` : html`&#9658;`} </span><span class="title">Logs</span></span>
-        </div>
-        <pre class="${this._show_logs ? '' : 'hidden'}">
-        <code>
-        ${this._controller?.logs.map((logText) => {
-          return html`<p>${logText}</p>`
+        <div class="tabs">
+        ${Object.keys(this._tabs).map((tabKey) => {
+          const tabData = this._tabs[tabKey];
+          return html`
+            <div class="tab ${this._tab === tabKey ? 'active' : ''}" @click="${() => {this._tab = tabKey; this._repaint()}}">${tabData.name}</div>
+          `
         })}
-        </code>
-        </pre>
+        </div>
+        <div>
+        <div class="tab-content ${this._tab === TAB_DASHBOARDS ? 'active' : ''}">
+        </div>
+        <div class="tab-content ${this._tab === TAB_TEMPLATES ? 'active' : ''}">
+          <div class="unsafe-html">
+          <div class="accordion expanded">
+          <span class="accordion-bar" @click=${this.toggleShowTemplates}><span class="icon">${this._show_templates ? html`&#9660;` : html`&#9658;`} </span><span class="title">Templates</span></span>
+          </div>
+          ${Object.keys(this._controller?.dashboardsToViews || {}).map((dashboardUrl) => {
+            const views = this._controller?.dashboardsToViews[dashboardUrl]
+            return Object.keys(views || {}).map((viewKey) => {
+              const view = views![viewKey]
+              const templates = view.templates
+              return Object.keys(templates || {}).map((templateKey) => {
+                const templateData = templates![templateKey]
+              return html`
+              <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${templateKey}</a>
+              <pre class="${this._show_templates ? '' : 'hidden'}">
+              <code>
+              ${unsafeHTML(makeDiff(templateData, templateData))}
+              </code>
+              </pre>
+                `
+              })
+            })
+          }
+          )}
+          </div>
+        </div>
+        <div class="tab-content ${this._tab === TAB_PARTIALS ? 'active' : ''}">
+          <div class="unsafe-html">
+          <div class="accordion expanded">
+          <span class="accordion-bar" @click=${this.toggleShowPartials}><span class="icon">${this._show_partials ? html`&#9660;` : html`&#9658;`} </span><span class="title">Partials</span></span>
+          </div>
+          ${Object.keys(this._controller?.dashboardsToViews || {}).map((dashboardUrl) => {
+            const views = this._controller?.dashboardsToViews[dashboardUrl]
+            return Object.keys(views || {}).map((viewKey) => {
+              const view = views![viewKey]
+              const partials = view.partials
+            return Object.keys(partials || {}).map((partialKey) => {
+              const partialData = partials![partialKey]
+            return html`
+            <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${partialKey}</a>
+            <pre class="${this._show_partials ? '' : 'hidden'}">
+            <code>
+            ${unsafeHTML(makeDiff(partialData, partialData))}
+            </code>
+            </pre>
+              `
+            })
+            })
+          }
+          )}
+          </div>
+        </div>
+        <div class="tab-content ${this._tab === TAB_LOGS ? 'active' : ''}">
+          <div class="unsafe-html">
+          <div class="accordion expanded">
+          <span class="accordion-bar" @click=${this.toggleShowLogs}><span class="icon">${this._show_logs ? html`&#9660;` : html`&#9658;`} </span><span class="title">Logs</span></span>
+          </div>
+          <pre class="${this._show_logs ? '' : 'hidden'}">
+          <code>
+          ${this._controller?.logs.map((logText) => {
+            return html`<p>${logText}</p>`
+          })}
+          </code>
+          </pre>
+          </div>
+        </div>
         </div>
         `: ''}
-        <ul>
-        <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Partials</li>
-        ${this._loaded ? html`<ul><li>Found ${partialKeys.length} Partial${getS(partialKeys)}</li></ul>` : ''}
-        <li>${this._loaded ? 'Parsed' : 'Waiting to Parse'} Dashboards for Templates</li>
-        ${this._loaded ? html`<ul><li>Found ${templateKeys.length} Template${getS(templateKeys)}</li></ul>` : ''}
-        <li>${this._loaded ? 'Retrieved' : 'Waiting to Retrieve'} Dashboards via Websocket</li>
-        ${this._loaded ? html`
-        <ul>
-        <li>
-        <div class="header">
-        <span>Can Modify ${diffedDashboardKeys.length}/${dashboardKeys.length} Dashboard${getS(diffedDashboardKeys)}</span>
-        </div>
-        </li>
-        </ul>` : ''}
-        </ul>
         </div>
         ${diffedDashboardKeys.length ? html`
         <div class="unsafe-html">
@@ -302,6 +384,41 @@ export class LinkedLovelaceStatusCard extends LitElement {
       .linked-lovelace-container {
         background-color: rgba(0, 0, 0, 0);
         border: 1px solid;
+      }
+      .content {
+        padding: 0;
+      }
+      .tab-content {
+        display: none;
+        &.active {
+          display: block;
+          padding: 16px 0;
+        }
+      }
+      .tabs {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        .tab {
+          padding: 4px 8px;
+          cursor: pointer;
+          border-left: 0.5px solid var(--text-primary-color);
+          border-right: 0.5px solid var(--text-primary-color);
+          border-bottom: 1px solid var(--text-primary-color);
+          &:not(.active):hover {
+            background-color: var(--secondary-background-color);
+          }
+          &.active {
+            background-color: var(--secondary-background-color);
+          }
+          &.active:hover {
+            background-color: var(--fc-button-hover-bg-color);
+            cursor: not-allowed;
+          }
+          &:not(.active):active {
+            background-color: var(--fc-button-hover-bg-color);
+          }
+        }
       }
       .accordion.expanded {
         & .accordion-bar {
