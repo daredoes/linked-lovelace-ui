@@ -60,6 +60,8 @@ export class LinkedLovelaceStatusCard extends LitElement {
   @state() private _loaded = false;
   @state() private _show_difference = false;
   @state() private _show_logs = false;
+  @state() private _show_partials = false;
+  @state() private _show_templates = false;
   @state() private _difference = "";
 
   private _controller?: HassController;
@@ -134,6 +136,15 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private toggleShowLogs = async () => {
     this._show_logs = !this._show_logs;
+    this._repaint()
+  }
+
+  private toggleShowPartials = async () => {
+    this._show_partials = !this._show_partials;
+    this._repaint()
+  }
+  private toggleShowTemplates = async () => {
+    this._show_templates = !this._show_templates;
     this._repaint()
   }
 
@@ -226,6 +237,44 @@ export class LinkedLovelaceStatusCard extends LitElement {
         })}
         </code>
         </pre>
+        </div>
+        <div class="unsafe-html">
+        <div class="accordion expanded">
+        <span class="accordion-bar" @click=${this.toggleShowPartials}><span class="icon">${this._show_partials ? html`&#9660;` : html`&#9658;`} </span><span class="title">Partials</span></span>
+        </div>
+        ${Object.keys(this._controller?.dashboardsToPartials || {}).map((dashboardUrl) => {
+          const partials = this._controller?.dashboardsToPartials[dashboardUrl]
+          return Object.keys(partials || {}).map((partialKey) => {
+            const partialData = partials![partialKey]
+          return html`
+          <a href="/${dashboardUrl}">${partialKey}</a>
+          <pre class="${this._show_partials ? '' : 'hidden'}">
+          <code>
+          ${unsafeHTML(makeDiff(partialData, partialData))}
+          </code>
+          </pre>
+            `
+          })}
+        )}
+        </div>
+        <div class="unsafe-html">
+        <div class="accordion expanded">
+        <span class="accordion-bar" @click=${this.toggleShowTemplates}><span class="icon">${this._show_templates ? html`&#9660;` : html`&#9658;`} </span><span class="title">Templates</span></span>
+        </div>
+        ${Object.keys(this._controller?.dashboardsToTemplates || {}).map((dashboardUrl) => {
+          const templates = this._controller?.dashboardsToTemplates[dashboardUrl]
+          return Object.keys(templates || {}).map((templateKey) => {
+            const templateData = templates![templateKey]
+          return html`
+          <a href="/${dashboardUrl}">${templateKey}</a>
+          <pre class="${this._show_templates ? '' : 'hidden'}">
+          <code>
+          ${unsafeHTML(makeDiff(templateData, templateData))}
+          </code>
+          </pre>
+            `
+          })}
+        )}
         </div>
         `: ''}
         <ul>
