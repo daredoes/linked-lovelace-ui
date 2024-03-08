@@ -74,7 +74,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       Object.keys(originalCardData.ll_keys || {}).forEach((cardKey) => {
         const originalDataFromTemplate = Object.assign({}, dataFromTemplate)
         if (typeof originalDataFromTemplate[cardKey] === 'object') {
-          if (originalDataFromTemplate[cardKey]['length'] && typeof typeof originalDataFromTemplate[cardKey][0] === 'object') {
+          if (Array.isArray(originalDataFromTemplate[cardKey]) && typeof originalDataFromTemplate[cardKey][0] === 'object') {
             updatedData[cardKey] = [];
             for (let i = 0; i < originalDataFromTemplate[cardKey]['length']; i++) {
               const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_context, ...originalDataFromTemplate };
@@ -116,7 +116,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       data.cards.forEach((card) => {
         if (dataFromTemplate) {
           // Pass template data down to children
-          card.ll_context = { ...(card.ll_data || {}), ...dataFromTemplate };
+          card.ll_context = { ...(card.ll_context || {}), ...dataFromTemplate };
         }
         cards.push(Object.assign({}, updateCardTemplate(card, templateData)));
       });
@@ -133,7 +133,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     const cardKeys = Object.keys(data);
     const updatedData = {}
     cardKeys.forEach((cardKey) => {
-      if (cardKey !== 'card' && data[cardKey] !== null &&  typeof data[cardKey] === 'object' && !Array.isArray(data[cardKey])) {
+      if (cardKey !== 'card' && data[cardKey] !== null &&  typeof data[cardKey] === 'object' && (!Array.isArray(data[cardKey]))) {
         try {
           updatedData[cardKey] = updateCardTemplate(data[cardKey], templateData)
         } catch (e) {
