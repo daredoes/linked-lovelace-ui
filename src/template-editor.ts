@@ -57,18 +57,18 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
     const templateKeys = Object.keys(this._controller.linkedLovelaceController.templateController.templates);
     if (!templateKeys.length) {
       return html`
-      <p>Options:</p>
+      <p>Discovered Templates:</p>
       <div class="linked-lovelace-chips">
         No templates found/created.
       </div>
     `;
     }
     return html`
-      <p>Options:</p>
+      <p>Discovered Templates</p>
       <div class="linked-lovelace-chips">
         ${templateKeys.map(
           (template) => html`<button .value=${template}
-          .configValue=${'template'}
+          .configValue=${'ll_template'}
           @click=${this._valueChanged}>${template}</button>`,
         )}
       </div>
@@ -82,13 +82,14 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
 
     return html`
       <div class="linked-lovelace-config">
-        <mwc-textfield
-          label="Template Name"
-          placeholder="Fill me in, and switch to code editor"
-          .value=${this._template}
-          .configValue=${'ll_template'}
-          @input=${this._valueChanged}
-        ></mwc-textfield>
+        <span>Read the following carefully. After clicking an option, all of this text will disappear.</span>
+        <ol>
+        <li>Click a template below to swap the contents of this card with the contents of the template.</li>
+        <li>Variables can be provided in a dictionary under the top-level key <code>ll_context</code>.<ul><li>Examples may be provided automatically.</li><li>All other content in the card below the linked lovelace keys will be replaced.</li><li>Templating provided by <a href="https://eta.js.org/" target="_blank">ETA JS</a></li></ul></li>
+        <li>The card may be broken when first saved. This is normal.</li>
+        <li>It will be updated the next time a user performs an update from the Linked Lovelace Status card<ul><li>You may want to do this after placing all the template cards you need.</li></li>
+        </ol>
+        <p></p>
         ${this.renderTemplates()}
       </div>
     `;
@@ -119,24 +120,32 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
       if (target.value === '') {
         const tmpConfig = { ...this._config };
         delete tmpConfig[target.configValue];
-        if (target.configValue === 'template') {
-          tmpConfig['ll_data'] = undefined;
+        if (target.configValue === 'll_template') {
+          tmpConfig['ll_context'] = undefined;
         }
         this._config = tmpConfig;
       } else {
         let templateData: Record<string, any> | undefined = undefined;
-        if (target.configValue === 'template') {
+        if (target.configValue === 'll_template') {
           const template: DashboardCard | undefined =
             this._controller?.linkedLovelaceController.templateController.templates[target.value];
           if (template) {
-            templateData = extractTemplateData(template).ll_context || undefined;
+            templateData = extractTemplateData(template) || undefined;
           }
+          this._config = {
+            /* @ts-ignore we want this to be first in the output, but need to make sure the value is correct */
+            [target.configValue]: target.checked !== undefined ? target.checked : target.value,
+            ...template,
+            ...{
+              [target.configValue]: target.checked !== undefined ? target.checked : target.value,
+            }
+          };
+        } else {
+          this._config = {
+            ...this._config,
+            [target.configValue]: target.checked !== undefined ? target.checked : target.value,
+          };
         }
-        this._config = {
-          ...this._config,
-          ll_data: templateData,
-          [target.configValue]: target.checked !== undefined ? target.checked : target.value,
-        };
       }
     }
     fireEvent(this, 'config-changed', { config: this._config });
