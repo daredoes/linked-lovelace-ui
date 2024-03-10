@@ -102,11 +102,9 @@ export class LinkedLovelaceTemplateCard extends LitElement {
     return html`
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
         class="linked-lovelace-container">
-        <div class="card-content">${this.config.template}</div>
-        <div class="card-actions">
-          <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
-            ${localize('common.update_all')}
-          </ha-progress-button>
+        <div class="card-content">
+        <p>This card no longer runs updates for Linked Lovelace. Please create a new card with the new type <code>linked-lovelace-status</code>.</p>
+        <p>Please use this card to place pre-created templates on your dashboards, and run an update with the new card.
         </div>
       </ha-card>
     `;
