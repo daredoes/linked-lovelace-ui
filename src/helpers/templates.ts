@@ -51,8 +51,10 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
   const originalCardData = Object.assign({}, data);
   if (templateKey && templateData[templateKey]) {
     if (dataFromTemplate) {
+      const templateCardData = {...templateData[templateKey]};
+      delete templateCardData['ll_key']
       // If data in template, find and replace each key
-      let template = JSON.stringify(templateData[templateKey]);
+      let template = JSON.stringify(templateCardData);
       template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
       try {
         // Convert rendered string back to JSON
@@ -150,7 +152,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     const cardKeys = Object.keys(data);
     const updatedData = {}
     cardKeys.forEach((cardKey) => {
-      if (cardKey !== 'card' && data[cardKey] !== null &&  typeof data[cardKey] === 'object' && (!Array.isArray(data[cardKey]))) {
+      if (cardKey !== 'card' && data[cardKey] !== null &&  typeof data[cardKey] === 'object') {
         try {
           updatedData[cardKey] = updateCardTemplate(data[cardKey], templateData)
         } catch (e) {

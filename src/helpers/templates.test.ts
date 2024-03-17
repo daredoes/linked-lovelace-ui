@@ -180,6 +180,57 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
+  test('replaces child chips with template', () => {
+    const template: DashboardCard = {
+      type: "light",
+      ll_key: "my-room-chip-light",
+      entity: "<%= context.entity %>",
+      content_info: null,
+      use_light_color: true,
+      tap_action: {
+        action: "toggle"
+      },
+      double_tap_action:
+        { action: "none" },
+      hold_action:
+        { action: "none" }
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      chips: [
+        {
+          type: 'test',
+          ll_template: 'my-room-chip-light',
+          ll_context: {
+            entity: "test"
+          }
+        },
+      ],
+    };
+    expect(updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
+      type: 'test',
+      chips: [
+        {
+          type: "light",
+          ll_template: 'my-room-chip-light',
+          ll_context: {
+            entity: "test"
+          },
+          entity: "test",
+          content_info: null,
+          use_light_color: true,
+          tap_action: {
+            action: "toggle"
+          },
+          double_tap_action:
+            { action: "none" },
+          hold_action:
+            { action: "none" }
+        },
+      ],
+    });
+  });
+
   test('replaces child card with template', () => {
     const template: DashboardCard = {
       type: 'template',
@@ -509,7 +560,7 @@ describe('[function] updateCardTemplate', () => {
       ll_template: 'template',
       ll_context: {
         cards: [
-          { ll_template: 'nested', ll_context: { name: 'Cool' }, ll_keys: {'name': 'name'}, },
+          { ll_template: 'nested', ll_context: { name: 'Cool' }, ll_keys: { 'name': 'name' }, },
           { ll_template: 'template' },
         ]
       },
@@ -525,7 +576,7 @@ describe('[function] updateCardTemplate', () => {
           type: 'nested',
           ll_template: 'nested',
           ll_context: { name: 'Cool' },
-          ll_keys: {'name': 'name'},
+          ll_keys: { 'name': 'name' },
           name: 'Cool',
           cards: []
         },
@@ -540,7 +591,7 @@ describe('[function] updateCardTemplate', () => {
       },
       ll_context: {
         cards: [
-          { ll_template: 'nested', ll_context: { name: 'Cool' }, ll_keys: {'name': 'name'}, },
+          { ll_template: 'nested', ll_context: { name: 'Cool' }, ll_keys: { 'name': 'name' }, },
           { ll_template: 'template' }
         ]
       },
@@ -692,13 +743,13 @@ describe('[function] updateCardTemplate', () => {
       ll_context: {
         number: 6
       },
-      ll_keys: {'number': 'number'}
+      ll_keys: { 'number': 'number' }
     };
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
-      ll_keys: {'number': 'number'},
+      ll_keys: { 'number': 'number' },
       ll_context: {
         number: 6
       },
@@ -714,13 +765,13 @@ describe('[function] updateCardTemplate', () => {
       type: 'test',
       ll_template: 'template',
       ll_context: {},
-      ll_keys: {'number': 'number'}
+      ll_keys: { 'number': 'number' }
     };
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 3,
-      ll_keys: {'number': 'number'},
+      ll_keys: { 'number': 'number' },
       ll_context: {},
     });
   });
@@ -937,13 +988,13 @@ describe('[function] updateCardTemplate v2', () => {
       ll_context: {
         number: 6
       },
-      ll_keys: {'number': 'number'}
+      ll_keys: { 'number': 'number' }
     };
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
-      ll_keys: {'number': 'number'},
+      ll_keys: { 'number': 'number' },
       ll_context: {
         number: 6
       },
@@ -961,13 +1012,13 @@ describe('[function] updateCardTemplate v2', () => {
       ll_context: {
         number: 6
       },
-      ll_keys: {'number': 'number'}
+      ll_keys: { 'number': 'number' }
     };
     expect(updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
-      ll_keys: {'number': 'number'},
+      ll_keys: { 'number': 'number' },
       ll_context: {
         number: 6
       },
@@ -991,7 +1042,7 @@ describe('[function] updateCardTemplate v2', () => {
           { ll_template: 'nested' }
         ]
       },
-      ll_keys: {'cards': 'cards'}
+      ll_keys: { 'cards': 'cards' }
     };
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
@@ -1003,7 +1054,7 @@ describe('[function] updateCardTemplate v2', () => {
           cards: []
         }
       ],
-      ll_keys: {'cards': 'cards'},
+      ll_keys: { 'cards': 'cards' },
       ll_context: {
         cards: [
           { ll_template: 'nested' }
@@ -1030,7 +1081,7 @@ describe('[function] updateCardTemplate v2', () => {
           { ll_template: 'template' },
         ]
       },
-      ll_keys: {'cards': 'cards'}
+      ll_keys: { 'cards': 'cards' }
     };
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
@@ -1047,7 +1098,7 @@ describe('[function] updateCardTemplate v2', () => {
           cards: []
         }
       ],
-      ll_keys: {'cards': 'cards'},
+      ll_keys: { 'cards': 'cards' },
       ll_context: {
         cards: [
           { ll_template: 'nested' },
@@ -1076,7 +1127,7 @@ describe('[function] updateCardTemplate v2', () => {
           { ll_template: 'template' },
         ]
       },
-      ll_keys: {'cards': 'cards'}
+      ll_keys: { 'cards': 'cards' }
     };
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
@@ -1095,7 +1146,7 @@ describe('[function] updateCardTemplate v2', () => {
           cards: []
         }
       ],
-      ll_keys: {'cards': 'cards'},
+      ll_keys: { 'cards': 'cards' },
       ll_context: {
         cards: [
           { ll_template: 'nested', ll_context: { name: 'Cool' } },
@@ -1124,7 +1175,7 @@ describe('[function] updateCardTemplate v2', () => {
           { ll_template: 'template' },
         ]
       },
-      ll_keys: {'cards': 'cards'}
+      ll_keys: { 'cards': 'cards' }
     };
     expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
@@ -1144,7 +1195,7 @@ describe('[function] updateCardTemplate v2', () => {
           cards: []
         }
       ],
-      ll_keys: {'cards': 'cards'},
+      ll_keys: { 'cards': 'cards' },
       ll_context: {
         cards: [
           { ll_template: 'nested', ll_context: { name: 'Cool' }, ll_keys: ['name'], },
