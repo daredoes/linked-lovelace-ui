@@ -4,3 +4,5 @@ package-lock.json
 /dist
 src/version.ts
 /coverage
+docs_site/.vitepress/cache
+docs_site/node_modules
