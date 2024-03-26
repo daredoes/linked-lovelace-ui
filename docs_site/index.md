@@ -10,9 +10,6 @@ hero:
     - theme: brand
       text: Get Started
       link: /getting-started
-    - theme: alt
-      text: Developer Docs
-      link: /api-examples
 
 features:
   - title: Reusable Cards
