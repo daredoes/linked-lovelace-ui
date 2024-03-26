@@ -332,7 +332,8 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </div>
         `: ''}
         </div>
-        ${diffedDashboardKeys.length ? html`
+        ${diffedDashboardKeys.length && this._difference ? html`
+        <div class="tab-content ${this._tab === TAB_DASHBOARDS ? 'active' : ''}">
         <div class="unsafe-html">
         <div class="accordion expanded">
         <span class="accordion-bar" @click=${this.toggleShowDryRun}><span class="icon">${this._show_difference ? html`&#9660;` : html`&#9658;`} </span><span class="title">Preview Changes</span></span>
@@ -358,6 +359,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
         })}
         </div>` : ''}
         `}
+        </div>
         </div>
         ` : ''}
         <div class="card-actions">
