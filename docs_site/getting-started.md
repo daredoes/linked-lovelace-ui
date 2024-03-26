@@ -13,14 +13,14 @@ outline: deep
 
 ::: danger NOTE
 
-Linked Lovelace runs commands on behalf of the user's browser to modify dashboard configurations, not on behalf of the Home Assistant system. A user's access may modify the outcome of the program.
+`Linked Lovelace` runs commands on behalf of the user's browser to modify dashboard configurations, not on behalf of the Home Assistant system. A user's access may modify the outcome of the program.
 
 __Always back-up your configs if you feel unsure about what you are about to do!__
 :::
 
 ### Preferred Setup
 
-Find us in the HACS plugin in `frontend` under `Linked Lovelace UI`
+Find us in the HACS plugin in `frontend` under `Linked Lovelace`
 ![HACS Install](./images/hacs-linked-lovelace.png)
 
 ## Up and Running
@@ -37,4 +37,6 @@ If it loads successfully, then we are up and running!
 
 ## What's Next?
 
-Now that we have Linked Lovelace installed, it's time to learn how to use it! Move ahead to learn how to [create your first template](./create-your-first-template)
+Now that we have Linked Lovelace installed, it's time to learn how to use it! 
+
+Move ahead to learn how to [create your first template.](./create-your-first-template)
