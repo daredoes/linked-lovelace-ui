@@ -128,7 +128,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         }
       }
     }
-    if (data.cards) {
+    if (Array.isArray(data.cards)) {
       // Update any cards in the card
       const cards: DashboardCard[] = [];
       data.cards.forEach((card) => {
@@ -141,7 +141,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       data.cards = cards;
     }
     
-    if (data.card) {
+    if (data.card && !Array.isArray(data.card)) {
       if (dataFromTemplate) {
         // Pass template data down to children
         data.card.ll_context = { ...(data.card.ll_context || {}), ...dataFromTemplate };

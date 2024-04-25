@@ -827,6 +827,15 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, undefined)).toStrictEqual(card);
   });
 
+  test('preserves arrays named card', () => {
+    const card: DashboardCard = {
+      type: 'test',
+      options: { card: [1, 2] },
+    };
+    expect(updateCardTemplate(card, undefined)).toStrictEqual(card);
+    expect(updateCardTemplate(card, undefined).options.card).toBeInstanceOf(Array);
+  });
+
   test('replaces card with template', () => {
     const template: DashboardCard = {
       type: 'template',
