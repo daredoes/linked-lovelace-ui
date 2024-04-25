@@ -32,6 +32,7 @@ class LinkedLovelaceController {
 
   getUpdatedDashboardConfig = async (urlPath: string | null): Promise<DashboardConfig> => {
     const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(urlPath);
+    if (!config.views) return config;
     const views = config.views;
     Object.keys(views).forEach((viewKey: string) => {
       const view: DashboardView = views[viewKey];

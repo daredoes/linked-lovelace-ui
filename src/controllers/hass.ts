@@ -5,7 +5,7 @@ import { TemplateEngine } from 'src/v2/template-engine';
 import { toConsole } from 'src/helpers/log';
 
 const getS = (array) => {
-  return array.length !== 1 ? 's' : ''
+  return array?.length !== 1 ? 's' : ''
 }
 
 interface View {
@@ -48,7 +48,7 @@ class HassController {
         try {
           this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieving details for dashboard`}, db)
           const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(db.url_path);
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieved ${config.views.length} View${getS(config.views)} for dashboard`}, db, config)
+          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieved ${config.views?.length} View${getS(config.views)} for dashboard`}, db, config)
           return [config, db]
         } catch (e) {
           this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Failed to retrieve details for dashboard`, level: 'ERROR'}, db, e)
@@ -62,7 +62,7 @@ class HassController {
     await Promise.all(dashboardConfigs.map(async (dbcs) => {
       const config = dbcs[0] as DashboardConfig
       const dashboard = dbcs[1] as Dashboard
-      if (config) {
+      if (config?.views) {
         const dashboardPath = dashboard.url_path ? dashboard.url_path : '';
         if (!this.dashboardsToViews[dashboardPath]) {
           this.dashboardsToViews[dashboardPath] = {}
