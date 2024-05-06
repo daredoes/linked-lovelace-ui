@@ -23,17 +23,33 @@ const getS = (array) => {
   return array.length !== 1 ? 's' : ''
 }
 
-const hasDiff = (obj1, obj2) => {
-  const differ = new Diff()
-  const di = differ.main(stringify(obj1), stringify(obj2), false, 0) 
+const createDiff = (obj1 = {}, obj2 = {}) => {
+  try {
+
+    const differ = new Diff()
+    const di = differ.main(stringify(obj1), stringify(obj2), false, 0) 
+    return di;
+  } catch (e) {
+    console.error(e)
+    return []
+  }
+}
+
+const hasDiff = (obj1 = {}, obj2 = {}) => {
+  const di = createDiff(obj1, obj2)
   return di.length > 1;
 }
 
-const makeDiff = (obj1, obj2) => {
-  const differ = new Diff()
-  const di = differ.main(stringify(obj1), stringify(obj2), false, 0) 
-  const result = differ.prettyHtml(di)
-  return result;
+const makeDiff = (obj1 = {}, obj2 = {}) => {
+  try {
+    const differ = new Diff()
+    const diff = createDiff(obj1, obj2)
+    const result = differ.prettyHtml(diff)
+    return result;
+  } catch (e) {
+    console.error(e)
+    return `Could not create diff. Check browser logs for details.`
+  }
 }
 
 // This puts your card into the UI card picker dialog
@@ -109,8 +125,12 @@ export class LinkedLovelaceStatusCard extends LitElement {
     Object.keys(newDashboardConfigs).forEach((dashboardKey) => {
       const dashboardData = newDashboardConfigs[dashboardKey]
       const oldDashboardData = this._backedUpDashboardConfigs[dashboardKey]
-      if (hasDiff(oldDashboardData, dashboardData)) {
-        this._diffedDashboards[dashboardKey] = makeDiff(oldDashboardData, dashboardData)
+      try {
+        if (oldDashboardData && dashboardData && hasDiff(oldDashboardData, dashboardData)) {
+          this._diffedDashboards[dashboardKey] = makeDiff(oldDashboardData, dashboardData)
+        }
+      } catch (e) {
+        console.error(`Failed to make Diff of dashboard '${dashboardKey}'`, oldDashboardData, dashboardData, dashboardKey)
       }
     })
     this._repaint()
