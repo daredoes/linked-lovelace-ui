@@ -1396,3 +1396,4 @@ this['DIFF_INSERT'] = DIFF_INSERT;
 this['DIFF_EQUAL'] = DIFF_EQUAL;
 
 module.exports = diff;
+export default diff;

@@ -125,10 +125,14 @@ export class LinkedLovelaceStatusCard extends LitElement {
     const backupDashboardConfigs = {}
     await GlobalLinkedLovelace.instance.api.getDashboards().then(async (dashboards) => {
       return Promise.all(dashboards.map(async (dashboard) => {
-        const config =  await GlobalLinkedLovelace.instance.api.getDashboardConfig(dashboard.url_path);
-        backupDashboardConfigs[dashboard.url_path ? dashboard.url_path : ''] = config; 
-        return config;
+        return await GlobalLinkedLovelace.instance.api.getDashboardConfig(dashboard.url_path).then((config) => {
+          backupDashboardConfigs[dashboard.url_path ? dashboard.url_path : ''] = config; 
+        }).catch((e) => {
+          console.error(`Failed to get dashboard at url ${dashboard.url_path}`, dashboard, e)
+        });
       }))
+    }).catch((e) => {
+      console.error(`Failed getting all existing dashboards. Contact developer via Github Issues.`, e)
     });
     this._backedUpDashboardConfigs = backupDashboardConfigs;
     this._backupString = "text/json;charset=utf-8," + encodeURIComponent(stringify(backupDashboardConfigs));

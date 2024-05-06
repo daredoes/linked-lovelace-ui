@@ -1,6 +1,6 @@
 {
   "name": "linked-lovelace-ui",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "A front-end library that allows for template creation and re-use in Home Assistant's Lovelace UI",
   "module": "linked-lovelace-ui.js",
   "repository": "https://github.com/daredoes/linked-lovelace-ui",
