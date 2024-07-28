@@ -1,5 +1,4 @@
 import { updateCardTemplate } from '../helpers';
-import { extractTemplateData } from '../helpers/templates';
 import { DashboardCard } from '../types';
 
 class TemplateController {
@@ -28,10 +27,6 @@ class TemplateController {
 
   renderCard(card: DashboardCard): DashboardCard {
     const renderedCard = updateCardTemplate(card, this.templates);
-    // If top-level of card is a template, pull the template data out of the card
-    if (renderedCard.template) {
-      return extractTemplateData(renderedCard);
-    }
     return renderedCard;
   }
 }

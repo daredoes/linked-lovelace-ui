@@ -1,5 +1,5 @@
 import { DashboardCard, DashboardView } from '../types';
-import { getTemplatesUsedInCard, getTemplatesUsedInView, extractTemplateData, updateCardTemplate } from './templates';
+import { getTemplatesUsedInCard, getTemplatesUsedInView, updateCardTemplate } from './templates';
 
 describe('[function] getTemplatesUsedInCard', () => {
   test('returns empty array when given an empty card', () => {
@@ -772,7 +772,6 @@ describe('[function] updateCardTemplate', () => {
       ll_template: 'template',
       number: 3,
       ll_keys: { 'number': 'number' },
-      ll_context: {},
     });
   });
 
@@ -1392,7 +1391,6 @@ describe('[function] updateCardTemplate v2', () => {
       ll_keys: {
         'number': 'number'
       },
-      ll_context: {},
     });
   });
 
@@ -1416,5 +1414,40 @@ describe('[function] updateCardTemplate v2', () => {
         cool_123: 'yes',
       },
     });
+  });
+
+  test('Github Issue #40 Replicating LL_Context', () => {
+    const template: DashboardCard = {
+      type: "custom_collapsable-cards",
+      ll_key: "test_card",
+      ll_context: {
+        group: "sensor.tempratures_koelkasten",
+        name: "Temperatuur"
+      },
+      title_card: {
+        type: "tile",
+        name: "<%= context.name %>",
+        entity: "<%= context.group %>"
+      },
+    };
+    const card: DashboardCard = {
+      type: "text",
+      ll_template: "test_card"
+    };
+    const oldTemplate = JSON.parse(JSON.stringify(template))
+    expect(updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
+      type: "custom_collapsable-cards",
+      ll_template: "test_card",
+      ll_context: {
+        group: "sensor.tempratures_koelkasten",
+        name: "Temperatuur"
+      },
+      title_card: {
+        type: "tile",
+        name: "Temperatuur",
+        entity: "sensor.tempratures_koelkasten"
+      },
+    });
+    expect(oldTemplate).toStrictEqual(template)
   });
 });
