@@ -33,7 +33,7 @@ describe('[class] TemplateController', () => {
       'key': 'test',
       template: 'hello'
     }
-    controller.engine.eta.loadTemplate('test', 'goodbye')
+    controller.loadTemplate('test', 'goodbye')
     controller.loadPartials()
     const result = controller.engine.eta.renderString("<%~ include('test') %>", {})
     expect(result).toStrictEqual("hello")

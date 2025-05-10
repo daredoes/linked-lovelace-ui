@@ -1,6 +1,7 @@
 import { DashboardCard, LinkedLovelacePartial, DashboardPartialsCard, LINKED_LOVELACE_PARTIALS } from "../types";
 import axios from "axios";
 
+// Extracts the template from the card based on whether it has the key "url" or "template".
 export const getCardTemplate = async (possiblePartial: LinkedLovelacePartial) => {
   if (possiblePartial.url) {
     try {
@@ -17,16 +18,27 @@ export const getCardTemplate = async (possiblePartial: LinkedLovelacePartial) =>
   return ''
 }
 
+export const loadPartialData  = async (possiblePartial: LinkedLovelacePartial) => {
+  if (possiblePartial.key) {
+    // Keep all of the data linked in the partial, and extract the template if it is URL-based
+    return {[possiblePartial.key] : { ...possiblePartial, template: await getCardTemplate(possiblePartial)}} as Record<string, LinkedLovelacePartial>
+  }
+  return {}
+}
+
+// Takes a Lovelace Dashboard Card and extracts the data as a partial if the type matches the linked lovelace partials key 
 export const getPartialsFromCard = async (card: DashboardCard): Promise<Record<string, LinkedLovelacePartial>> => {
-  const partials:  Record<string, LinkedLovelacePartial> = {};
+  let partials:  Record<string, LinkedLovelacePartial> = {};
+  // Only extract data from cards that are (custom:linked-lovelace-partials)
   if (card.type === `custom:${LINKED_LOVELACE_PARTIALS}`) {
     const parentCard: DashboardPartialsCard = card as DashboardPartialsCard;
-    const parsing = parentCard.partials?.map(async (possiblePartial) => {
-      if (possiblePartial.key) {
-        partials[possiblePartial.key] = { ...possiblePartial, template: await getCardTemplate(possiblePartial)}
-      }
+    // iterates over list of partials listed in the card, which are objects that may contain data that should be asynchronously downloaded
+    const parsing = await Promise.all(parentCard.partials?.map(loadPartialData) || [])
+    // Once all asynchronous chunks have loaded data into the parent dictionary, continue
+    parsing.forEach((data) => {
+      partials = {...partials, ...data}
     })
-    await Promise.all(parsing || []);
   }
+  // Send back all extracted partials from the card
   return partials;
 }

@@ -34,17 +34,20 @@ class HassController {
     }
   }
 
-
-  refresh = async (): Promise<void> => {
+  _refreshClearData = () => {
     this.addToLogs({msg: `Beginning Refresh`})
     this.linkedLovelaceController = new LinkedLovelaceController();
     this.dashboardsToViews = {}
+  }
+
+  _refreshDashboards = async () => {
     this.addToLogs({msg: `Discovering Dashboards`})
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();
     this.addToLogs({msg: `Discovered ${dashboards.length} Dashboard${getS(dashboards)}`}, dashboards)
-    this.addToLogs({msg: `Retrieving Dashboard Configs`})
-    const dashboardConfigs = await Promise.all(
-      dashboards.map(async (db) => {
+    return dashboards
+  }
+
+  _loadDashboard = async (db) => {
         try {
           this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieving details for dashboard`}, db)
           const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(db.url_path);
@@ -54,10 +57,19 @@ class HassController {
           this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Failed to retrieve details for dashboard`, level: 'ERROR'}, db, e)
         }
         return [undefined, undefined]
-      }),
+      }
+
+  _refreshDashboardConfigs = async (dashboards: Dashboard[]) => {
+    this.addToLogs({msg: `Retrieving Dashboard Configs`})
+    const dashboardConfigs = await Promise.all(
+      dashboards.map(this._loadDashboard),
     );
     this.addToLogs({msg: `Retrieved ${dashboardConfigs.length}/${dashboards.length} Dashboard Config${getS(dashboards)}`}, dashboards, dashboardConfigs)
     this.addToLogs({msg: `Discovering Templates and Partials within Dashboard Configs`})
+    return dashboardConfigs
+  }
+
+  _refreshTemplates = async (dashboardConfigs: ((Dashboard | DashboardConfig)[] | undefined[])[]) => {
     const templates: Record<string, DashboardCard> = {};
     await Promise.all(dashboardConfigs.map(async (dbcs) => {
       const config = dbcs[0] as DashboardConfig
@@ -99,12 +111,25 @@ class HassController {
       }
       return undefined
     }))
-    // The above await puts the partials into the controller
+    return templates
+  }
+
+  _refreshRegisteredTemplates = (templates: Record<string, DashboardCard>) => {
     this.addToLogs({msg: "Registering Partials"})
     this.linkedLovelaceController.etaController.loadPartials()
     TemplateEngine.instance.eta = this.linkedLovelaceController.eta
     this.addToLogs({msg: "Registering Templates"})
     this.linkedLovelaceController.registerTemplates(templates)
+  }
+
+
+  refresh = async (): Promise<void> => {
+    this._refreshClearData()
+    const dashboards = await this._refreshDashboards()
+    const dashboardConfigs = await this._refreshDashboardConfigs(dashboards)
+    const templates: Record<string, DashboardCard> = await this._refreshTemplates(dashboardConfigs);
+    // The above await puts the partials into the controller
+    this._refreshRegisteredTemplates(templates)
   };
 
   update = async (urlPath: string | null, dryRun = false): Promise<DashboardConfig | null | undefined> => {
