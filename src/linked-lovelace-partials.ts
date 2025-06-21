@@ -7,7 +7,7 @@ import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-car
 import { LINKED_LOVELACE_PARTIALS, type DashboardPartialsCard } from './types';
 import './types';
 import { localize } from './localize/localize';
-import { log } from './helpers';
+import { log } from './util';
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];

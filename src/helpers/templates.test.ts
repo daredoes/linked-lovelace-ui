@@ -118,22 +118,22 @@ describe('[function] getTemplatesUsedInView', () => {
 });
 
 describe('[function] updateCardTemplate', () => {
-  test('does nothing when given no template data and an empty card', () => {
+  test('does nothing when given no template data and an empty card', async () => {
     const card: DashboardCard = {
       type: 'test',
     };
-    expect(updateCardTemplate(card)).toStrictEqual(card);
+    expect(await updateCardTemplate(card)).toStrictEqual(card);
   });
 
-  test('does nothing when given no template data with a template type', () => {
+  test('does nothing when given no template data with a template type', async () => {
     const card: DashboardCard = {
       type: 'test',
       ll_template: 'true',
     };
-    expect(updateCardTemplate(card)).toStrictEqual(card);
+    expect(await updateCardTemplate(card)).toStrictEqual(card);
   });
 
-  test('does nothing when given no template data with child cards', () => {
+  test('does nothing when given no template data with child cards', async () => {
     const card: DashboardCard = {
       type: 'test',
       cards: [
@@ -142,10 +142,10 @@ describe('[function] updateCardTemplate', () => {
         },
       ],
     };
-    expect(updateCardTemplate(card)).toStrictEqual(card);
+    expect(await updateCardTemplate(card)).toStrictEqual(card);
   });
 
-  test('replaces card with template', () => {
+  test('replaces card with template', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -153,10 +153,10 @@ describe('[function] updateCardTemplate', () => {
       type: 'test',
       ll_template: 'template',
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({ type: 'template', ll_template: 'template' });
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({ type: 'template', ll_template: 'template' });
   });
 
-  test('replaces child cards with template', () => {
+  test('replaces child cards with template', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -169,7 +169,7 @@ describe('[function] updateCardTemplate', () => {
         },
       ],
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'test',
       cards: [
         {
@@ -180,7 +180,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('replaces child chips with template', () => {
+  test('replaces child chips with template', async () => {
     const template: DashboardCard = {
       type: "light",
       ll_key: "my-room-chip-light",
@@ -207,7 +207,7 @@ describe('[function] updateCardTemplate', () => {
         },
       ],
     };
-    expect(updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
       type: 'test',
       chips: [
         {
@@ -231,7 +231,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('replaces child card with template', () => {
+  test('replaces child card with template', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -243,7 +243,7 @@ describe('[function] updateCardTemplate', () => {
         ll_template: 'template',
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'test',
       card: {
         type: 'template',
@@ -252,7 +252,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('replaces card with template and updates data', () => {
+  test('replaces card with template and updates data', async () => {
     const template: DashboardCard = {
       type: 'template',
       name: '<%= context.cool %> man',
@@ -264,7 +264,7 @@ describe('[function] updateCardTemplate', () => {
         cool: 'yes',
       },
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       name: 'yes man',
@@ -274,7 +274,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('does not replace child card with template if card is template', () => {
+  test('does not replace child card with template if card is template', async () => {
     const template: DashboardCard = {
       type: 'template',
       card: {
@@ -291,7 +291,7 @@ describe('[function] updateCardTemplate', () => {
         ll_template: 'template',
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       card: {
@@ -301,7 +301,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('does not replace child card with template if card is template', () => {
+  test('does not replace child card with template if card is template', async () => {
     const template: DashboardCard = {
       type: 'new',
       card: {
@@ -325,7 +325,7 @@ describe('[function] updateCardTemplate', () => {
         }
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'test',
       tap_action: {
         action: 'fire-dom-event',
@@ -347,7 +347,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('leaves numbers as numbers', () => {
+  test('leaves numbers as numbers', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -361,7 +361,7 @@ describe('[function] updateCardTemplate', () => {
         'number': 'number'
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
@@ -374,7 +374,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys changes row values', () => {
+  test('ll_keys changes row values', async () => {
     const template: DashboardCard = {
       type: 'template',
       number: 3
@@ -389,7 +389,7 @@ describe('[function] updateCardTemplate', () => {
         'number': 'number'
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
@@ -402,7 +402,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys supports values to be templatized', () => {
+  test('ll_keys supports values to be templatized', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -423,7 +423,7 @@ describe('[function] updateCardTemplate', () => {
         'cards': 'cards'
       }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -444,7 +444,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys supports values to be templatized including arrays', () => {
+  test('ll_keys supports values to be templatized including arrays', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -466,7 +466,7 @@ describe('[function] updateCardTemplate', () => {
         'cards': 'cards'
       }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -493,7 +493,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys supports passing ll_context', () => {
+  test('ll_keys supports passing ll_context', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -516,7 +516,7 @@ describe('[function] updateCardTemplate', () => {
         'cards': 'cards'
       }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -545,7 +545,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys supports passing ll_context and ll_keys', () => {
+  test('ll_keys supports passing ll_context and ll_keys', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -568,7 +568,7 @@ describe('[function] updateCardTemplate', () => {
         'cards': 'cards'
       }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -653,7 +653,7 @@ describe('[function] updateCardTemplate', () => {
   //   });
   // });
 
-  test('ll_keys supports values to be templatized including nested arrays', () => {
+  test('ll_keys supports values to be templatized including nested arrays', async () => {
     const modes: DashboardCard = {
       type: 'custom:vertical-stack-in-card',
       card_mod: {
@@ -687,7 +687,7 @@ describe('[function] updateCardTemplate', () => {
         { ll_template: 'chips', type: 'test' },
       ]
     };
-    expect(updateCardTemplate(card, { modes, chips, info })).toStrictEqual({
+    expect(await updateCardTemplate(card, { modes, chips, info })).toStrictEqual({
       type: 'test',
       cards: [
         {
@@ -732,7 +732,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys works with template data for now', () => {
+  test('ll_keys works with template data for now', async () => {
     const template: DashboardCard = {
       type: 'template',
       number: 3
@@ -745,7 +745,7 @@ describe('[function] updateCardTemplate', () => {
       },
       ll_keys: { 'number': 'number' }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
@@ -756,7 +756,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('ll_keys does nothing when key is missing from data', () => {
+  test('ll_keys does nothing when key is missing from data', async () => {
     const template: DashboardCard = {
       type: 'template',
       number: 3
@@ -767,7 +767,7 @@ describe('[function] updateCardTemplate', () => {
       ll_context: {},
       ll_keys: { 'number': 'number' }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 3,
@@ -775,7 +775,7 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 
-  test('allows for alphanumeric and underscores in varible names', () => {
+  test('allows for alphanumeric and underscores in varible names', async () => {
     const template: DashboardCard = {
       type: 'template',
       name: '<%= context.cool_123 %> man',
@@ -787,7 +787,7 @@ describe('[function] updateCardTemplate', () => {
         cool_123: 'yes',
       },
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       name: 'yes man',
@@ -797,24 +797,23 @@ describe('[function] updateCardTemplate', () => {
     });
   });
 });
-
 describe('[function] updateCardTemplate v2', () => {
-  test('does nothing when given no template data and an empty card', () => {
+  test('does nothing when given no template data and an empty card', async () => {
     const card: DashboardCard = {
       type: 'test',
     };
-    expect(updateCardTemplate(card, undefined)).toStrictEqual(card);
+    expect(await updateCardTemplate(card, undefined)).toStrictEqual(card);
   });
 
-  test('does nothing when given no template data with a template type', () => {
+  test('does nothing when given no template data with a template type', async () => {
     const card: DashboardCard = {
       type: 'test',
       ll_template: 'true',
     };
-    expect(updateCardTemplate(card, undefined)).toStrictEqual(card);
+    expect(await updateCardTemplate(card, undefined)).toStrictEqual(card);
   });
 
-  test('does nothing when given no template data with child cards', () => {
+  test('does nothing when given no template data with child cards', async () => {
     const card: DashboardCard = {
       type: 'test',
       cards: [
@@ -823,19 +822,20 @@ describe('[function] updateCardTemplate v2', () => {
         },
       ],
     };
-    expect(updateCardTemplate(card, undefined)).toStrictEqual(card);
+    expect(await updateCardTemplate(card, undefined)).toStrictEqual(card);
   });
 
-  test('preserves arrays named card', () => {
+  test('preserves arrays named card', async () => {
     const card: DashboardCard = {
       type: 'test',
       options: { card: [1, 2] },
     };
-    expect(updateCardTemplate(card, undefined)).toStrictEqual(card);
-    expect(updateCardTemplate(card, undefined).options.card).toBeInstanceOf(Array);
+    expect(await updateCardTemplate(card, undefined)).toStrictEqual(card);
+    const updatedCard = await updateCardTemplate(card, undefined)
+    expect(updatedCard.options.card).toBeInstanceOf(Array);
   });
 
-  test('replaces card with template', () => {
+  test('replaces card with template', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -843,10 +843,10 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'test',
       ll_template: 'template',
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({ type: 'template', ll_template: 'template' });
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({ type: 'template', ll_template: 'template' });
   });
 
-  test('replaces child cards with template', () => {
+  test('replaces child cards with template', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -859,7 +859,7 @@ describe('[function] updateCardTemplate v2', () => {
         },
       ],
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'test',
       cards: [
         {
@@ -870,7 +870,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('replaces child card with template', () => {
+  test('replaces child card with template', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -882,7 +882,7 @@ describe('[function] updateCardTemplate v2', () => {
         ll_template: 'template',
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'test',
       card: {
         type: 'template',
@@ -891,7 +891,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('replaces card with template and updates data', () => {
+  test('replaces card with template and updates data', async () => {
     const template: DashboardCard = {
       type: 'template',
       name: '<%= context.cool %> man',
@@ -903,7 +903,7 @@ describe('[function] updateCardTemplate v2', () => {
         cool: 'yes',
       },
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       name: 'yes man',
@@ -913,7 +913,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('does not replace child card with template if card is template', () => {
+  test('does not replace child card with template if card is template', async () => {
     const template: DashboardCard = {
       type: 'template',
       card: {
@@ -930,7 +930,7 @@ describe('[function] updateCardTemplate v2', () => {
         ll_template: 'template',
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       card: {
@@ -940,7 +940,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('does not replace child card with template if card is template', () => {
+  test('does not replace child card with template if card is template', async () => {
     const template: DashboardCard = {
       type: 'new',
       card: {
@@ -964,7 +964,7 @@ describe('[function] updateCardTemplate v2', () => {
         }
       }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'test',
       tap_action: {
         action: 'fire-dom-event',
@@ -986,7 +986,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('leaves numbers as numbers', () => {
+  test('leaves numbers as numbers', async () => {
     const template: DashboardCard = {
       type: 'template',
     };
@@ -998,7 +998,7 @@ describe('[function] updateCardTemplate v2', () => {
       },
       ll_keys: { 'number': 'number' }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
@@ -1009,7 +1009,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('ll_keys changes row values', () => {
+  test('ll_keys changes row values', async () => {
     const template: DashboardCard = {
       type: 'template',
       number: 3
@@ -1022,7 +1022,7 @@ describe('[function] updateCardTemplate v2', () => {
       },
       ll_keys: { 'number': 'number' }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
@@ -1033,7 +1033,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('ll_keys supports values to be templatized', () => {
+  test('ll_keys supports values to be templatized', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -1052,7 +1052,7 @@ describe('[function] updateCardTemplate v2', () => {
       },
       ll_keys: { 'cards': 'cards' }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -1071,7 +1071,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('ll_keys supports values to be templatized including arrays', () => {
+  test('ll_keys supports values to be templatized including arrays', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -1091,7 +1091,7 @@ describe('[function] updateCardTemplate v2', () => {
       },
       ll_keys: { 'cards': 'cards' }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -1116,7 +1116,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('ll_keys supports passing ll_context', () => {
+  test('ll_keys supports passing ll_context', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -1137,7 +1137,7 @@ describe('[function] updateCardTemplate v2', () => {
       },
       ll_keys: { 'cards': 'cards' }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -1164,7 +1164,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('ll_keys supports passing ll_context and ll_keys', () => {
+  test('ll_keys supports passing ll_context and ll_keys', async () => {
     const template: DashboardCard = {
       type: 'template',
       cards: []
@@ -1185,7 +1185,7 @@ describe('[function] updateCardTemplate v2', () => {
       },
       ll_keys: { 'cards': 'cards' }
     };
-    expect(updateCardTemplate(card, { template, nested })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template, nested })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       cards: [
@@ -1264,7 +1264,7 @@ describe('[function] updateCardTemplate v2', () => {
   //   });
   // });
 
-  test('ll_keys supports values to be templatized including nested arrays', () => {
+  test('ll_keys supports values to be templatized including nested arrays', async () => {
     const modes: DashboardCard = {
       type: 'custom:vertical-stack-in-card',
       card_mod: {
@@ -1298,7 +1298,7 @@ describe('[function] updateCardTemplate v2', () => {
         { ll_template: 'chips', type: 'test' },
       ]
     };
-    expect(updateCardTemplate(card, { modes, chips, info })).toStrictEqual({
+    expect(await updateCardTemplate(card, { modes, chips, info })).toStrictEqual({
       type: 'test',
       cards: [
         {
@@ -1343,7 +1343,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('ll_keys works with template data for now', () => {
+  test('ll_keys works with template data for now', async () => {
     const template: DashboardCard = {
       type: 'template',
       number: 3
@@ -1354,24 +1354,20 @@ describe('[function] updateCardTemplate v2', () => {
       ll_context: {
         number: 6
       },
-      ll_keys: {
-        'number': 'number'
-      }
+      ll_keys: { 'number': 'number' }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 6,
-      ll_keys: {
-        'number': 'number'
-      },
+      ll_keys: { 'number': 'number' },
       ll_context: {
         number: 6
       },
     });
   });
 
-  test('ll_keys does nothing when key is missing from data', () => {
+  test('ll_keys does nothing when key is missing from data', async () => {
     const template: DashboardCard = {
       type: 'template',
       number: 3
@@ -1380,21 +1376,17 @@ describe('[function] updateCardTemplate v2', () => {
       type: 'test',
       ll_template: 'template',
       ll_context: {},
-      ll_keys: {
-        'number': 'number'
-      }
+      ll_keys: { 'number': 'number' }
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       number: 3,
-      ll_keys: {
-        'number': 'number'
-      },
+      ll_keys: { 'number': 'number' },
     });
   });
 
-  test('allows for alphanumeric and underscores in varible names', () => {
+  test('allows for alphanumeric and underscores in varible names', async () => {
     const template: DashboardCard = {
       type: 'template',
       name: '<%= context.cool_123 %> man',
@@ -1406,7 +1398,7 @@ describe('[function] updateCardTemplate v2', () => {
         cool_123: 'yes',
       },
     };
-    expect(updateCardTemplate(card, { template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
       name: 'yes man',
@@ -1416,7 +1408,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
   });
 
-  test('Github Issue #40 Replicating LL_Context', () => {
+  test('Github Issue #40 Replicating LL_Context', async () => {
     const template: DashboardCard = {
       type: "custom_collapsable-cards",
       ll_key: "test_card",
@@ -1435,7 +1427,7 @@ describe('[function] updateCardTemplate v2', () => {
       ll_template: "test_card"
     };
     const oldTemplate = JSON.parse(JSON.stringify(template))
-    expect(updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
+    expect(await updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
       type: "custom_collapsable-cards",
       ll_template: "test_card",
       ll_context: {

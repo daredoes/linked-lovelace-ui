@@ -41,6 +41,7 @@ Add through [HACS](https://github.com/custom-components/hacs)
 | type              | string  | **Required** | While normally required, this will be replaced             |                     |
 | ll_template       | string  | **Optional** | ll_key name                                                | ``                  |
 | ll_context        | object  | **Optional** | An object that can be accessed inside of EtaJS as `context`| ``                  |
+| ll_template_engine | string  | **Optional** | Which template engine to use for this card. Options: 'etajs' (default), 'jinja2'. | 'etajs' |
 
 | Name              | Type    | Requirement  | Description                                                                                               | Default             |
 | ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |

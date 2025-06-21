@@ -1,7 +1,7 @@
 import { DashboardCard, DashboardConfig, DashboardView, LinkedLovelacePartial } from '../types';
 import TemplateController from '../controllers/template';
-import {GlobalLinkedLovelace} from '../instance'
-import EtaTemplateController from '../controllers/eta';
+import { GlobalLinkedLovelace } from '../instance'
+import TemplatePartialController from '../controllers/partial';
 
 const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
   return Object.keys(templates).sort((kA, kB) => {
@@ -13,54 +13,51 @@ const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
 
 class LinkedLovelaceController {
   templateController: TemplateController = new TemplateController();
-  etaController: EtaTemplateController = new EtaTemplateController();
+  templatePartialController: TemplatePartialController = new TemplatePartialController();
 
-  registerTemplates = (templates: Record<string, DashboardCard>): void => {
-    sortTemplatesByPriority(templates).forEach((key) => {
+  // Register templates asynchronously, ensuring all templates are rendered and added
+  registerTemplates = async (templates: Record<string, DashboardCard>): Promise<void> => {
+    for (const key of sortTemplatesByPriority(templates)) {
       const template = templates[key];
-      this.templateController.renderAndAddTemplate(key, template);
-    });
+      await this.templateController.renderAndAddTemplate(key, template);
+    }
   };
 
   registerPartials = async (card: DashboardCard): Promise<Record<string, LinkedLovelacePartial>> => {
-    return await this.etaController.addPartialsFromCard(card)
+    return await this.templatePartialController.addPartialsFromCard(card)
   };
 
   get eta() {
-    return this.etaController.engine.eta
+    return this.templatePartialController.engine.eta
   }
 
   getUpdatedDashboardConfig = async (urlPath: string | null): Promise<DashboardConfig> => {
     const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(urlPath);
     if (!config.views) return config;
+
     const views = config.views;
-    Object.keys(views).forEach((viewKey: string) => {
+
+    for (const viewKey of Object.keys(views)) {
       const view: DashboardView = views[viewKey];
-      const cards: DashboardCard[] = [];
+
       if (view.cards) {
-        // For every card in the config, store a copy of the rendered card
-        view.cards.forEach((card) => {
-          const newCard = this.templateController.renderCard(card);
-          cards.push(newCard);
-        });
-        // Replace the cards in the view
-        views[viewKey].cards = cards;
+        const renderedCards = await Promise.all(
+          view.cards.map((card) => this.templateController.renderCard(card))
+        );
+        views[viewKey].cards = renderedCards;
       }
+
       if (view.sections && Array.isArray(view.sections)) {
-        for (let i = 0; i < view.sections.length ; i++) {
-          const cards = view.sections[i].cards
-          if (cards && Array.isArray(cards)) {
-            cards.forEach((card, j) => {
-              const newCard = this.templateController.renderCard(card);
-              view.sections![i].cards![j] = newCard
-            });
+        for (const section of view.sections) {
+          if (section.cards && Array.isArray(section.cards)) {
+            section.cards = await Promise.all(
+              section.cards.map((card) => this.templateController.renderCard(card))
+            );
           }
-          // For every card in the config, store a copy of the rendered card
-          // Replace the cards in the section
-          view.sections![i].cards = cards;
         }
       }
-    });
+    }
+
     config.views = views;
     return config;
   };

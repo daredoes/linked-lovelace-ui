@@ -1,5 +1,5 @@
 import { DashboardCard, LinkedLovelacePartial } from '../types';
-import { getPartialsFromCard} from '../helpers/eta';
+import { getPartialsFromCard } from '../helpers/eta';
 import { TemplateEngine } from '../v2/template-engine';
 
 const sortPartialsByPriority = (partials: Record<string, LinkedLovelacePartial>) => {
@@ -10,12 +10,13 @@ const sortPartialsByPriority = (partials: Record<string, LinkedLovelacePartial>)
   })
 }
 
-class EtaTemplateController {
+
+class TemplatePartialController {
   partials!: Record<string, LinkedLovelacePartial>;
   engine!: TemplateEngine;
-  
+
   constructor() {
-    this.refresh()
+    this.refresh();
   }
 
   refresh() {
@@ -24,27 +25,23 @@ class EtaTemplateController {
   }
 
   loadPartials = () => {
-    const loaded: string[] = [];
-    sortPartialsByPriority(this.partials).forEach((key) => {
-      const partial = this.partials[key]
-      if (partial.template) {
-        try {
-          this.engine.eta.loadTemplate(key, partial.template)
-        } catch (e) {
-          console.error(e)
-        }
-        loaded.push(key)
+    return sortPartialsByPriority(this.partials).filter((key) => {
+      try {
+        this.engine.loadPartial(key, this.partials[key]);
+      } catch (e) {
+        console.error(`Failed to load partial ${key}:`, e);
+        return false; // Skip this key if loading fails
       }
-    })
-    return loaded;
-  }
+      return true;
+    });
+  };
 
   addPartialsFromCard = async (card: DashboardCard): Promise<Record<string, LinkedLovelacePartial>> => {
     const templates = await getPartialsFromCard(card);
-    this.partials = { ...this.partials, ...templates};
+    this.partials = { ...this.partials, ...templates };
     return templates;
-  }
+  };
 
 }
 
-export default EtaTemplateController;
+export default TemplatePartialController;

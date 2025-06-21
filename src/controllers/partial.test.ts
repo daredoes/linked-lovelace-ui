@@ -1,5 +1,5 @@
 import { DashboardPartialsCard, LINKED_LOVELACE_PARTIALS } from '../types';
-import EtaTemplateController from './eta';
+import EtaTemplateController from './partial';
 
 describe('[class] TemplateController', () => {
   test('sets up as expected', () => {
@@ -79,5 +79,60 @@ describe('[class] TemplateController', () => {
       }
     });
   });
-  
+
+});
+
+describe('[class] TemplatePartialController (jinja2)', () => {
+  test('loads Jinja2 macro with custom args', async () => {
+    const controller = new (require('./partial').default)();
+    const res = await controller.addPartialsFromCard({
+      type: 'custom:linked-lovelace-partials',
+      partials: [
+        { key: 'greet', args: ['name'], template: 'Hello {{ name }}!', ll_template_engine: 'jinja2' }
+      ]
+    });
+    expect(res).toStrictEqual({
+      'greet': {
+        key: 'greet',
+        args: ['name'],
+        template: 'Hello {{ name }}!',
+        ll_template_engine: 'jinja2'
+      }
+    });
+  });
+
+  test('loads a Jinja2 macro with no args', async () => {
+    const controller = new (require('./partial').default)();
+    const res = await controller.addPartialsFromCard({
+      type: 'custom:linked-lovelace-partials',
+      partials: [
+        { key: 'noArgs', template: 'No args here', ll_template_engine: 'jinja2' }
+      ]
+    });
+    expect(res).toStrictEqual({
+      'noArgs': {
+        key: 'noArgs',
+        template: 'No args here',
+        ll_template_engine: 'jinja2'
+      }
+    });
+  });
+
+  test('loads a macro for a table row and can be used in a loop', async () => {
+    const controller = new (require('./partial').default)();
+    const res = await controller.addPartialsFromCard({
+      type: 'custom:linked-lovelace-partials',
+      partials: [
+        { key: 'entityRow', args: ['entity_id'], template: '<tr><td>{{ entity_id }}</td></tr>', ll_template_engine: 'jinja2' }
+      ]
+    });
+    expect(res).toStrictEqual({
+      'entityRow': {
+        key: 'entityRow',
+        args: ['entity_id'],
+        template: '<tr><td>{{ entity_id }}</td></tr>',
+        ll_template_engine: 'jinja2'
+      }
+    });
+  });
 });

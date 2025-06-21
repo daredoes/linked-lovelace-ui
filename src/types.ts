@@ -62,6 +62,8 @@ export interface LinkedLovelacePartial {
   url?: string
   template?: string
   priority?: number
+  ll_template_engine?: 'eta' | 'jinja2'
+  args?: string[] // For Jinja2 macros: argument list
 }
 
 export interface DashboardPartialsCard extends LovelaceCardConfig {

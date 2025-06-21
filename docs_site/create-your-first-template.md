@@ -123,3 +123,52 @@ name: Request Help
 ```
 
 Once that's done, move ahead to get started [using the Status card](./using-the-status-card)
+
+# Using Jinja2 Templating (Advanced)
+
+By default, Linked Lovelace uses the EtaJS template engine for all template rendering. If you want to use Jinja2-style templates (for example, to match Home Assistant's native template syntax), you can opt-in on a per-card basis by adding the `ll_template_engine` field to your card config:
+
+```yaml
+ll_template: help-button
+ll_template_engine: jinja2  # Use Jinja2 instead of EtaJS for this card
+ll_context:
+  my_variable: my_value
+# ...rest of your card config...
+```
+
+- If `ll_template_engine` is not set, EtaJS will be used for backwards compatibility.
+- If set to `jinja2`, the card will be rendered using Jinja2. 
+- All other features and configuration remain the same.
+
+**Example Jinja2 template usage:**
+
+```yaml
+ll_key: jinja2-example
+show_name: true
+type: button
+tap_action:
+  action: call-service
+  service: notify.persistent_notification
+  data:
+    message: "Hello, {{ my_variable }}!"
+icon: mdi:help
+name: Jinja2 Example
+```
+
+And to use this template:
+
+```yaml
+ll_template: jinja2-example
+ll_template_engine: jinja2
+ll_context:
+  my_variable: 'World'
+```
+
+This will render the message as "Hello, World!" using Jinja2 syntax.
+
+> **Note:**
+> You can use the `ll_template_engine` field for both main templates and partials. This allows you to define partials using either EtaJS or Jinja2 syntax. For Jinja2, partials should be written as macros, and all macros from partials will be injected at the top of your template automatically.
+
+---
+
+For most users, you do not need to set `ll_template_engine` unless you specifically want Jinja2 syntax. All existing templates will continue to work as before.
