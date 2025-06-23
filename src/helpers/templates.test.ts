@@ -681,7 +681,7 @@ describe('[function] updateCardTemplate', () => {
               { ll_template: 'info', type: 'test' },
             ]
           }, ll_keys: {
-            'cards': 'cards'
+            'cards': "cards"
           }
         },
         { ll_template: 'chips', type: 'test' },
@@ -708,7 +708,7 @@ describe('[function] updateCardTemplate', () => {
             ]
           },
           ll_keys: {
-            'cards': 'cards'
+            'cards': "cards"
           },
           cards: [
             {
@@ -1441,5 +1441,83 @@ describe('[function] updateCardTemplate v2', () => {
       },
     });
     expect(oldTemplate).toStrictEqual(template)
+  });
+
+  test('merges ll_card_config complex object into main card config', async () => {
+    const template: DashboardCard = {
+      type: 'custom:complex-card',
+      ll_key: 'complex_card',
+      ll_card_config: JSON.stringify({
+        extra: { foo: 'bar', arr: [1, 2, 3] },
+        enabled: true,
+        nested: { a: 1, b: { c: 2 } }
+      })
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      ll_template: 'complex_card',
+    };
+    const result = await updateCardTemplate(card, { complex_card: template });
+    expect(result).toMatchObject({
+      type: 'custom:complex-card',
+      ll_template: 'complex_card',
+      extra: { foo: 'bar', arr: [1, 2, 3] },
+      enabled: true,
+      nested: { a: 1, b: { c: 2 } }
+    });
+    expect(result.ll_card_config).toBeUndefined();
+  });
+
+  test('ll_card_config merge does not overwrite existing card keys unless specified', async () => {
+    const template: DashboardCard = {
+      type: 'custom:complex-card',
+      ll_key: 'complex_card',
+      name: 'should-stay',
+      ll_card_config: JSON.stringify({
+        extra: { foo: 'bar' },
+        name: 'should-overwrite',
+        enabled: true
+      })
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      ll_template: 'complex_card',
+      name: 'should-stay'
+    };
+    const result = await updateCardTemplate(card, { complex_card: template });
+    expect(result).toMatchObject({
+      type: 'custom:complex-card',
+      ll_template: 'complex_card',
+      name: 'should-overwrite', // merged value overwrites
+      extra: { foo: 'bar' },
+      enabled: true
+    });
+    expect(result.ll_card_config).toBeUndefined();
+  });
+
+  test('invalid ll_card_config does not break card and logs error', async () => {
+    const template: DashboardCard = {
+      type: 'custom:complex-card',
+      ll_key: 'complex_card',
+      ll_card_config: '{invalid json}',
+      foo: 'bar'
+    };
+    const card: DashboardCard = {
+      type: 'test',
+      ll_template: 'complex_card',
+    };
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    const result = await updateCardTemplate(card, { complex_card: template });
+    expect(result).toMatchObject({
+      type: 'custom:complex-card',
+      ll_template: 'complex_card',
+      foo: 'bar'
+    });
+    expect(result.ll_card_config).toBe('{invalid json}');
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to parse ll_card_config for template 'complex_card'"),
+      expect.any(Error)
+    );
+    spy.mockRestore();
   });
 });

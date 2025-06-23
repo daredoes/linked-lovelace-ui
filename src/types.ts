@@ -41,6 +41,10 @@ export interface LLCard extends LovelaceCardConfig {
   ll_template?: string
   sections?: LovelaceCardConfig[]
   ll_context?: Record<string, any>
+  ll_template_engine?: 'eta' | 'jinja2'
+  // A template string for the card configuration that may return a complex object in JSON, it will
+  // be merged with the main card config
+  ll_card_config?: string
   // A map from a key in the current level of the card to a key in the current context data
   ll_keys?: Record<string, string>
   [x: string]: any;

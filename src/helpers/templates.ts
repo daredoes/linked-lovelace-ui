@@ -48,6 +48,22 @@ export const updateCardTemplate = async (
       try {
         // Convert rendered string back to JSON
         data = JSON.parse(template);
+
+        // If ll_card_config is present, parse and shallow-merge it into the main card config.
+        // This allows templates to inject complex objects into the card configuration.
+        if (data.ll_card_config) {
+          try {
+            // Parse the ll_card_config JSON string into an object
+            const cardConfig = JSON.parse(data.ll_card_config);
+            // Merge the parsed config into the main card config (shallow merge, overwrites existing keys)
+            data = { ...data, ...cardConfig };
+            // Remove ll_card_config after merging to avoid leaking template internals
+            delete data.ll_card_config;
+          } catch (e) {
+            // If parsing fails, log an error and leave ll_card_config as-is for debugging
+            console.error(`Failed to parse ll_card_config for template '${templateKey}':`, e);
+          }
+        }
       } catch (e) {
         console.error(e);
         // Return original value if parse fails

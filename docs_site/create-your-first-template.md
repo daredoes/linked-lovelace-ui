@@ -172,3 +172,73 @@ This will render the message as "Hello, World!" using Jinja2 syntax.
 ---
 
 For most users, you do not need to set `ll_template_engine` unless you specifically want Jinja2 syntax. All existing templates will continue to work as before.
+
+# Advanced: Injecting Complex Objects with `ll_card_config`
+
+In advanced scenarios, you may want to inject a complex object (such as nested properties or arrays) into your card configuration from a template. Linked Lovelace supports this via the `ll_card_config` property.
+
+- **What is it?**
+  - `ll_card_config` is a property you can add to your template, containing a JSON string representing the object you want to merge into the card.
+  - When the template is rendered, this object is parsed and shallow-merged into the main card config. If a key exists in both, the value from `ll_card_config` will overwrite the existing value.
+  - After merging, the `ll_card_config` property is removed from the final card object. If parsing fails, an error is logged and the property is left as-is for debugging.
+
+**Example usage with Jinja2 templating:**
+
+Suppose you want to inject dynamic values and even loop over arrays using Jinja2:
+
+```yaml
+ll_key: complex-card
+ll_template_engine: jinja2
+ll_card_config: >
+  {{ '{' }}
+    "extra": {
+      "foo": "{{ dynamic_foo }}",
+      "arr": [
+        {% for item in arr %}{{ item }}{% if not loop.last %}, {% endif %}{% endfor %}
+      ]
+    },
+    "enabled": {{ enabled | tojson }},
+    "nested": {
+      "a": 1,
+      "b": { "c": {{ nested_c }} }
+    }
+  {{ '}' }}
+type: custom:complex-card
+```
+
+When you use this template and provide context:
+
+```yaml
+ll_template: complex-card
+ll_template_engine: jinja2
+ll_context:
+  dynamic_foo: "bar-from-context"
+  arr: [1, 2, 3, 4]
+  enabled: true
+  nested_c: 42
+```
+
+The resulting card will have:
+
+```yaml
+type: custom:complex-card
+extra:
+  foo: bar-from-context
+  arr:
+    - 1
+    - 2
+    - 3
+    - 4
+enabled: true
+nested:
+  a: 1
+  b:
+    c: 42
+```
+
+**Notes:**
+- Use this feature for advanced templating scenarios where you need to inject or override multiple properties at once.
+- The merge is shallow: nested objects are replaced, not deeply merged.
+- If you need to debug, check the browser console for errors related to `ll_card_config` parsing.
+
+---
