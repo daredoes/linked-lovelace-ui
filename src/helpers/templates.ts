@@ -38,15 +38,23 @@ export const updateCardTemplate = async (
   }
 
   const llKeys = targetCard.ll_keys;
-  const llContext = targetCard.ll_context;
+  const llContext = { ...templateContext };
   const llTemplate = targetCard.ll_template;
-  const templateCard = templateCards[llTemplate];
+  const templateCard = { ...templateCards[llTemplate] };
+
+  if (templateCard.ll_replicate_ctx === undefined) {
+    templateCard.ll_replicate_ctx = true;
+  }
 
   let engineType: TemplateEngineType = 'eta';
   if (templateCard.ll_template_engine === 'jinja2') engineType = 'jinja2';
 
   // destination card context should override template context
-  templateContext = { ...(templateCard?.ll_context || {}), ...templateContext };
+  templateContext = { ...(templateCard.ll_context || {}), ...templateContext };
+
+  // Delete last error if it exists
+  delete targetCard.ll_error;
+  delete targetCard.ll_template_card;
 
   try {
     // Render the template with the context
@@ -68,36 +76,34 @@ export const updateCardTemplate = async (
   } catch (e) {
     console.error(e);
     targetCard.ll_error = `Error rendering template '${llTemplate}': ${e}`;
+    targetCard.ll_template_card = templateCard;
   }
 
-  // Set a deterministic key order to avoid noisy diffs
-  targetCard = {
-    ll_error: targetCard.ll_error,
-    ll_template: llTemplate,
-    ll_context: llContext,
-    ll_keys: llKeys,
-    ...targetCard
-  };
+  // Set special keys
+  targetCard.ll_template = llTemplate;
+  targetCard.ll_context = templateCard.ll_replicate_ctx ? templateContext : llContext;
+  targetCard.ll_keys = llKeys;
 
   // Clean up empty, unused or undefined properties
+  if (!targetCard.ll_keys || Object.keys(targetCard.ll_keys).length === 0) delete targetCard.ll_keys;
+  if (!targetCard.ll_context || Object.keys(targetCard.ll_context).length === 0) delete targetCard.ll_context;
+
+  // Clean up other properties that should not be in the final card
   delete targetCard.ll_key;
+  delete targetCard.ll_card_config;
+  delete targetCard.ll_template_engine;
+  delete targetCard.ll_replicate_ctx;
 
-  if (!targetCard.ll_keys) {
-    delete targetCard.ll_keys;
+  // Ensure keys are sorted in a deterministic order to avoid noisy diffs
+  const orderedKeys = ['ll_template', 'll_context', 'll_keys', 'll_error'].filter(k => k in targetCard);
+  const otherKeys = Object.keys(targetCard).filter(k => !orderedKeys.includes(k));
+  const sortedTargetCard: any = {};
+  for (const key of [...orderedKeys, ...otherKeys]) {
+    sortedTargetCard[key] = targetCard[key];
   }
+  targetCard = sortedTargetCard as DashboardCard;
 
-  if (!targetCard.ll_context) {
-    delete targetCard.ll_context;
-  }
-
-  if (!targetCard.ll_error) {
-    delete targetCard.ll_error;
-  }
-
-
-  targetCard = await handleLLKeys(targetCard, templateCards, templateContext);
-
-  return targetCard
+  return await handleLLKeys(targetCard, templateCards, templateContext);
 };
 
 const handleLLKeys = async (targetCard: DashboardCard,

@@ -11,7 +11,8 @@ import nodePolyfills from 'rollup-plugin-node-polyfills'
 
 
 
-const dev = process.env.ROLLUP_WATCH;
+const watch = process.env.ROLLUP_WATCH;
+const dev = process.env.NODE_ENV === 'development';
 
 const serveopts = {
   contentBase: ['./dist'],
@@ -36,7 +37,7 @@ const plugins = [
       // left-hand side can be an absolute path, a path
       // relative to the current directory, or the name
       // of a module in node_modules
-      'yaml': [ 'parse' ],
+      'yaml': ['parse'],
     }
   }),
   typescript({
@@ -48,12 +49,12 @@ const plugins = [
   babel({
     exclude: ['node_modules/**', 'src/**/*.test.ts'],
   }),
-  dev && serve(serveopts),
-  !dev && terser(),
+  watch && serve(serveopts),
+  !watch && !dev && terser(),
   eta({
     include: ['**/*.eta', '**/*.html'], // optional, '**/*.eta' by default
     exclude: ['**/index.html'], // optional, undefined by default
-}),
+  }),
 ];
 
 export default [

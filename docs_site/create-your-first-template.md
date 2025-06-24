@@ -136,6 +136,7 @@ By default, Linked Lovelace uses the EtaJS template engine for all template rend
 
 ```yaml
 ll_key: jinja2-example
+ll_template_engine: jinja2
 show_name: true
 type: button
 tap_action:

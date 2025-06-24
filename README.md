@@ -43,6 +43,7 @@ Add through [HACS](https://github.com/custom-components/hacs)
 | ll_context        | object  | **Optional** | An object that can be accessed inside of EtaJS as `context`| ``                  |
 | ll_template_engine| string  | **Optional** | Template processor ('etajs', 'jinja2')                     | 'etajs'             |
 | ll_card_config    | string  | **Optional** | Template returning a JSON object, merged to linked card    | ``                  |
+| ll_replicate_ctx  | boolean | **Optional** | Replicate context values to linked card on first render    | `true`              |
 
 | Name              | Type    | Requirement  | Description                                                                                               | Default             |
 | ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
