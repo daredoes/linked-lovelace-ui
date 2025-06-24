@@ -89,14 +89,14 @@ export class Jinja2Engine {
   async render(template: string, context: Record<string, any> = {}): Promise<string> {
     const vars = this.buildVars(context);
     const macros = this.getMacros();
-    const preamble = `${vars}\n${macros}`;
+    const prepend = `${vars}\n${macros}`;
 
     try {
       const tplObject = JSON.parse(template);
-      const result = await this.renderObject(tplObject, preamble);
+      const result = await this.renderObject(tplObject, prepend);
       return JSON.stringify(result);
     } catch (e) {
-      return this.renderString(template, preamble);
+      return this.renderString(template, prepend);
     }
   }
 }

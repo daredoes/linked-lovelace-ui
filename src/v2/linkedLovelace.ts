@@ -31,6 +31,10 @@ class LinkedLovelaceController {
     return this.templatePartialController.engine.eta
   }
 
+  get jinja2() {
+    return this.templatePartialController.engine.jinja2
+  }
+
   getUpdatedDashboardConfig = async (urlPath: string | null): Promise<DashboardConfig> => {
     const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(urlPath);
     if (!config.views) return config;

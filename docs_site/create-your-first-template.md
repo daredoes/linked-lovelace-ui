@@ -126,15 +126,7 @@ Once that's done, move ahead to get started [using the Status card](./using-the-
 
 # Using Jinja2 Templating (Advanced)
 
-By default, Linked Lovelace uses the EtaJS template engine for all template rendering. If you want to use Jinja2-style templates (for example, to match Home Assistant's native template syntax), you can opt-in on a per-card basis by adding the `ll_template_engine` field to your card config:
-
-```yaml
-ll_template: help-button
-ll_template_engine: jinja2  # Use Jinja2 instead of EtaJS for this card
-ll_context:
-  my_variable: my_value
-# ...rest of your card config...
-```
+By default, Linked Lovelace uses the EtaJS template engine for all template rendering. If you want to use Jinja2-style templates (for example, to match Home Assistant's native template syntax), you can opt-in on a per-card basis by adding the `ll_template_engine` field to your template card config.
 
 - If `ll_template_engine` is not set, EtaJS will be used for backwards compatibility.
 - If set to `jinja2`, the card will be rendered using Jinja2. 
@@ -159,9 +151,9 @@ And to use this template:
 
 ```yaml
 ll_template: jinja2-example
-ll_template_engine: jinja2
 ll_context:
   my_variable: 'World'
+type: button
 ```
 
 This will render the message as "Hello, World!" using Jinja2 syntax.
@@ -210,7 +202,6 @@ When you use this template and provide context:
 
 ```yaml
 ll_template: complex-card
-ll_template_engine: jinja2
 ll_context:
   dynamic_foo: "bar-from-context"
   arr: [1, 2, 3, 4]

@@ -70,23 +70,34 @@ export const updateCardTemplate = async (
     targetCard.ll_error = `Error rendering template '${llTemplate}': ${e}`;
   }
 
-  // Ensure ll_template is not lost
-  targetCard.ll_template = llTemplate;
+  // Set a deterministic key order to avoid noisy diffs
+  targetCard = {
+    ll_error: targetCard.ll_error,
+    ll_template: llTemplate,
+    ll_context: llContext,
+    ll_keys: llKeys,
+    ...targetCard
+  };
 
-  // Prevent ll_key from being copied to the target card
+  // Clean up empty, unused or undefined properties
   delete targetCard.ll_key;
 
-  // Restore ll_keys if they were present in the original targetCard
-  if (llKeys) {
-    targetCard.ll_keys = llKeys;
+  if (!targetCard.ll_keys) {
+    delete targetCard.ll_keys;
   }
 
-  // Restore the ll_context if it was present in the original targetCard
-  if (llContext) {
-    targetCard.ll_context = llContext;
+  if (!targetCard.ll_context) {
+    delete targetCard.ll_context;
   }
 
-  return await handleLLKeys(targetCard, templateCards, templateContext);
+  if (!targetCard.ll_error) {
+    delete targetCard.ll_error;
+  }
+
+
+  targetCard = await handleLLKeys(targetCard, templateCards, templateContext);
+
+  return targetCard
 };
 
 const handleLLKeys = async (targetCard: DashboardCard,

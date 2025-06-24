@@ -134,9 +134,9 @@ ll_key: icon-button
 ll_template_engine: jinja2
 show_name: true
 show_icon: true
-type: entities
 icon: "{{ modeToIcon(mode) }}"
 name: "{{ mode | capitalize }}"
+type: button
 ```
 
 Now we can use this template by adding the following to any card config, marking it to be overridden by the status card:
@@ -145,6 +145,8 @@ Now we can use this template by adding the following to any card config, marking
 ll_template: icon-button
 ll_context:
   mode: heat
+type: button
+
 ```
 
 This approach lets you leverage Home Assistant’s template functions and state directly in your partials for powerful, dynamic UI logic.
@@ -183,13 +185,10 @@ This generates:
 
 ```yaml
 ll_key: summary-table
-ll_context:
-  rows:
-    - sensor.living_room_temperature
-    - sensor.bedroom_temperature
 type: custom:button-card
 name: Temperature Summary
-show_state: false
+entity: "{{ climate }}"
+show_state: true
 state_display: |-
   <table>
     <thead><tr><th>Entity</th><th>Value</th></tr></thead>
@@ -207,9 +206,11 @@ ll_template_engine: jinja2
 ```yaml
 ll_template: summary-table
 ll_context:
+  climate: climate.living_room
   rows:
     - sensor.office_temperature
     - sensor.kitchen_temperature
+type: custom:button-card
 ```
 
 This approach lets you create a single partial that can be reused for any list of entities, clearly showing the value of macro arguments, Jinja2’s power, and Home Assistant integration for formatting and logic.

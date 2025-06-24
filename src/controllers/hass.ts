@@ -103,6 +103,7 @@ class HassController {
     this.addToLogs({ msg: "Registering Partials" })
     this.linkedLovelaceController.templatePartialController.loadPartials()
     TemplateEngine.instance.eta = this.linkedLovelaceController.eta
+    TemplateEngine.instance.jinja2 = this.linkedLovelaceController.jinja2
     this.addToLogs({ msg: "Registering Templates" })
     this.linkedLovelaceController.registerTemplates(templates)
   };
