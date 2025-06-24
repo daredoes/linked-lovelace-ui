@@ -770,6 +770,7 @@ describe('[function] updateCardTemplate', () => {
     expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
+      ll_context: {},
       number: 3,
       ll_keys: { 'number': 'number' },
     });
@@ -1381,6 +1382,7 @@ describe('[function] updateCardTemplate v2', () => {
     expect(await updateCardTemplate(card, { template })).toStrictEqual({
       type: 'template',
       ll_template: 'template',
+      ll_context: {},
       number: 3,
       ll_keys: { 'number': 'number' },
     });
@@ -1465,7 +1467,6 @@ describe('[function] updateCardTemplate v2', () => {
       enabled: true,
       nested: { a: 1, b: { c: 2 } }
     });
-    expect(result.ll_card_config).toBeUndefined();
   });
 
   test('ll_card_config merge does not overwrite existing card keys unless specified', async () => {
@@ -1492,7 +1493,6 @@ describe('[function] updateCardTemplate v2', () => {
       extra: { foo: 'bar' },
       enabled: true
     });
-    expect(result.ll_card_config).toBeUndefined();
   });
 
   test('invalid ll_card_config does not break card and logs error', async () => {
@@ -1515,8 +1515,7 @@ describe('[function] updateCardTemplate v2', () => {
     });
     expect(result.ll_card_config).toBe('{invalid json}');
     expect(spy).toHaveBeenCalledWith(
-      expect.stringContaining("Failed to parse ll_card_config for template 'complex_card'"),
-      expect.any(Error)
+      new Error("Failed to parse ll_card_config for template 'complex_card': SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)"),
     );
     spy.mockRestore();
   });

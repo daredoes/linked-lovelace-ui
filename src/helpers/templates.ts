@@ -25,140 +25,167 @@ export const getTemplatesUsedInView = (view: DashboardView): string[] => {
 };
 
 export const updateCardTemplate = async (
-  data: DashboardCard,
-  templateData: Record<string, any> = {},
+  targetCard: DashboardCard,
+  templateCards: Record<string, any> = {},
   parentContext: Record<string, any> = {},
 ): Promise<DashboardCard> => {
-  const templateKey = data.ll_template;
-  let dataFromTemplate: Record<string, any> = { ...parentContext, ...(data.ll_context || {}) };
-  const originalCardData = Object.assign({}, data);
-  // Determine engine type
+
+  let templateContext: Record<string, any> = { ...parentContext, ...(targetCard.ll_context || {}) };
+
+  // If the targetCard has no template, it might still have nested cards that need to be processed.
+  if (!targetCard.ll_template || templateCards[targetCard.ll_template] === undefined) {
+    return handleNestedCards(targetCard, templateCards, templateContext);
+  }
+
+  const llKeys = targetCard.ll_keys;
+  const llContext = targetCard.ll_context;
+  const llTemplate = targetCard.ll_template;
+  const templateCard = templateCards[llTemplate];
+
   let engineType: TemplateEngineType = 'eta';
-  if (data.ll_template_engine === 'jinja2') engineType = 'jinja2'
-  else if (data.ll_template_engine === undefined || data.ll_template_engine === 'eta') engineType = 'eta'
-  else throw new Error(`Unknown template engine type: ${data.ll_template_engine}`);
-  if (templateKey && templateData[templateKey]) {
-    if (dataFromTemplate) {
-      const templateCardData = { ...templateData[templateKey] };
-      delete templateCardData['ll_key'];
-      dataFromTemplate = { ...dataFromTemplate, ...(templateCardData?.ll_context || {}) };
-      // If data in template, find and replace each key
-      let template = JSON.stringify(templateCardData);
-      template = await TemplateEngine.instance.render(template, dataFromTemplate, engineType);
+  if (templateCard.ll_template_engine === 'jinja2') engineType = 'jinja2';
+
+  // destination card context should override template context
+  templateContext = { ...(templateCard?.ll_context || {}), ...templateContext };
+
+  try {
+    // Render the template with the context
+    let template = await TemplateEngine.instance.render(JSON.stringify(templateCard), templateContext, engineType);
+
+    // Assign the parsed template to targetCard
+    targetCard = JSON.parse(template);
+
+    if (targetCard.ll_card_config) {
       try {
-        // Convert rendered string back to JSON
-        data = JSON.parse(template);
-
-        // If ll_card_config is present, parse and shallow-merge it into the main card config.
-        // This allows templates to inject complex objects into the card configuration.
-        if (data.ll_card_config) {
-          try {
-            // Parse the ll_card_config JSON string into an object
-            const cardConfig = JSON.parse(data.ll_card_config);
-            // Merge the parsed config into the main card config (shallow merge, overwrites existing keys)
-            data = { ...data, ...cardConfig };
-            // Remove ll_card_config after merging to avoid leaking template internals
-            delete data.ll_card_config;
-          } catch (e) {
-            // If parsing fails, log an error and leave ll_card_config as-is for debugging
-            console.error(`Failed to parse ll_card_config for template '${templateKey}':`, e);
-          }
-        }
+        // Parse the ll_card_config JSON string into an object
+        const cardConfig = JSON.parse(targetCard.ll_card_config);
+        // Merge the parsed config into the main card config (shallow merge, overwrites existing keys)
+        targetCard = { ...targetCard, ...cardConfig };
       } catch (e) {
-        console.error(e);
-        // Return original value if parse fails
-        data = templateData[templateKey];
-      }
-      Object.keys(originalCardData.ll_keys || {}).forEach((ll_key) => {
-        const key = (originalCardData.ll_keys || {})[ll_key]
-        if (key) {
-          const linkedLovelaceKeyData = dataFromTemplate ? dataFromTemplate[key] : undefined;
-          if (linkedLovelaceKeyData) {
-            data[key] = linkedLovelaceKeyData
-          }
-        }
-      });
-      const updatedData = {};
-      for (const cardKey of Object.keys(originalCardData.ll_keys || {})) {
-        const originalDataFromTemplate = Object.assign({}, dataFromTemplate);
-        if (typeof originalDataFromTemplate[cardKey] === 'object') {
-          if (Array.isArray(originalDataFromTemplate[cardKey]) && typeof originalDataFromTemplate[cardKey][0] === 'object') {
-            updatedData[cardKey] = [];
-            for (let i = 0; i < originalDataFromTemplate[cardKey]['length']; i++) {
-              const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_context, ...originalDataFromTemplate };
-              delete newLLData[cardKey];
-              const oldData = { ...{ ...originalDataFromTemplate[cardKey][i] } };
-              const result = await updateCardTemplate(oldData, templateData, newLLData);
-              updatedData[cardKey].push(result);
-            }
-          } else {
-            try {
-              const newLLData = { ...originalDataFromTemplate };
-              delete newLLData[cardKey];
-              const oldData = { ...originalDataFromTemplate[cardKey] };
-              updatedData[cardKey] = await updateCardTemplate(oldData, templateData, newLLData);
-            } catch (e) {
-              console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, data, e);
-            }
-          }
-        }
-      }
-      Object.keys(updatedData).forEach((k) => {
-        data[k] = updatedData[k];
-      });
-      // Put template data back in card
-      data = { ...{ ll_context: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_context: dataFromTemplate, ll_keys: originalCardData.ll_keys };
-      if (typeof data.ll_context !== 'undefined' && Object.keys(data.ll_context || {}).length === 0) {
-        delete data.ll_context;
-      }
-    } else {
-      // Put template value as new value
-      data = templateData[templateKey];
-    }
-    // Put template key back in card
-    data = { ...{ ll_template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, ll_template: templateKey, ll_keys: originalCardData.ll_keys };
-  } else {
-    // Support for new sections dashboards.
-    if (data.sections && Array.isArray(data.sections)) {
-      for (let i = 0; i < data.sections.length; i++) {
-        if (data.sections[i].cards && Array.isArray(data.sections[i].cards)) {
-          for (let j = 0; j < (data.sections[i].cards as DashboardCard[]).length; j++) {
-            const card = data.sections[i].cards[j] as DashboardCard;
-            data.sections[i].cards[j] = await updateCardTemplate(card, templateData, dataFromTemplate);
-          }
-        }
+        throw new Error(`Failed to parse ll_card_config for template '${llTemplate}': ${e}`);
       }
     }
-    if (Array.isArray(data.cards)) {
-      // Update any cards in the card
-      const cards: DashboardCard[] = [];
-      for (const card of data.cards) {
-        cards.push(Object.assign({}, await updateCardTemplate(card, templateData, dataFromTemplate)));
-      }
-      data.cards = cards;
-    }
+  } catch (e) {
+    console.error(e);
+    targetCard.ll_error = `Error rendering template '${llTemplate}': ${e}`;
+  }
 
-    if (data.card && !Array.isArray(data.card)) {
-      data.card = Object.assign({}, await updateCardTemplate(data.card, templateData, dataFromTemplate));
+  // Ensure ll_template is not lost
+  targetCard.ll_template = llTemplate;
+
+  // Prevent ll_key from being copied to the target card
+  delete targetCard.ll_key;
+
+  // Restore ll_keys if they were present in the original targetCard
+  if (llKeys) {
+    targetCard.ll_keys = llKeys;
+  }
+
+  // Restore the ll_context if it was present in the original targetCard
+  if (llContext) {
+    targetCard.ll_context = llContext;
+  }
+
+  return await handleLLKeys(targetCard, templateCards, templateContext);
+};
+
+const handleLLKeys = async (targetCard: DashboardCard,
+  templateCards: Record<string, any> = {},
+  templateContext: Record<string, any> = {}): Promise<DashboardCard> => {
+
+  if (targetCard.ll_keys === undefined || Object.keys(targetCard.ll_keys).length === 0) {
+    return targetCard;
+  }
+
+  const llKeys = targetCard.ll_keys;
+
+  // Handle ll_keys
+  Object.keys(llKeys).forEach((ll_key) => {
+    const key = llKeys[ll_key]
+    if (key) {
+      const linkedLovelaceKeyData = templateContext ? templateContext[key] : undefined;
+      if (linkedLovelaceKeyData) {
+        targetCard[key] = linkedLovelaceKeyData
+      }
     }
-    // this handles all nested objects that may contain a template, like tap actions
-    const cardKeys = Object.keys(data);
-    const updatedData = {};
-    for (const cardKey of cardKeys) {
-      if (cardKey !== 'card' && data[cardKey] !== null && typeof data[cardKey] === 'object') {
+  });
+
+  const updatedData = {};
+  for (const cardKey of Object.keys(llKeys)) {
+    const originalDataFromTemplate = Object.assign({}, templateContext);
+    if (typeof originalDataFromTemplate[cardKey] === 'object') {
+      if (Array.isArray(originalDataFromTemplate[cardKey]) && typeof originalDataFromTemplate[cardKey][0] === 'object') {
+        updatedData[cardKey] = [];
+        for (let i = 0; i < originalDataFromTemplate[cardKey]['length']; i++) {
+          const newLLData = { ...originalDataFromTemplate[cardKey][i].ll_context, ...originalDataFromTemplate };
+          delete newLLData[cardKey];
+          const oldData = { ...{ ...originalDataFromTemplate[cardKey][i] } };
+          const result = await updateCardTemplate(oldData, templateCards, newLLData);
+          updatedData[cardKey].push(result);
+        }
+      } else {
         try {
-          updatedData[cardKey] = await updateCardTemplate(data[cardKey], templateData, dataFromTemplate);
+          const newLLData = { ...originalDataFromTemplate };
+          delete newLLData[cardKey];
+          const oldData = { ...originalDataFromTemplate[cardKey] };
+          updatedData[cardKey] = await updateCardTemplate(oldData, templateCards, newLLData);
         } catch (e) {
-          console.log(`Couldn't Update card key '${cardKey}'. Provide the following object when submitting an issue to the developer.`, data, e);
+          console.log(`Couldn't Update card key '${cardKey}. Provide the following object when submitting an issue to the developer.`, targetCard, e);
         }
       }
     }
-    Object.keys(updatedData).forEach((k) => {
-      data[k] = updatedData[k];
-    });
   }
-  if (data.hasOwnProperty('ll_keys') && typeof data.ll_keys === 'undefined') {
-    delete data.ll_keys;
+  Object.keys(updatedData).forEach((k) => {
+    targetCard[k] = updatedData[k];
+  });
+
+  return targetCard;
+}
+
+const handleNestedCards = async (
+  targetCard: DashboardCard,
+  templateCards: Record<string, any> = {},
+  templateContext: Record<string, any> = {},
+): Promise<DashboardCard> => {
+  // Support for new sections dashboards.
+  if (targetCard.sections && Array.isArray(targetCard.sections)) {
+    for (let i = 0; i < targetCard.sections.length; i++) {
+      if (targetCard.sections[i].cards && Array.isArray(targetCard.sections[i].cards)) {
+        for (let j = 0; j < (targetCard.sections[i].cards as DashboardCard[]).length; j++) {
+          const card = targetCard.sections[i].cards[j] as DashboardCard;
+          targetCard.sections[i].cards[j] = await updateCardTemplate(card, templateCards, templateContext);
+        }
+      }
+    }
   }
-  return data;
-};
+  if (Array.isArray(targetCard.cards)) {
+    // Update any cards in the card
+    const cards: DashboardCard[] = [];
+    for (const card of targetCard.cards) {
+      cards.push(Object.assign({}, await updateCardTemplate(card, templateCards, templateContext)));
+    }
+    targetCard.cards = cards;
+  }
+
+  if (targetCard.card && !Array.isArray(targetCard.card)) {
+    targetCard.card = Object.assign({}, await updateCardTemplate(targetCard.card, templateCards, templateContext));
+  }
+
+  // this handles all nested objects that may contain a template, like tap actions
+  const cardKeys = Object.keys(targetCard);
+  const updatedData = {};
+  for (const cardKey of cardKeys) {
+    if (cardKey !== 'card' && targetCard[cardKey] !== null && typeof targetCard[cardKey] === 'object') {
+      try {
+        updatedData[cardKey] = await updateCardTemplate(targetCard[cardKey], templateCards, templateContext);
+      } catch (e) {
+        console.log(`Couldn't Update card key '${cardKey}'. Provide the following object when submitting an issue to the developer.`, targetCard, e);
+      }
+    }
+  }
+  Object.keys(updatedData).forEach((k) => {
+    targetCard[k] = updatedData[k];
+  });
+
+  return targetCard;
+}
