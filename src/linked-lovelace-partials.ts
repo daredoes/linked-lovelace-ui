@@ -4,8 +4,8 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import { LINKED_LOVELACE_PARTIALS, type DashboardPartialsCard } from './types';
-import './types';
+import { LINKED_LOVELACE_PARTIALS } from './constants';
+import type { DashboardPartialsCard } from './types/DashboardPartialsCard';
 import { localize } from './localize/localize';
 import { log } from './helpers';
 

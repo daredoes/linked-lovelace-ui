@@ -4,8 +4,11 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial, LinkedLovelaceStatusCardConfig } from './types';
-import './types';
+import type { Dashboard } from './types/Dashboard';
+import type { DashboardCard } from './types/DashboardCard';
+import type { DashboardConfig } from './types/DashboardConfig';
+import type { LinkedLovelacePartial } from './types/LinkedLovelacePartial';
+import type { LinkedLovelaceStatusCardConfig } from './types/LinkedLovelaceStatusCardConfig';
 import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import { log } from './helpers';

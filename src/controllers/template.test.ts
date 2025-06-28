@@ -1,4 +1,4 @@
-import { DashboardCard } from '../types';
+import type { DashboardCard } from '../types/DashboardCard';
 import TemplateController from './template';
 
 describe('[class] TemplateController', () => {

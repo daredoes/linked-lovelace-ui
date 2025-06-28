@@ -3,10 +3,9 @@ import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
-import {  LinkedLovelaceStatusCardConfig } from './types';
+import type {  LinkedLovelaceStatusCardConfig } from './types/LinkedLovelaceStatusCardConfig';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
-import HassController from './controllers/hass';
 
 @customElement('linked-lovelace-status-editor')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

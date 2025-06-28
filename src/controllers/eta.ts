@@ -1,4 +1,5 @@
-import { DashboardCard, LinkedLovelacePartial } from '../types';
+import type { DashboardCard } from 'src/types/DashboardCard'
+import type { LinkedLovelacePartial } from 'src/types/LinkedLovelacePartial'
 import { getPartialsFromCard} from '../helpers/eta';
 import { TemplateEngine } from '../v2/template-engine';
 

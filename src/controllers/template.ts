@@ -1,5 +1,5 @@
 import { updateCardTemplate } from '../helpers';
-import { DashboardCard } from '../types';
+import type { DashboardCard } from '../types/DashboardCard';
 
 class TemplateController {
   templates: Record<string, DashboardCard> = {};

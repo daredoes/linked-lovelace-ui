@@ -1,0 +1,1 @@
+export const LINKED_LOVELACE_PARTIALS = 'linked-lovelace-partials'

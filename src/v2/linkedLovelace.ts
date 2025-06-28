@@ -1,4 +1,7 @@
-import { DashboardCard, DashboardConfig, DashboardView, LinkedLovelacePartial } from '../types';
+import type { DashboardCard } from '../types/DashboardCard';
+import type { DashboardConfig } from '../types/DashboardConfig';
+import type { DashboardView } from '../types/DashboardView';
+import type { LinkedLovelacePartial } from '../types/LinkedLovelacePartial';
 import TemplateController from '../controllers/template';
 import {GlobalLinkedLovelace} from '../instance'
 import EtaTemplateController from '../controllers/eta';

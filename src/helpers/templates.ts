@@ -1,5 +1,6 @@
 import { TemplateEngine } from '../v2/template-engine';
-import { DashboardCard, DashboardView } from '../types';
+import type { DashboardCard } from '../types/DashboardCard';
+import type { DashboardView } from '../types/DashboardView';
 
 export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
   if (card.ll_template) {

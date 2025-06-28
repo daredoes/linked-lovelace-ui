@@ -1,4 +1,7 @@
-import { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial } from 'src/types';
+import type { Dashboard } from 'src/types/Dashboard';
+import type { DashboardCard } from 'src/types/DashboardCard';
+import type { DashboardConfig } from 'src/types/DashboardConfig';
+import type { LinkedLovelacePartial } from 'src/types/LinkedLovelacePartial';
 import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from '../v2/linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';

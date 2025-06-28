@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HomeAssistant } from 'custom-card-helpers';
 import { log } from './helpers';
-import { Dashboard, DashboardConfig } from './types';
+import type { Dashboard } from './types/Dashboard';
+import type { DashboardConfig } from './types/DashboardConfig';
 import { Debug } from './debug';
 
 class LinkedLovelaceApi {

@@ -3,7 +3,8 @@ import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
 import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helpers';
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
-import { DashboardCard, LinkedLovelaceTemplateCardConfig } from './types';
+import type { DashboardCard } from './types/DashboardCard';
+import type { LinkedLovelaceTemplateCardConfig } from './types/LinkedLovelaceTemplateCardConfig';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
 import HassController from './controllers/hass';

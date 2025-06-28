@@ -1,5 +1,6 @@
-import { DashboardPartialsCard, LINKED_LOVELACE_PARTIALS } from '../types';
+import type { DashboardPartialsCard } from '../types/DashboardPartialsCard';
 import EtaTemplateController from './eta';
+import { LINKED_LOVELACE_PARTIALS } from '../constants';
 
 describe('[class] TemplateController', () => {
   test('sets up as expected', () => {

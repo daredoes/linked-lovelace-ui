@@ -1,4 +1,7 @@
-import { DashboardCard, LinkedLovelacePartial, DashboardPartialsCard, LINKED_LOVELACE_PARTIALS } from "../types";
+import type { DashboardCard } from "../types/DashboardCard";
+import type { LinkedLovelacePartial } from "../types/LinkedLovelacePartial";
+import type { DashboardPartialsCard } from "../types/DashboardPartialsCard";
+import { LINKED_LOVELACE_PARTIALS } from "../constants";
 import axios from "axios";
 
 // Extracts the template from the card based on whether it has the key "url" or "template".

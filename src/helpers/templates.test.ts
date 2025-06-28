@@ -1,4 +1,5 @@
-import { DashboardCard, DashboardView } from '../types';
+import type { DashboardCard } from '../types/DashboardCard';
+import type { DashboardView } from '../types/DashboardView';
 import { getTemplatesUsedInCard, getTemplatesUsedInView, updateCardTemplate } from './templates';
 
 describe('[function] getTemplatesUsedInCard', () => {
