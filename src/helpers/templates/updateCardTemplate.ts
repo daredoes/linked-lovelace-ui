@@ -1,5 +1,6 @@
 import { TemplateEngine } from '../../v2/template-engine';
 import type { DashboardCard } from '../../types/DashboardCard';
+import { objectHasValidKey } from './objectHasValidKey';
 
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}, parentContext: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template
@@ -7,7 +8,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
   // TODO: Remove ternary operator when dropping support for template_data card arg
   let dataFromTemplate: Record<string, any> = {...parentContext, ...(data.ll_context || {})};
   const originalCardData = Object.assign({}, data);
-  if (templateKey && templateData[templateKey]) {
+  if (objectHasValidKey(templateData, templateKey)) {
     if (dataFromTemplate) {
       const templateCardData = {...templateData[templateKey]};
       delete templateCardData['ll_key']
