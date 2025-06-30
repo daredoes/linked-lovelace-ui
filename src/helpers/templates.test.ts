@@ -1610,15 +1610,18 @@ describe('[function] updateCardTemplate v2', () => {
       foo: 'bar'
     };
     const card: DashboardCard = {
-      type: 'test',
+      type: 'custom:complex-card',
       ll_template: 'complex_card',
+      foo: 'biz',
+      zoo: 'baz',
     };
     const spy = jest.spyOn(console, 'error').mockImplementation(() => { });
     const result = await updateCardTemplate(card, { complex_card: template });
     expect(result).toStrictEqual({
       type: 'custom:complex-card',
       ll_template: 'complex_card',
-      foo: 'bar',
+      foo: 'biz',
+      zoo: 'baz',
       ll_error: "Error rendering template 'complex_card': Error: Failed to parse ll_card_config for template 'complex_card': SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)",
       ll_template_card: {
         foo: "bar",
@@ -1646,7 +1649,8 @@ describe('[function] updateCardTemplate v2', () => {
     const card: DashboardCard = {
       type: 'custom:complex-card',
       ll_template: 'complex_card',
-      foo: 'bar',
+      foo: 'biz',
+      zoo: 'baz',
       ll_error: "some error from previous state",
       ll_template_card: {
         foo: "bar",

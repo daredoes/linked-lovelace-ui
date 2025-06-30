@@ -30,49 +30,39 @@ export const updateCardTemplate = async (
   parentContext: Record<string, any> = {},
 ): Promise<DashboardCard> => {
 
-  let templateContext: Record<string, any> = { ...parentContext, ...(targetCard.ll_context || {}) };
-
   // If the targetCard has no template, it might still have nested cards that need to be processed.
   if (!targetCard.ll_template || templateCards[targetCard.ll_template] === undefined) {
-    return handleNestedCards(targetCard, templateCards, templateContext);
+    return handleNestedCards(targetCard, templateCards, parentContext);
   }
 
   const llKeys = targetCard.ll_keys;
-  const llContext = { ...templateContext };
   const llTemplate = targetCard.ll_template;
   const templateCard = { ...templateCards[llTemplate] };
+  const engineType = templateCard.ll_template_engine || 'eta';
+  const llContext = { ...parentContext, ...(targetCard.ll_context || {}) };
+  const fullContext = { ...(templateCard.ll_context || {}), ...llContext }; // target card context overrides template context
 
   if (templateCard.ll_replicate_ctx === undefined) {
     templateCard.ll_replicate_ctx = true;
   }
 
-  let engineType: TemplateEngineType = 'eta';
-  if (templateCard.ll_template_engine === 'jinja2') engineType = 'jinja2';
-
-  // destination card context should override template context
-  templateContext = { ...(templateCard.ll_context || {}), ...templateContext };
-
-  // Delete last error if it exists
-  delete targetCard.ll_error;
-  delete targetCard.ll_template_card;
-
   try {
     // Render the template with the context
-    let template = await TemplateEngine.instance.render(JSON.stringify(templateCard), templateContext, engineType);
+    const template = await TemplateEngine.instance.render(JSON.stringify(templateCard), fullContext, engineType);
 
     // Assign the parsed template to targetCard
-    targetCard = JSON.parse(template);
+    let templatedTargetCard = JSON.parse(template);
 
-    if (targetCard.ll_card_config) {
+    if (templatedTargetCard.ll_card_config) {
       try {
-        // Parse the ll_card_config JSON string into an object
-        const cardConfig = JSON.parse(targetCard.ll_card_config);
+        const cardConfig = JSON.parse(templatedTargetCard.ll_card_config);
         // Merge the parsed config into the main card config (shallow merge, overwrites existing keys)
-        targetCard = { ...targetCard, ...cardConfig };
+        templatedTargetCard = { ...templatedTargetCard, ...cardConfig };
       } catch (e) {
         throw new Error(`Failed to parse ll_card_config for template '${llTemplate}': ${e}`);
       }
     }
+    targetCard = templatedTargetCard;
   } catch (e) {
     console.error(e);
     targetCard.ll_error = `Error rendering template '${llTemplate}': ${e}`;
@@ -81,7 +71,7 @@ export const updateCardTemplate = async (
 
   // Set special keys
   targetCard.ll_template = llTemplate;
-  targetCard.ll_context = templateCard.ll_replicate_ctx ? templateContext : llContext;
+  targetCard.ll_context = templateCard.ll_replicate_ctx ? fullContext : llContext;
   targetCard.ll_keys = llKeys;
 
   // Clean up empty, unused or undefined properties
@@ -103,7 +93,7 @@ export const updateCardTemplate = async (
   }
   targetCard = sortedTargetCard as DashboardCard;
 
-  return await handleLLKeys(targetCard, templateCards, templateContext);
+  return await handleLLKeys(targetCard, templateCards, fullContext);
 };
 
 const handleLLKeys = async (targetCard: DashboardCard,
