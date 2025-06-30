@@ -1,29 +1,5 @@
-import { TemplateEngine } from '../v2/template-engine';
-import type { DashboardCard } from '../types/DashboardCard';
-import type { DashboardView } from '../types/DashboardView';
-
-export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
-  if (card.ll_template) {
-    return [card.ll_template];
-  }
-  if (card.cards) {
-    return card.cards.flatMap((c) => {
-      return getTemplatesUsedInCard(c);
-    });
-  }
-  if (card.card) {
-    return getTemplatesUsedInCard(card.card)
-  }
-  return [];
-};
-
-export const getTemplatesUsedInView = (view: DashboardView): string[] => {
-  return (
-    view.cards?.flatMap((c) => {
-      return getTemplatesUsedInCard(c);
-    }) || []
-  );
-};
+import { TemplateEngine } from '../../v2/template-engine';
+import type { DashboardCard } from '../../types/DashboardCard';
 
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}, parentContext: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template

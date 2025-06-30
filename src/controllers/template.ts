@@ -1,4 +1,4 @@
-import { updateCardTemplate } from '../helpers';
+import { updateCardTemplate } from '../helpers/templates/updateCardTemplate';
 import type { DashboardCard } from '../types/DashboardCard';
 
 class TemplateController {
