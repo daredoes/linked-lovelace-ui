@@ -1,12 +1,22 @@
 // entrypoint.ts
-import "./types/global" // Add global types for custom-card-helpers
-import { LIB_VERSION } from './version'; // Dynamically set during the build process
-import { log } from './helpers';
-import { initialize } from './instance';
+import "src/types/global" // Add global types for custom-card-helpers
+import { LIB_VERSION } from 'src/version'; // Dynamically set during the build process
+import { Debug } from 'src/debug';
 // Cards to add to Home Assistant
-import './linked-lovelace-template';
-import './linked-lovelace-status';
-import './linked-lovelace-partials';
+import 'src/linked-lovelace-status';
+import 'src/linked-lovelace-partials';
+import 'src/linked-lovelace-template';
 
-initialize(() => {log(`Version: ${LIB_VERSION}`);})
+export const initialize = () => {
+  (async () => {
+    // Wait for scoped customElements registry to be set up
+    // otherwise the customElements registry card-mod is defined in
+    // may get overwritten by the polyfill if card-mod is loaded as a module
+    while (customElements.get('home-assistant') === undefined)
+      await new Promise((resolve) => window.setTimeout(resolve, 100));
+  
+    Debug.instance.log(`Initialized Linked Lovelace UI Version: ${LIB_VERSION}`)
+  })();
+}
 
+initialize()

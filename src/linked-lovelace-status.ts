@@ -4,56 +4,20 @@ import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup }
 import { customElement, property, state } from 'lit/decorators';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
-import type { Dashboard } from './types/Dashboard';
-import type { DashboardCard } from './types/DashboardCard';
-import type { DashboardConfig } from './types/DashboardConfig';
-import type { LinkedLovelacePartial } from './types/LinkedLovelacePartial';
-import type { LinkedLovelaceStatusCardConfig } from './types/LinkedLovelaceStatusCardConfig';
-import { localize } from './localize/localize';
-import { LinkedLovelaceTemplateCardEditor } from './template-editor';
-import { log } from './helpers';
-import HassController from './controllers/hass';
-import { GlobalLinkedLovelace } from './instance';
-import Diff from './helpers/diff';
+import type { Dashboard } from 'src/types/Dashboard';
+import type { DashboardCard } from 'src/types/DashboardCard';
+import type { DashboardConfig } from 'src/types/DashboardConfig';
+import type { LinkedLovelacePartial } from 'src/types/LinkedLovelacePartial';
+import type { LinkedLovelaceStatusCardConfig } from 'src/types/LinkedLovelaceStatusCardConfig';
+import { localize } from 'src/localize/localize';
+import { LinkedLovelaceTemplateCardEditor } from 'src/template-editor';
+import { log } from 'src/helpers';
+import { stringify } from './helpers/stringify';
+import HassController from 'src/controllers/hass';
+import { GlobalLinkedLovelace } from 'src/instance';
+import {hasDiff, makeDiffHtml} from 'src/helpers/diffs';
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 
-
-const stringify = (text) => {
-  return JSON.stringify(text, null, 2)
-}
-
-const getS = (array) => {
-  return array.length !== 1 ? 's' : ''
-}
-
-const createDiff = (obj1 = {}, obj2 = {}) => {
-  try {
-
-    const differ = new Diff()
-    const di = differ.main(stringify(obj1), stringify(obj2), false, 0) 
-    return di;
-  } catch (e) {
-    console.error(e)
-    return []
-  }
-}
-
-const hasDiff = (obj1 = {}, obj2 = {}) => {
-  const di = createDiff(obj1, obj2)
-  return di.length > 1;
-}
-
-const makeDiff = (obj1 = {}, obj2 = {}) => {
-  try {
-    const differ = new Diff()
-    const diff = createDiff(obj1, obj2)
-    const result = differ.prettyHtml(diff)
-    return result;
-  } catch (e) {
-    console.error(e)
-    return `Could not create diff. Check browser logs for details.`
-  }
-}
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
@@ -123,14 +87,14 @@ export class LinkedLovelaceStatusCard extends LitElement {
   private handleDryRun = async () => {
     // await this.handleClick()
     const newDashboardConfigs = await this._controller!.updateAll(true)
-    this._difference = makeDiff(this._backedUpDashboardConfigs, newDashboardConfigs)
+    this._difference = makeDiffHtml(this._backedUpDashboardConfigs, newDashboardConfigs)
     this._diffedDashboards = {};
     Object.keys(newDashboardConfigs).forEach((dashboardKey) => {
       const dashboardData = newDashboardConfigs[dashboardKey]
       const oldDashboardData = this._backedUpDashboardConfigs[dashboardKey]
       try {
         if (oldDashboardData && dashboardData && hasDiff(oldDashboardData, dashboardData)) {
-          this._diffedDashboards[dashboardKey] = makeDiff(oldDashboardData, dashboardData)
+          this._diffedDashboards[dashboardKey] = makeDiffHtml(oldDashboardData, dashboardData)
         }
       } catch (e) {
         console.error(`Failed to make Diff of dashboard '${dashboardKey}'`, oldDashboardData, dashboardData, dashboardKey)
@@ -306,7 +270,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
               <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${templateKey}</a>
               <pre class="${this._show_templates ? '' : 'hidden'}">
               <code>
-              ${unsafeHTML(makeDiff(templateData, templateData))}
+              ${unsafeHTML(makeDiffHtml(templateData, templateData))}
               </code>
               </pre>
                 `
@@ -332,7 +296,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
             <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${partialKey}</a>
             <pre class="${this._show_partials ? '' : 'hidden'}">
             <code>
-            ${unsafeHTML(makeDiff(partialData, partialData))}
+            ${unsafeHTML(makeDiffHtml(partialData, partialData))}
             </code>
             </pre>
               `

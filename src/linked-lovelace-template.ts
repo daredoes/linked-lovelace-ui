@@ -8,7 +8,6 @@ import type { LinkedLovelaceTemplateCardConfig } from './types/LinkedLovelaceTem
 import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import { log } from './helpers';
-import HassController from './controllers/hass';
 
 // This puts your card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
@@ -18,6 +17,7 @@ import HassController from './controllers/hass';
   description: 'Help select an existing template for a card',
 });
 
+// This card is no longer used actively, but can be used in the editor to quickly load up an existing template.
 @customElement('linked-lovelace-template')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceTemplateCard extends LitElement {
@@ -39,13 +39,6 @@ export class LinkedLovelaceTemplateCard extends LitElement {
     await new Promise((r) => setTimeout(r, 0));
     this._repaint();
   }
-
-  private handleClick = async () => {
-    const controller = new HassController();
-    await controller.refresh();
-    await controller.updateAll();
-    this._repaint();
-  };
 
   public static async getConfigElement(): Promise<LinkedLovelaceTemplateCardEditor> {
     await import('./template-editor');
