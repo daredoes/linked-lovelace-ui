@@ -93,8 +93,8 @@ describe('[class] Jinja2Engine', () => {
     jinja2 = new Jinja2Engine();
 
     // Mock Home Assistant API call service
-    mockedHass = jest.fn(async () => {
-      throw new Error('Mocked API call');
+    mockedHass = jest.fn(async (_method: string, _url: string, payload: string) => {
+      return payload
     });
 
     // Mock renderString to simulate Jinja2 rendering for test context
@@ -145,6 +145,8 @@ describe('[class] Jinja2Engine', () => {
     jinja2.loadMacro('macro1', 'test', []);
     const context = { foo: 'bar' };
     const template = 'Body {{ foo }} {% include "macro1" %}';
+
+    jinja2.hass = null; // Allow testing without a real Home Assistant instance
     const result = await jinja2.render(template, context);
     // The result should include the rendered template with context replaced
     expect(result).toContain('Body {{ foo }} {% include "macro1" %}');
@@ -172,22 +174,34 @@ describe('[class] Jinja2Engine', () => {
       ],
       e: {
         f: 'Deep {{ num }}',
-        g: false
+        g: false,
+        123: 999, // number keys are processed as strings
       }
     };
 
     // The render function expects a string input, so we stringify the object
-    const result = await jinja2.render(JSON.stringify(input), context);
-    expect(JSON.parse(result)).toEqual(input);
+    await jinja2.render(JSON.stringify(input), context);
 
     const prepend = jinja2.buildVars(context) + '\n' + jinja2.getMacros();
+    expect(mockedRenderString).toBeCalledWith('a', prepend);
     expect(mockedRenderString).toBeCalledWith('Hello {{ foo }}', prepend);
+    expect(mockedRenderString).toBeCalledWith('b', prepend);
+    expect(mockedRenderString).toBeCalledWith('c', prepend);
     expect(mockedRenderString).toBeCalledWith('Num: {{ num }}', prepend);
+    expect(mockedRenderString).toBeCalledWith('d', prepend);
     expect(mockedRenderString).toBeCalledWith('Nested {{ foo }}', prepend);
     expect(mockedRenderString).toBeCalledWith('{{ foo }} is here', prepend);
-    expect(mockedRenderString).toBeCalledWith('Deep {{ num }}', prepend);
+    expect(mockedRenderString).toBeCalledWith('Yes', prepend);
     expect(mockedRenderString).toBeCalledWith('not a template key', prepend);
     expect(mockedRenderString).toBeCalledWith('not a template value', prepend);
+    expect(mockedRenderString).toBeCalledWith('e', prepend);
+    expect(mockedRenderString).toBeCalledWith('f', prepend);
+    expect(mockedRenderString).toBeCalledWith('Deep {{ num }}', prepend);
+    expect(mockedRenderString).toBeCalledWith('g', prepend);
+    expect(mockedRenderString).toBeCalledWith('123', prepend);
+
+    // Render string is called for every string key and value in the object
+    expect(mockedRenderString).toBeCalledTimes(16);
 
     // The actual API should have only been called for the template strings
     expect(mockedHass).toBeCalledTimes(5);
@@ -198,6 +212,18 @@ describe('[class] Jinja2Engine', () => {
     const input = 12345;
     const result = await jinja2.render(JSON.stringify(input), context);
     expect(JSON.parse(result)).toBe(12345);
+  });
+
+  test('throws error on Jinja2 rendering failure', async () => {
+
+    jinja2.hass = {
+      callApi: jest.fn(async () => {
+        throw new Error('API call failed');
+      })
+    };
+
+    await expect(jinja2.render("{{ test }}", {})).
+      rejects.toThrow('Failed to render Jinja2 template: Error: API call failed');
   });
 
 });

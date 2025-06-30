@@ -54,6 +54,10 @@ export class Jinja2Engine {
     if (Debug.instance.debug) {
       log("Jinja2 Template Payload", payload);
     }
+    if (!this.hass) {
+      toConsole("warn", "Home Assistant instance is not available for Jinja2 rendering.");
+      return template; // Return the template as is if hass is not available
+    }
     try {
       const resp = await this.hass.callApi("POST", "template", { template: payload });
       if (Debug.instance.debug) {
@@ -61,8 +65,8 @@ export class Jinja2Engine {
       }
       return resp;
     } catch (e) {
-      toConsole("warn", "Home Assistant instance is not available for Jinja2 rendering.");
-      return template; // Return the template as is if hass is not available
+      toConsole("error", "Error rendering Jinja2 template:", e);
+      throw new Error(`Failed to render Jinja2 template: ${e}`);
     }
   }
 
