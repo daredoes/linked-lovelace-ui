@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HomeAssistant } from 'custom-card-helpers';
-import { log } from './helpers';
+import { log } from './util';
 import { Dashboard, DashboardConfig } from './types';
 import { Debug } from './debug';
 
@@ -26,7 +26,7 @@ class LinkedLovelaceApi {
         require_admin: false,
         show_in_sidebar: false,
       }
-      return [overviewDashboard,...data]
+      return [overviewDashboard, ...data]
     });
   };
 
@@ -38,7 +38,7 @@ class LinkedLovelaceApi {
       type: 'lovelace/config',
       url_path: urlPath ? urlPath : null,
     }).then((data) => {
-      return {...data, views: data.views || []}
+      return { ...data, views: data.views || [] }
     });
   };
 

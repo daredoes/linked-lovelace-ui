@@ -41,41 +41,41 @@ describe('[class] TemplateController', () => {
     expect(controller.addTemplate('test', { type: 'new' }, false)).toBe(false);
   });
 
-  test('renders a template card as expected', () => {
+  test('renders a template card as expected', async () => {
     const controller = new TemplateController();
     const card: DashboardCard = {
       type: '<%= context.test %>',
     };
     controller.addTemplate('test', card);
     expect(
-      controller.renderAndAddTemplate('new', { type: 'old', ll_template: 'test', ll_context: { test: 'new' } }),
+      await controller.renderAndAddTemplate('new', { type: 'old', ll_template: 'test', ll_context: { test: 'new' } }),
     ).toBe(true);
     expect(controller.templates['new'].type).toEqual('new');
   });
 
-  test('renders a card as expected', () => {
+  test('renders a card as expected', async () => {
     const controller = new TemplateController();
     const card: DashboardCard = {
       type: '<%= context.test %>',
     };
     controller.addTemplate('test', card);
-    expect(controller.renderCard({ type: 'old', ll_template: 'test', ll_context: { test: 'new' } }).type).toEqual(
+    expect((await controller.renderCard({ type: 'old', ll_template: 'test', ll_context: { test: 'new' } })).type).toEqual(
       'new',
     );
   });
 
-  test('renders a card as expected', () => {
+  test('renders a card as expected', async () => {
     const controller = new TemplateController();
     const card: DashboardCard = {
       type: '<%= context.test %>',
     };
     controller.addTemplate('test', card);
-    expect(controller.renderCard({ type: 'old' }).type).toEqual('old');
+    expect((await controller.renderCard({ type: 'old' })).type).toEqual('old');
   });
 
-  test('renders a card as expected when lacking templates', () => {
+  test('renders a card as expected when lacking templates', async () => {
     const controller = new TemplateController();
     const card: DashboardCard = { type: 'old', ll_template: 'test', ll_context: { test: 'new' } };
-    expect(controller.renderCard(card)).toStrictEqual(card);
+    expect(await controller.renderCard(card)).toStrictEqual(card);
   });
 });

@@ -41,6 +41,12 @@ export interface LLCard extends LovelaceCardConfig {
   ll_template?: string
   sections?: LovelaceCardConfig[]
   ll_context?: Record<string, any>
+  // A boolean to indicate if the default context values should be replicated in the ll_context of dashboard cards (defaults to true)
+  ll_replicate_ctx?: boolean
+  ll_template_engine?: 'eta' | 'jinja2'
+  // A template string for the card configuration that may return a complex object in JSON, it will
+  // be merged with the main card config
+  ll_card_config?: string
   // A map from a key in the current level of the card to a key in the current context data
   ll_keys?: Record<string, string>
   [x: string]: any;
@@ -62,6 +68,8 @@ export interface LinkedLovelacePartial {
   url?: string
   template?: string
   priority?: number
+  ll_template_engine?: 'eta' | 'jinja2'
+  args?: string[] // For Jinja2 macros: argument list
 }
 
 export interface DashboardPartialsCard extends LovelaceCardConfig {

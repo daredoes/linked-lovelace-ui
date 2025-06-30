@@ -8,7 +8,7 @@ import type { LinkedLovelaceTemplateCardConfig } from './types';
 import './types';
 import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
-import { log } from './helpers';
+import { log } from './util';
 import HassController from './controllers/hass';
 
 // This puts your card into the UI card picker dialog
