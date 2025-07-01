@@ -4,10 +4,9 @@ import { defaultLinkedLovelaceUpdatableConstants } from '../../constants';
 import type { LinkedLovelaceUpdatableConstants } from '../../constants';
 
 export const walkObject = <T>(obj: T, contextData: Record<string | number | symbol, any>, onTemplateObject: (obj: DashboardCard, contextData: Record<string | number | symbol, any>) => DashboardCard, linkedLovelaceUpdatableConstants: LinkedLovelaceUpdatableConstants = defaultLinkedLovelaceUpdatableConstants): T | DashboardCard | unknown[] => {
+  contextData = {...contextData, ...(obj[linkedLovelaceUpdatableConstants.contextKey] || {})};
   // if has template key, do template work to replace obj and return
-  const { useTemplateKey, contextKey, isTemplateKey, contextKeys } = linkedLovelaceUpdatableConstants
-  contextData = {...contextData, ...(obj[contextKey] || {})};
-  if (objectHasValidKey(obj, useTemplateKey)) {
+  if (objectHasValidKey(obj, linkedLovelaceUpdatableConstants.useTemplateKey)) {
     return onTemplateObject(obj as DashboardCard, contextData)
   }
   // if obj is an array, loop over it and replace each item
@@ -20,7 +19,7 @@ export const walkObject = <T>(obj: T, contextData: Record<string | number | symb
   }
   if (typeof obj === 'object' && obj) {
     Object.entries(obj).forEach(([k, v]) => {
-      if (k === useTemplateKey) return;
+      if (k === linkedLovelaceUpdatableConstants.useTemplateKey) return;
       const newObject = walkObject(v, contextData, onTemplateObject, linkedLovelaceUpdatableConstants)
       if (newObject) obj[k] = newObject
     })
