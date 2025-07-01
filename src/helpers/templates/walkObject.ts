@@ -2,7 +2,6 @@ import type { DashboardCard } from '../../types/DashboardCard';
 import { objectHasValidKey } from './objectHasValidKey';
 import { defaultLinkedLovelaceUpdatableConstants } from '../../constants';
 import type { LinkedLovelaceUpdatableConstants } from '../../constants';
-import { cleanKeyFromObj } from './cleanKeyFromObj';
 
 export const walkObject = <T>(obj: T, contextData: Record<string | number | symbol, any>, onTemplateObject: (obj: DashboardCard, contextData: Record<string | number | symbol, any>) => DashboardCard, linkedLovelaceUpdatableConstants: LinkedLovelaceUpdatableConstants = defaultLinkedLovelaceUpdatableConstants): T | DashboardCard | unknown[] => {
   // if has template key, do template work to replace obj and return
@@ -25,9 +24,6 @@ export const walkObject = <T>(obj: T, contextData: Record<string | number | symb
       const newObject = walkObject(v, contextData, onTemplateObject, linkedLovelaceUpdatableConstants)
       if (newObject) obj[k] = newObject
     })
-    // obj = cleanKeyFromObj(obj, contextKeys) as T
-    // obj = cleanKeyFromObj(obj, isTemplateKey) as T
-    // obj = cleanKeyFromObj(obj, contextKeys) as T
   }
   return obj
 }
