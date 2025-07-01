@@ -6,6 +6,8 @@ import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from '../v2/linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';
 import { toConsole } from 'src/helpers/log';
+import { walkViewForTemplates } from 'src/helpers/templates/walkViewForTemplates';
+import { defaultLinkedLovelaceUpdatableConstants } from 'src/constants';
 
 const getS = (array) => {
   return array?.length !== 1 ? 's' : ''
@@ -92,7 +94,8 @@ class HassController {
             }
           }
           this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`}, dashboard, view)
-          return await Promise.all((view.cards || []).map(async (card) => {
+          const templateCards = walkViewForTemplates(view, (card) => card, defaultLinkedLovelaceUpdatableConstants);
+          return await Promise.all(templateCards.map(async (card) => {
             if (card.ll_key) {
               this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] [template:${card.ll_key}] [priority:${card.ll_priority || 0}] Discovered Template`}, dashboard, view, card)
               if (templates[card.ll_key] && (templates[card.ll_key].ll_priority || 0) < (card.ll_priority || 0)) { 
