@@ -4,6 +4,7 @@ import {extractCardDataWithTemplateContext} from './extractCardDataWithTemplateC
 import { parseTemplateCardData } from './parseTemplateCardData';
 import { OnTemplateObject } from './types';
 import { parseContextKeysIntoRenderedCards} from './parseContextKeysIntoRenderedCards'
+import { cleanKeyFromObj } from './cleanKeyFromObj'
 
 interface RenderCardFromContextData {
   linkedLovelaceUpdatableConstants: LinkedLovelaceUpdatableConstants,
@@ -49,6 +50,9 @@ export const renderCardFromContextData = ({
   })
   // Put template data back in card
   data = { ...{ [contextKey]: contextData, [contextKeys]: sourceCardData[contextKeys], ...data }, [contextKey]: contextData, [contextKeys]: sourceCardData[contextKeys] };
+  data = cleanKeyFromObj(data, contextKeys)
+  data = cleanKeyFromObj(data, isTemplateKey)
+  data = cleanKeyFromObj(data, contextKeys)
   return data
 }
 

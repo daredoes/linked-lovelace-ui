@@ -1,5 +1,6 @@
 import { parseTemplateCardData } from "./parseTemplateCardData";
 
+// This file should contain tests that verify the handling of unique cases in the ETA templating system based around the context functionality
 describe('[function] parseTemplateCardData', () => {
   test('returns empty object when the templateCardData is empty object', () => {
     expect(parseTemplateCardData({}, {})).toStrictEqual({});

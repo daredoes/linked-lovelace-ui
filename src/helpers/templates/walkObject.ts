@@ -25,9 +25,9 @@ export const walkObject = <T>(obj: T, contextData: Record<string | number | symb
       const newObject = walkObject(v, contextData, onTemplateObject, linkedLovelaceUpdatableConstants)
       if (newObject) obj[k] = newObject
     })
-    obj = cleanKeyFromObj(obj, contextKeys) as T
-    obj = cleanKeyFromObj(obj, isTemplateKey) as T
-    obj = cleanKeyFromObj(obj, contextKeys) as T
+    // obj = cleanKeyFromObj(obj, contextKeys) as T
+    // obj = cleanKeyFromObj(obj, isTemplateKey) as T
+    // obj = cleanKeyFromObj(obj, contextKeys) as T
   }
   return obj
 }
