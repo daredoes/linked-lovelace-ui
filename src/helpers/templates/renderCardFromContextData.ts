@@ -28,10 +28,10 @@ export const renderCardFromContextData = ({
       
   // Remove key that is used to locate and load templates.
   delete templateCardData[isTemplateKey]
-  
+
   // Overwrite context data with template context data
-  contextData = {...contextData, ...(templateCardData[contextKey] || {})}
-  
+  contextData = {...contextData, ...(templateCardData[contextKey] || {})}  
+
   // Run the template card data through the renderer and return the resulting JSON
   let data = parseTemplateCardData(templateCardData, contextData) || templateData[templateKey]
 
