@@ -5,6 +5,9 @@ import type { LinkedLovelacePartial } from '../types/LinkedLovelacePartial';
 import TemplateController from '../controllers/template';
 import {GlobalLinkedLovelace} from '../instance'
 import EtaTemplateController from '../controllers/eta';
+import { walkAndReplace } from '../helpers/templates/walkAndReplace';
+import { defaultLinkedLovelaceUpdatableConstants } from '../constants';
+import { updateCardTemplate } from '../helpers/templates/updateCardTemplate';
 
 const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
   return Object.keys(templates).sort((kA, kB) => {
@@ -37,32 +40,9 @@ class LinkedLovelaceController {
     const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(urlPath);
     if (!config.views) return config;
     const views = config.views;
+    const templates = this.templateController.templates;
     Object.keys(views).forEach((viewKey: string) => {
-      const view: DashboardView = views[viewKey];
-      const cards: DashboardCard[] = [];
-      if (view.cards) {
-        // For every card in the config, store a copy of the rendered card
-        view.cards.forEach((card) => {
-          const newCard = this.templateController.renderCard(card);
-          cards.push(newCard);
-        });
-        // Replace the cards in the view
-        views[viewKey].cards = cards;
-      }
-      if (view.sections && Array.isArray(view.sections)) {
-        for (let i = 0; i < view.sections.length ; i++) {
-          const cards = view.sections[i].cards
-          if (cards && Array.isArray(cards)) {
-            cards.forEach((card, j) => {
-              const newCard = this.templateController.renderCard(card);
-              view.sections![i].cards![j] = newCard
-            });
-          }
-          // For every card in the config, store a copy of the rendered card
-          // Replace the cards in the section
-          view.sections![i].cards = cards;
-        }
-      }
+      views[viewKey] = walkAndReplace(views[viewKey], defaultLinkedLovelaceUpdatableConstants.useTemplateKey, (item) => updateCardTemplate(item, templates))
     });
     config.views = views;
     return config;

@@ -12,7 +12,7 @@ describe('walkViewForTemplates', () => {
 
   it('should find a single template card at the top level', () => {
     const view = { [defaultLinkedLovelaceUpdatableConstants.isTemplateKey]: 'template1' };
-    const result = walkViewForTemplates(view, onTemplateObject, defaultLinkedLovelaceUpdatableConstants);
+    const result = walkViewForTemplates(view, onTemplateObject, defaultLinkedLovelaceUpdatableConstants.isTemplateKey);
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({ [defaultLinkedLovelaceUpdatableConstants.isTemplateKey]: 'template1'});
     expect(onTemplateObject).toHaveBeenCalledTimes(1);
@@ -20,7 +20,7 @@ describe('walkViewForTemplates', () => {
 
   it('should return an empty array when no templates are found', () => {
     const view = { type: 'vertical-stack', cards: [{ type: 'button-card' }] };
-    const result = walkViewForTemplates(view, onTemplateObject, defaultLinkedLovelaceUpdatableConstants);
+    const result = walkViewForTemplates(view, onTemplateObject, defaultLinkedLovelaceUpdatableConstants.isTemplateKey);
     expect(result).toHaveLength(0);
     expect(onTemplateObject).not.toHaveBeenCalled();
   });
@@ -47,7 +47,7 @@ describe('walkViewForTemplates', () => {
             }
         ]
     }
-    const result = walkViewForTemplates(view, onTemplateObject, defaultLinkedLovelaceUpdatableConstants);
+    const result = walkViewForTemplates(view, onTemplateObject, defaultLinkedLovelaceUpdatableConstants.isTemplateKey);
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
         [defaultLinkedLovelaceUpdatableConstants.isTemplateKey]: "clock",

@@ -26,6 +26,7 @@ class TemplateController {
   }
 
   renderCard(card: DashboardCard): DashboardCard {
+    console.log("render", this, this)
     const renderedCard = updateCardTemplate(card, this.templates);
     return renderedCard;
   }

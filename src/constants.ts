@@ -1,4 +1,5 @@
 export const LINKED_LOVELACE_PARTIALS = 'linked-lovelace-partials'
+export const LINKED_LOVELACE_HOLDER = 'linked-lovelace-holder'
 export const LINKED_LOVELACE_TEMPLATE_REPLACEMENT_KEYS_KEY = 'll_keys'
 export const LINKED_LOVELACE_TEMPLATE_REPLACEMENT_KEY = 'll_key'
 export const LINKED_LOVELACE_TEMPLATE_KEY = 'll_template'

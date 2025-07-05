@@ -94,7 +94,7 @@ class HassController {
             }
           }
           this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`}, dashboard, view)
-          const templateCards = walkViewForTemplates(view, (card) => card, defaultLinkedLovelaceUpdatableConstants);
+          const templateCards = walkViewForTemplates(view, (card) => card, defaultLinkedLovelaceUpdatableConstants.isTemplateKey);
           return await Promise.all(templateCards.map(async (card) => {
             if (card.ll_key) {
               this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] [template:${card.ll_key}] [priority:${card.ll_priority || 0}] Discovered Template`}, dashboard, view, card)
@@ -160,6 +160,7 @@ class HassController {
       this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Finished Update`}, {dryRun, urlPath})
       return config
     } catch (e) {
+      console.error(e)
       this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Failed to render latest dashboard with templates and partials`}, {dryRun, urlPath})      
       return null;
     }

@@ -19,7 +19,7 @@ const sortPartialsByPriority = (partials: Record<string, LinkedLovelacePartial>)
 // This template supports partials, which are reusable chunks that can be used between templates
 class EtaTemplateController {
   partials!: Record<string, LinkedLovelacePartial>;
-  engine!: TemplateEngine;
+  engine: TemplateEngine = TemplateEngine.instance;
   
   constructor() {
     this.refresh()
@@ -27,7 +27,7 @@ class EtaTemplateController {
 
   // This clears the engine of any loaded templates, and resets the loaded partial data
   refresh() {
-    this.engine = new TemplateEngine();
+    this.engine.refresh();
     this.partials = {};
   }
 

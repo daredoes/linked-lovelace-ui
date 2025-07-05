@@ -1,15 +1,11 @@
 
 import { Eta } from 'eta';
 
-export const engine = new Eta({ varName: 'context', autoEscape: false, rmWhitespace: true });
+const freshEngine = () => new Eta({ varName: 'context', autoEscape: false, rmWhitespace: true });
 
 export class TemplateEngine {
   static self?: TemplateEngine
-  eta = engine;
-
-  constructor() {
-    this.refresh()
-  }
+  eta = freshEngine();
 
   static get instance(): TemplateEngine {
     if (this.self) {
@@ -20,6 +16,6 @@ export class TemplateEngine {
   }
 
   refresh() {
-    this.eta = new Eta({ varName: 'context', autoEscape: false });
+    this.eta = freshEngine();
   }
 }

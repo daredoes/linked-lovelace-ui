@@ -9,6 +9,7 @@
   "type": "module",
   "dependencies": {
     "@lit-labs/scoped-registry-mixin": "^1.0.1",
+    "@material/web": "^2.3.0",
     "axios": "^1.4.0",
     "custom-card-helpers": "^1.9.0",
     "eta": "./eta-3.0.3.tgz",
