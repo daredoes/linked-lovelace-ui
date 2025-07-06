@@ -3,7 +3,6 @@ import "src/types/global" // Add global types for custom-card-helpers
 import { LIB_VERSION } from 'src/version'; // Dynamically set during the build process
 import { Debug } from 'src/debug';
 // Cards to add to Home Assistant
-import 'src/linked-lovelace-holder';
 import 'src/linked-lovelace-status';
 import 'src/linked-lovelace-partials';
 import 'src/linked-lovelace-template';

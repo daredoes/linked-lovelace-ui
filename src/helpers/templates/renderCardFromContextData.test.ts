@@ -68,9 +68,9 @@ describe('renderCardFromContextData', () => {
     });
     expect(result).toEqual({
       type: 'custom:button-card',
-      name: 'Default Button Name',
+      name: 'My Button',
       ll_context: {
-        button_name: 'Default Button Name',
+        button_name: 'My Button',
         button_entity: 'light.default',
       },
     });
@@ -107,6 +107,45 @@ describe('renderCardFromContextData', () => {
         button_name: 'My Button',
       },
       ll_keys: ['button_name'],
+    });
+  });
+
+  it('should prioritize card context data over template context data', () => {
+    const sourceCardData: DashboardCard = {
+      type: 'custom:button-card',
+      ll_template: 'my_template',
+      ll_context: {
+        button_name: 'Card Name',
+      },
+    };
+    const templateData = {
+      my_template: {
+        type: 'custom:button-card',
+        name: '<%= context.button_name %>',
+        ll_context: {
+          button_name: 'Template Name',
+          button_entity: 'light.default',
+        },
+      },
+    };
+    const contextData = {
+      button_name: 'Card Name',
+    };
+    const result = renderCardFromContextData({
+      sourceCardData,
+      templateData,
+      contextData,
+      templateKey: 'my_template',
+      linkedLovelaceUpdatableConstants: defaultLinkedLovelaceUpdatableConstants,
+      onTemplateObject,
+    });
+    expect(result).toEqual({
+      type: 'custom:button-card',
+      name: 'Card Name',
+      ll_context: {
+        button_name: 'Card Name',
+        button_entity: 'light.default',
+      },
     });
   });
 });
