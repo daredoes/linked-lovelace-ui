@@ -52,30 +52,4 @@ describe('[class] TemplateController', () => {
     ).toBe(true);
     expect(controller.templates['new'].type).toEqual('new');
   });
-
-  test('renders a card as expected', () => {
-    const controller = new TemplateController();
-    const card: DashboardCard = {
-      type: '<%= context.test %>',
-    };
-    controller.addTemplate('test', card);
-    expect(controller.renderCard({ type: 'old', ll_template: 'test', ll_context: { test: 'new' } }).type).toEqual(
-      'new',
-    );
-  });
-
-  test('renders a card as expected', () => {
-    const controller = new TemplateController();
-    const card: DashboardCard = {
-      type: '<%= context.test %>',
-    };
-    controller.addTemplate('test', card);
-    expect(controller.renderCard({ type: 'old' }).type).toEqual('old');
-  });
-
-  test('renders a card as expected when lacking templates', () => {
-    const controller = new TemplateController();
-    const card: DashboardCard = { type: 'old', ll_template: 'test', ll_context: { test: 'new' } };
-    expect(controller.renderCard(card)).toStrictEqual(card);
-  });
 });

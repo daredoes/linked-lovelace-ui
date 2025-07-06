@@ -8,6 +8,8 @@ export const walkObject = <T>(obj: T, contextData: Record<string | number | symb
   // if has template key, do template work to replace obj and return
   if (objectHasValidKey(obj, linkedLovelaceUpdatableConstants.useTemplateKey)) {
     return onTemplateObject(obj as DashboardCard, contextData)
+  } else if (objectHasValidKey(obj, linkedLovelaceUpdatableConstants.isTemplateKey)) {
+    return obj
   }
   // if obj is an array, loop over it and replace each item
   if (Array.isArray(obj)) {
@@ -20,6 +22,7 @@ export const walkObject = <T>(obj: T, contextData: Record<string | number | symb
   if (typeof obj === 'object' && obj) {
     Object.entries(obj).forEach(([k, v]) => {
       if (k === linkedLovelaceUpdatableConstants.useTemplateKey) return;
+      if (typeof v !== "object") return;
       const newObject = walkObject(v, contextData, onTemplateObject, linkedLovelaceUpdatableConstants)
       if (newObject) obj[k] = newObject
     })

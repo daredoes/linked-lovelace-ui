@@ -42,7 +42,16 @@ class LinkedLovelaceController {
     const views = config.views;
     const templates = this.templateController.templates;
     Object.keys(views).forEach((viewKey: string) => {
-      views[viewKey] = walkAndReplace(views[viewKey], defaultLinkedLovelaceUpdatableConstants.useTemplateKey, (item) => updateCardTemplate(item, templates))
+      views[viewKey] = walkAndReplace(views[viewKey], defaultLinkedLovelaceUpdatableConstants.useTemplateKey, (item, skipUpdate) => {
+        if (skipUpdate) {
+          const templateKey = item[defaultLinkedLovelaceUpdatableConstants.useTemplateKey]
+          const result = {...(templates[templateKey] || {})}
+          if (!result) return item;
+          delete result[defaultLinkedLovelaceUpdatableConstants.isTemplateKey]
+          return {[defaultLinkedLovelaceUpdatableConstants.useTemplateKey]: templateKey, ...result}
+        }
+        return updateCardTemplate(item, templates)
+      })
     });
     config.views = views;
     return config;
