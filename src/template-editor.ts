@@ -8,7 +8,7 @@ import type { LinkedLovelaceTemplateCardConfig } from './types/LinkedLovelaceTem
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { customElement, property, state } from 'lit/decorators';
 import HassController from './controllers/hass';
-
+import { defaultLinkedLovelaceUpdatableConstants } from './constants';
 @customElement('linked-lovelace-template-editor')
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElement) implements LovelaceCardEditor {
@@ -127,7 +127,8 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
       } else {
         if (target.configValue === 'll_template') {
           const template: DashboardCard | undefined =
-            this._controller?.linkedLovelaceController.templateController.templates[target.value];
+            {...(this._controller?.linkedLovelaceController.templateController.templates[target.value] || {})};
+          delete template[defaultLinkedLovelaceUpdatableConstants.isTemplateKey]
           this._config = {
             /* @ts-ignore we want this to be first in the output, but need to make sure the value is correct */
             [target.configValue]: target.checked !== undefined ? target.checked : target.value,

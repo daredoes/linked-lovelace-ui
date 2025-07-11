@@ -12,6 +12,7 @@ interface DidAddKeyFromTemplate {
   templateData: Record<string | number | symbol, any>,
   templateKey: string | number | symbol,
   onTemplateObject: OnTemplateObject,
+  skipUpdate?: boolean,
 }
 
 export const didAddKeyFromTemplate = ({
@@ -21,11 +22,13 @@ export const didAddKeyFromTemplate = ({
   templateData,
   templateKey,
   onTemplateObject,
+  skipUpdate,
 }: DidAddKeyFromTemplate): DashboardCard | undefined => {
-  const { useTemplateKey, contextKeys, contextKey } = linkedLovelaceUpdatableConstants
-  if (objectHasValidKey(templateData, templateKey)) {
+  const { useTemplateKey, contextKeys, contextKey, isTemplateKey } = linkedLovelaceUpdatableConstants
+  if (objectHasValidKey(templateData, templateKey) || objectHasValidKey(originalCardData, isTemplateKey)) {
     let data = Object.assign({}, originalCardData);
-    if (contextData) {
+    console.log(templateKey, data, skipUpdate, contextData)
+    if (contextData && !skipUpdate) {
       data = renderCardFromContextData({
         contextData,
         linkedLovelaceUpdatableConstants,
@@ -36,7 +39,8 @@ export const didAddKeyFromTemplate = ({
       })
     } else {
       // Put template value as new value
-      data = templateData[templateKey];
+      data = {[useTemplateKey]: templateKey, ...templateData[templateKey]};
+      delete data[isTemplateKey]
     }
     // Put template key back in card
     data = { ...{ [useTemplateKey]: templateKey, [contextKeys]: originalCardData[contextKeys], ...data }, [useTemplateKey]: templateKey, [contextKeys]: originalCardData[contextKeys] };

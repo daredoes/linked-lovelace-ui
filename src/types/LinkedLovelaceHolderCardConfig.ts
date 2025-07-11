@@ -5,5 +5,6 @@ export interface LinkedLovelaceHolderCardConfig extends LovelaceCardConfig {
   ll_key?: string;
   ll_context?: Record<string, unknown>
   cards?: Record<string, unknown>[]
+  priority?: number
   [x: string]:  unknown
 }

@@ -24,6 +24,7 @@ class LinkedLovelaceController {
   registerTemplates = (templates: Record<string, DashboardCard>): void => {
     sortTemplatesByPriority(templates).forEach((key) => {
       const template = templates[key];
+      console.log(key, template)
       this.templateController.renderAndAddTemplate(key, template);
     });
   };
@@ -45,10 +46,19 @@ class LinkedLovelaceController {
       views[viewKey] = walkAndReplace(views[viewKey], defaultLinkedLovelaceUpdatableConstants.useTemplateKey, (item, skipUpdate) => {
         if (skipUpdate) {
           const templateKey = item[defaultLinkedLovelaceUpdatableConstants.useTemplateKey]
+          const contextData = item[defaultLinkedLovelaceUpdatableConstants.contextKey]
+          const contextKeys = item[defaultLinkedLovelaceUpdatableConstants.contextKeys]
           const result = {...(templates[templateKey] || {})}
           if (!result) return item;
+          if (contextData) {
+            result[defaultLinkedLovelaceUpdatableConstants.contextKey] = contextData
+          }
+          if (contextKeys) {
+            result[defaultLinkedLovelaceUpdatableConstants.contextKeys] = contextKeys
+          }
           delete result[defaultLinkedLovelaceUpdatableConstants.isTemplateKey]
-          return {[defaultLinkedLovelaceUpdatableConstants.useTemplateKey]: templateKey, ...result}
+          // now that we've swapped the template in, render any context and whatnot related to it
+          return updateCardTemplate({[defaultLinkedLovelaceUpdatableConstants.useTemplateKey]: templateKey, ...result}, templates)
         }
         return updateCardTemplate(item, templates)
       })

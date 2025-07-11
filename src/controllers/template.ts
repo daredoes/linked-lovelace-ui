@@ -20,6 +20,7 @@ class TemplateController {
   renderAndAddTemplate(key: string, template: DashboardCard): boolean {
     const data = {...template}
     const renderedTemplate = updateCardTemplate(data, this.templates);
+    console.log(key, renderedTemplate)
     return this.addTemplate(key, renderedTemplate, true);
   }
 }

@@ -38,6 +38,7 @@ export const getPartialsFromCard = async (card: DashboardCard): Promise<Record<s
     // iterates over list of partials listed in the card, which are objects that may contain data that should be asynchronously downloaded
     const parsing = await Promise.all(parentCard.partials?.map(loadPartialData) || [])
     // Once all asynchronous chunks have loaded data into the parent dictionary, continue
+    console.log("data", parsing)
     parsing.forEach((data) => {
       partials = {...partials, ...data}
     })
