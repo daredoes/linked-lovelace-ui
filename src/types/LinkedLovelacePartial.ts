@@ -3,4 +3,5 @@ export interface LinkedLovelacePartial {
     url?: string
     template?: string
     priority?: number
+    ll_priority?: number
 }

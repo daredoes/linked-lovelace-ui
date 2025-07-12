@@ -4,8 +4,8 @@ import type { LinkedLovelaceHolderCardConfig } from "../../types/LinkedLovelaceH
 type PriorityCards = LinkedLovelacePartial | LinkedLovelaceHolderCardConfig;
 
 const sortPriorityCardsByPriorityFunc = ([_, partialA]: [string, PriorityCards], [__, partialB]: [string, PriorityCards]) => {
-    const priorityA = partialA.priority || 0
-    const priorityB = partialB.priority || 0
+    const priorityA = partialA.ll_priority || 0
+    const priorityB = partialB.ll_priority || 0
     return priorityA - priorityB
 }
 

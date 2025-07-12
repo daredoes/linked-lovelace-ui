@@ -4,6 +4,7 @@ import { defaultLinkedLovelaceUpdatableConstants, LINKED_LOVELACE_PARTIALS } fro
 import type { LinkedLovelacePartial } from '../types/LinkedLovelacePartial';
 import type { DashboardPartialsCard } from '../types/DashboardPartialsCard'
 import type { DashboardView } from '../types/DashboardView'
+import { DashboardHolderCard } from '../types/DashboardHolderCard';
 
 const defaultTemplateCard: DashboardCard = {
     type: "card",
@@ -62,8 +63,8 @@ describe('TemplateEngine', () => {
       });
 
       it('should respect priority', () => {
-        const template1 = {...defaultTemplateCard, priority: 2};
-        const template2 = {...defaultTemplateCard, priority: 1};
+        const template1 = {...defaultTemplateCard, ll_priority: 2};
+        const template2 = {...defaultTemplateCard, ll_priority: 1};
         const loadedKeys = engine.loadTemplates({ template1, template2 });
         expect(loadedKeys).toHaveLength(2);
         expect(loadedKeys[0]).toBe('template2');
@@ -79,8 +80,8 @@ describe('TemplateEngine', () => {
 
 
     it('should respect priority', () => {
-        const partial1 = { template: 'Partial 1', priority: 2 };
-        const partial2 = { template: 'Partial 2', priority: 1 };
+        const partial1 = { template: 'Partial 1', ll_priority: 2 };
+        const partial2 = { template: 'Partial 2', ll_priority: 1 };
         const loadedKeys = engine.loadPartials({ partial1, partial2 });
         expect(loadedKeys).toHaveLength(2);
         expect(loadedKeys[0]).toBe('partial2');
@@ -112,6 +113,8 @@ describe('TemplateEngine', () => {
       }
         engine.registerTemplate(partialTemplateCard);
         const rendered = engine.renderTemplate('test', {});
+        delete partialTemplateCard[defaultLinkedLovelaceUpdatableConstants.isTemplateKey];
+        partialTemplateCard[defaultLinkedLovelaceUpdatableConstants.useTemplateKey] = 'test';
         expect(rendered).toStrictEqual({...partialTemplateCard, content: "My Partial"})
       });
 
@@ -135,4 +138,122 @@ describe('TemplateEngine', () => {
       });
   });
   
+  describe('Complex', () => {
+    // the following scenario represents a complex nested card setup used for creating a mini menu dynamically
+    const modeButtonKey = "mode_button"
+    const modeRowKey = "mode_row"
+    const modeRowContextKey = "mode_row_context"
+
+    const modeButtonCard: DashboardHolderCard = {
+      type: "custom",
+      ll_key: modeButtonKey,
+      button: "<%= context.name %>"
+    }
+
+    const modeButtonA: DashboardHolderCard = {
+      type: "custom",
+      ll_template: modeButtonKey,
+      ll_context: {
+        name: "Mode Button A"
+      },
+      button: "Mode Button A"
+    }
+
+    const modeButtonB: DashboardHolderCard = {
+      type: "custom",
+      ll_template: modeButtonKey,
+      ll_context: {
+        name: "Mode Button B"
+      },
+      button: "Mode Button B"
+    }
+
+    const modeRowTemplate: DashboardHolderCard = {
+      type: "row",
+      ll_key: modeRowKey,
+      cards: [modeButtonA, modeButtonB]
+    }
+
+    const modeRowContextTemplate: DashboardHolderCard = {
+      type: "row_context",
+      ll_key: modeRowContextKey,
+      cards: [
+        {
+          type: "custom",
+          ll_template: modeButtonKey,
+          ll_context: {
+            name: "<%= context.name_a %>"
+          },
+        },
+        {
+          type: "custom",
+          ll_template: modeButtonKey,
+          ll_context: {
+            name: "<%= context.name_b %>"
+          },
+        }
+      ]
+    }
+
+    const modeRowContextCard: DashboardHolderCard = {
+      type: "row_context",
+      ll_template: modeRowContextKey,
+      ll_context: {
+        name_a: "Mode Button A",
+        name_b: "Mode Button B"
+      },
+      cards: [
+        {
+          type: "custom",
+          ll_template: modeButtonKey,
+          ll_context: {
+            name: "Mode Button A",
+            name_a: "Mode Button A",
+            name_b: "Mode Button B"
+          },
+          button: "Mode Button A"
+        },
+        {
+          type: "custom",
+          ll_template: modeButtonKey,
+          ll_context: {
+            name: "Mode Button B",
+            name_a: "Mode Button A",
+            name_b: "Mode Button B"
+          },
+          button: "Mode Button B"
+        }
+      ]
+    }
+
+
+
+    const modeRowCard: DashboardHolderCard = {
+      type: "row",
+      ll_template: modeRowKey,
+      cards: [modeButtonA, modeButtonB]
+    }
+
+    const modeView: DashboardView = {
+      type: "view",
+      cards: [modeButtonCard, modeRowTemplate, modeRowContextTemplate],
+      title: 'Test View'
+    }
+
+
+    it('should render a complex view', async () => {
+      const loaded = await engine.addPartialsAndTemplatesFromView(modeView);
+      expect(loaded.templates).toStrictEqual({[modeRowKey]: modeRowTemplate, [modeButtonKey]: modeButtonCard, [modeRowContextKey]: modeRowContextTemplate});
+      expect(loaded.partials).toStrictEqual({});
+
+      const renderedTemplate = engine.renderTemplate(modeRowKey, {});
+      expect(renderedTemplate).toStrictEqual(modeRowCard);
+
+      const renderedContextTemplate = engine.renderTemplate(modeRowContextKey, {
+        name_a: "Mode Button A",
+        name_b: "Mode Button B"
+      });
+      expect(renderedContextTemplate).toStrictEqual(modeRowContextCard);
+    });
+  });
 });

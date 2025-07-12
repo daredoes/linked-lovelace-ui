@@ -8,8 +8,9 @@ import { walkViewForPartialsAndTemplates } from '../helpers/templates/walkViewFo
 import type { PartialsAndTemplates } from '../helpers/templates/types';
 import { defaultLinkedLovelaceUpdatableConstants } from '../constants';
 import type { DashboardView } from '../types/DashboardView';
+import { walkAndReplace } from '../helpers/templates/walkAndReplace';
 
-const freshEngine = () => new Eta({ useWith: true,
+const freshEngine = () => new Eta({ varName: "context",
   autoEscape: false,
    rmWhitespace: true,
   autoFilter: true,
@@ -44,22 +45,78 @@ export class TemplateEngine {
   }
 
   registerTemplate = (templateCardData: DashboardHolderCard) => {
-    this.templates[templateCardData[defaultLinkedLovelaceUpdatableConstants.isTemplateKey]] = templateCardData;
-    return templateCardData;
+    const templateKey = templateCardData[defaultLinkedLovelaceUpdatableConstants.isTemplateKey]
+    this.templates[templateKey] = walkAndReplace(templateCardData, defaultLinkedLovelaceUpdatableConstants.useTemplateKey, (item) => {
+      const newKey = item[defaultLinkedLovelaceUpdatableConstants.useTemplateKey]
+      const newItem = JSON.parse(JSON.stringify(this.templates[newKey]));
+      if (newItem) {
+        newItem[defaultLinkedLovelaceUpdatableConstants.useTemplateKey] = newKey;
+        delete newItem[defaultLinkedLovelaceUpdatableConstants.isTemplateKey];
+
+        if (item[defaultLinkedLovelaceUpdatableConstants.contextKey]) {
+          newItem[defaultLinkedLovelaceUpdatableConstants.contextKey] = item[defaultLinkedLovelaceUpdatableConstants.contextKey]
+        }
+        if (item[defaultLinkedLovelaceUpdatableConstants.contextKeys]) {
+          newItem[defaultLinkedLovelaceUpdatableConstants.contextKeys] = item[defaultLinkedLovelaceUpdatableConstants.contextKeys]
+        }
+        if (item[defaultLinkedLovelaceUpdatableConstants.priorityKey]) {
+          newItem[defaultLinkedLovelaceUpdatableConstants.priorityKey] = item[defaultLinkedLovelaceUpdatableConstants.priorityKey]
+        }
+        return newItem;
+      }
+      return item;
+    })
+    return this.templates[templateKey];
   }
 
   renderTemplate = (templateKey: string, contextData: Record<string | number | symbol, any>) => {
     // If data in template, find and replace each key
-    const templateCardData = this.templates[templateKey];
-    let template = JSON.stringify(templateCardData);
+    const templateCardData = JSON.parse(JSON.stringify(this.templates[templateKey]));
+    if (!templateCardData) return undefined;
+    if (typeof contextData === "object" && Object.keys(contextData).length) {
+      templateCardData[defaultLinkedLovelaceUpdatableConstants.contextKey] = contextData;
+    }
+    let renderedTemplate = {}
     try {
-      template = this.eta.renderString(template, contextData)
-      // Convert rendered string back to JSON
-      return JSON.parse(template) as DashboardCard;
+    renderedTemplate = JSON.parse(this.eta.renderString(JSON.stringify(templateCardData), contextData))
+      delete renderedTemplate[defaultLinkedLovelaceUpdatableConstants.useTemplateKey];
+    delete renderedTemplate[defaultLinkedLovelaceUpdatableConstants.isTemplateKey];
     } catch (e) {
       console.error(e);
-      return undefined
+      return undefined;
     }
+    const finalTemplate = walkAndReplace(renderedTemplate, defaultLinkedLovelaceUpdatableConstants.useTemplateKey, (item) => {
+      const priorContextData = {...JSON.parse(JSON.stringify(item[defaultLinkedLovelaceUpdatableConstants.contextKey] || {}))}
+      const newItem = this.renderTemplate(item[defaultLinkedLovelaceUpdatableConstants.useTemplateKey], {
+        ...contextData,
+        ...JSON.parse(
+            this.eta.renderString(
+                JSON.stringify(
+                    item[defaultLinkedLovelaceUpdatableConstants.contextKey] || {}
+                ), contextData
+            )
+        )});
+      if (newItem) {
+        if (priorContextData) {
+          const curr = newItem[defaultLinkedLovelaceUpdatableConstants.contextKey]
+          newItem[defaultLinkedLovelaceUpdatableConstants.contextKey] = typeof curr === 'undefined' ? {...priorContextData} : {...curr, ...priorContextData}
+        }
+        if (item[defaultLinkedLovelaceUpdatableConstants.contextKeys]) {
+          const curr = newItem[defaultLinkedLovelaceUpdatableConstants.contextKeys]
+          newItem[defaultLinkedLovelaceUpdatableConstants.contextKeys] = typeof curr === 'undefined' ? item[defaultLinkedLovelaceUpdatableConstants.contextKeys] : Array.isArray(curr) ? [...curr, ...item[defaultLinkedLovelaceUpdatableConstants.contextKeys]] : {...curr, ...item[defaultLinkedLovelaceUpdatableConstants.contextKeys]}
+        }
+        if (item[defaultLinkedLovelaceUpdatableConstants.priorityKey]) {
+          newItem[defaultLinkedLovelaceUpdatableConstants.priorityKey] = item[defaultLinkedLovelaceUpdatableConstants.priorityKey]
+        }
+        return newItem;
+      }
+      return item;
+    });
+    finalTemplate[defaultLinkedLovelaceUpdatableConstants.useTemplateKey] = templateKey;
+    // if (typeof contextData === "object" && Object.keys(contextData).length) {
+    //   finalTemplate[defaultLinkedLovelaceUpdatableConstants.contextKey] = contextData;
+    // }
+    return finalTemplate;
   }
 
   // Loads the template into the engine, or catches the error if one occurs parsing the template
