@@ -1,0 +1,230 @@
+yarn run v1.22.22
+$ npm run make-version
+npm warn Unknown env config "version-commit-hooks". This will stop working in the next major version of npm.
+npm warn Unknown env config "version-tag-prefix". This will stop working in the next major version of npm.
+npm warn Unknown env config "version-git-message". This will stop working in the next major version of npm.
+npm warn Unknown env config "argv". This will stop working in the next major version of npm.
+npm warn Unknown env config "version-git-tag". This will stop working in the next major version of npm.
+
+> linked-lovelace-ui@2.2.5 make-version
+> node -p "'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'" > src/version.ts
+
+$ rollup -c --watch
+[4mrollup v3.25.2[24m
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[33m(!) Error when using sourcemap for reporting an error: Can't resolve original location of error.[39m[22m
+[1msrc/diff-viewer.ts (5:9)[22m
+[1m[33m(!) "this" has been rewritten to "undefined"[39m[22m
+[90mhttps://rollupjs.org/troubleshooting/#error-this-is-undefined[39m
+[1mnode_modules/@formatjs/intl-utils/lib/src/resolve-locale.js[22m
+[90m1: var __extends = (this && this.__extends) || (function () {
+                    ^
+2:     var extendStatics = function (d, b) {
+3:         extendStatics = Object.setPrototypeOf ||[39m
+...and 3 other occurrences
+[1mnode_modules/@formatjs/intl-utils/lib/src/diff.js[22m
+[90m1: var __assign = (this && this.__assign) || function () {
+                   ^
+2:     __assign = Object.assign || function(t) {
+3:         for (var s, i = 1, n = arguments.length; i < n; i++) {[39m
+...and 1 other occurrence
+[1m[31m[!] [1m(plugin rpt2) RollupError: "diffLines" is not exported by "node_modules/diff/dist/diff.js", imported by "src/diff-viewer.ts".[22m[1m[39m[22m
+[36mhttps://rollupjs.org/troubleshooting/#error-name-is-not-exported-by-module[39m
+src/diff-viewer.ts (5:9)
+[2m3: import { property } from 'lit/decorators.js';
+4: import { fireEvent } from 'custom-card-helpers';
+5: import { diffLines } from 'diff';
+            ^
+6: class DiffViewer extends LitElement {
+7:     constructor() {[22m
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Module.error (/app/node_modules/rollup/dist/shared/rollup.js:15060:16)
+    at Module.traceVariable (/app/node_modules/rollup/dist/shared/rollup.js:15485:29)
+    at ModuleScope.findVariable (/app/node_modules/rollup/dist/shared/rollup.js:14010:39)
+    at ChildScope.findVariable (/app/node_modules/rollup/dist/shared/rollup.js:8570:38)
+    at ClassBodyScope.findVariable (/app/node_modules/rollup/dist/shared/rollup.js:8570:38)
+    at ChildScope.findVariable (/app/node_modules/rollup/dist/shared/rollup.js:8570:38)
+    at FunctionScope.findVariable (/app/node_modules/rollup/dist/shared/rollup.js:8570:38)
+    at ChildScope.findVariable (/app/node_modules/rollup/dist/shared/rollup.js:8570:38)
+    at Identifier.bind (/app/node_modules/rollup/dist/shared/rollup.js:9730:40)[22m
+
+
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[31m[!] [1m(plugin rpt2) RollupError: [96msrc/template-manager.ts[0m:[93m22[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'templates' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m22[0m         Eta.templates.define(key, Eta.compile(template));
+[7m  [0m [91m            ~~~~~~~~~[0m
+[96msrc/template-manager.ts[0m:[93m22[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 'compile' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m22[0m         Eta.templates.define(key, Eta.compile(template));
+[7m  [0m [91m                                      ~~~~~~~[0m
+[96msrc/template-manager.ts[0m:[93m34[0m:[93m9[0m - [91merror[0m[90m TS2339: [0mProperty 'templates' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m34[0m     Eta.templates.reset();
+[7m  [0m [91m        ~~~~~~~~~[0m
+[96msrc/template-manager.ts[0m:[93m82[0m:[93m34[0m - [91merror[0m[90m TS2339: [0mProperty 'render' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m82[0m       const renderedString = Eta.render(templateString, { context });
+[7m  [0m [91m                                 ~~~~~~[0m
+[22m[1m[39m[22m
+src/linked-lovelace-ui.ts
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Object.error (/app/node_modules/rollup/dist/shared/rollup.js:1703:20)
+    at RollupContext.error (/app/node_modules/rollup-plugin-typescript2/src/context.ts:35:17)
+    at /app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:70:17
+    at Array.forEach (<anonymous>)
+    at printDiagnostics (/app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:42:14)
+    at typecheckFile (/app/node_modules/rollup-plugin-typescript2/src/index.ts:67:3)
+    at Object.<anonymous> (/app/node_modules/rollup-plugin-typescript2/src/index.ts:260:5)
+    at Generator.next (<anonymous>)
+    at /app/node_modules/rollup-plugin-typescript2/node_modules/tslib/tslib.es6.js:76:71[22m
+
+
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[31m[!] [1m(plugin rpt2) RollupError: [96msrc/template-manager.ts[0m:[93m22[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'templates' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m22[0m         Eta.templates.define(key, Eta.compile(template));
+[7m  [0m [91m            ~~~~~~~~~[0m
+[96msrc/template-manager.ts[0m:[93m22[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 'compile' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m22[0m         Eta.templates.define(key, Eta.compile(template));
+[7m  [0m [91m                                      ~~~~~~~[0m
+[96msrc/template-manager.ts[0m:[93m34[0m:[93m9[0m - [91merror[0m[90m TS2339: [0mProperty 'templates' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m34[0m     Eta.templates.reset();
+[7m  [0m [91m        ~~~~~~~~~[0m
+[96msrc/template-manager.ts[0m:[93m82[0m:[93m34[0m - [91merror[0m[90m TS2339: [0mProperty 'render' does not exist on type 'typeof import("/app/node_modules/eta/dist/types/index")'.
+
+[7m82[0m       const renderedString = Eta.render(templateString, { context });
+[7m  [0m [91m                                 ~~~~~~[0m
+[22m[1m[39m[22m
+src/linked-lovelace-ui.ts
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Object.error (/app/node_modules/rollup/dist/shared/rollup.js:1703:20)
+    at RollupContext.error (/app/node_modules/rollup-plugin-typescript2/src/context.ts:35:17)
+    at /app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:70:17
+    at Array.forEach (<anonymous>)
+    at printDiagnostics (/app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:42:14)
+    at typecheckFile (/app/node_modules/rollup-plugin-typescript2/src/index.ts:67:3)
+    at Object.<anonymous> (/app/node_modules/rollup-plugin-typescript2/src/index.ts:260:5)
+    at Generator.next (<anonymous>)
+    at /app/node_modules/rollup-plugin-typescript2/node_modules/tslib/tslib.es6.js:76:71[22m
+
+
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[31m[!] [1m(plugin rpt2) RollupError: [96msrc/linked-lovelace-ui.ts[0m:[93m55[0m:[93m5[0m - [91merror[0m[90m TS2741: [0mProperty 'type' is missing in type 'Record<string, any>' but required in type 'Card'.
+
+[7m55[0m     this._originalConfig = originalConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types.ts[0m:[93m22[0m:[93m3[0m
+    [7m22[0m   type: string;
+    [7m  [0m [96m  ~~~~[0m
+    'type' is declared here.
+[96msrc/linked-lovelace-ui.ts[0m:[93m56[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'Record<string, any>' is not assignable to type 'Card'.
+
+[7m56[0m     this._newConfig = newConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~[0m
+[22m[1m[39m[22m
+src/linked-lovelace-ui.ts
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Object.error (/app/node_modules/rollup/dist/shared/rollup.js:1703:20)
+    at RollupContext.error (/app/node_modules/rollup-plugin-typescript2/src/context.ts:35:17)
+    at /app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:70:17
+    at Array.forEach (<anonymous>)
+    at printDiagnostics (/app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:42:14)
+    at typecheckFile (/app/node_modules/rollup-plugin-typescript2/src/index.ts:67:3)
+    at Object.<anonymous> (/app/node_modules/rollup-plugin-typescript2/src/index.ts:260:5)
+    at Generator.next (<anonymous>)
+    at /app/node_modules/rollup-plugin-typescript2/node_modules/tslib/tslib.es6.js:76:71[22m
+
+
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[31m[!] [1m(plugin rpt2) RollupError: [96msrc/linked-lovelace-ui.ts[0m:[93m55[0m:[93m5[0m - [91merror[0m[90m TS2741: [0mProperty 'type' is missing in type 'Record<string, any>' but required in type 'Card'.
+
+[7m55[0m     this._originalConfig = originalConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types.ts[0m:[93m22[0m:[93m3[0m
+    [7m22[0m   type: string;
+    [7m  [0m [96m  ~~~~[0m
+    'type' is declared here.
+[96msrc/linked-lovelace-ui.ts[0m:[93m56[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'Record<string, any>' is not assignable to type 'Card'.
+
+[7m56[0m     this._newConfig = newConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~[0m
+[22m[1m[39m[22m
+src/linked-lovelace-ui.ts
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Object.error (/app/node_modules/rollup/dist/shared/rollup.js:1703:20)
+    at RollupContext.error (/app/node_modules/rollup-plugin-typescript2/src/context.ts:35:17)
+    at /app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:70:17
+    at Array.forEach (<anonymous>)
+    at printDiagnostics (/app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:42:14)
+    at typecheckFile (/app/node_modules/rollup-plugin-typescript2/src/index.ts:67:3)
+    at Object.<anonymous> (/app/node_modules/rollup-plugin-typescript2/src/index.ts:260:5)
+    at Generator.next (<anonymous>)
+    at /app/node_modules/rollup-plugin-typescript2/node_modules/tslib/tslib.es6.js:76:71[22m
+
+
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[31m[!] [1m(plugin rpt2) RollupError: [96msrc/linked-lovelace-ui.ts[0m:[93m55[0m:[93m5[0m - [91merror[0m[90m TS2741: [0mProperty 'type' is missing in type 'Record<string, any>' but required in type 'Card'.
+
+[7m55[0m     this._originalConfig = originalConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types.ts[0m:[93m22[0m:[93m3[0m
+    [7m22[0m   type: string;
+    [7m  [0m [96m  ~~~~[0m
+    'type' is declared here.
+[96msrc/linked-lovelace-ui.ts[0m:[93m56[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'Record<string, any>' is not assignable to type 'Card'.
+
+[7m56[0m     this._newConfig = newConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~[0m
+[22m[1m[39m[22m
+src/linked-lovelace-ui.ts
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Object.error (/app/node_modules/rollup/dist/shared/rollup.js:1703:20)
+    at RollupContext.error (/app/node_modules/rollup-plugin-typescript2/src/context.ts:35:17)
+    at /app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:70:17
+    at Array.forEach (<anonymous>)
+    at printDiagnostics (/app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:42:14)
+    at typecheckFile (/app/node_modules/rollup-plugin-typescript2/src/index.ts:67:3)
+    at Object.<anonymous> (/app/node_modules/rollup-plugin-typescript2/src/index.ts:260:5)
+    at Generator.next (<anonymous>)
+    at /app/node_modules/rollup-plugin-typescript2/node_modules/tslib/tslib.es6.js:76:71[22m
+
+
+[36mbundles [1msrc/linked-lovelace-ui.ts[22m → [1mdist[22m...[39m
+[1m[31m[!] [1m(plugin rpt2) RollupError: [96msrc/linked-lovelace-ui.ts[0m:[93m55[0m:[93m5[0m - [91merror[0m[90m TS2741: [0mProperty 'type' is missing in type 'Record<string, any>' but required in type 'Card'.
+
+[7m55[0m     this._originalConfig = originalConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types.ts[0m:[93m22[0m:[93m3[0m
+    [7m22[0m   type: string;
+    [7m  [0m [96m  ~~~~[0m
+    'type' is declared here.
+[96msrc/linked-lovelace-ui.ts[0m:[93m56[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'Record<string, any>' is not assignable to type 'Card'.
+
+[7m56[0m     this._newConfig = newConfigs;
+[7m  [0m [91m    ~~~~~~~~~~~~~~~[0m
+[22m[1m[39m[22m
+src/linked-lovelace-ui.ts
+[2m
+    at error (/app/node_modules/rollup/dist/shared/rollup.js:349:30)
+    at Object.error (/app/node_modules/rollup/dist/shared/rollup.js:1703:20)
+    at RollupContext.error (/app/node_modules/rollup-plugin-typescript2/src/context.ts:35:17)
+    at /app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:70:17
+    at Array.forEach (<anonymous>)
+    at printDiagnostics (/app/node_modules/rollup-plugin-typescript2/src/diagnostics.ts:42:14)
+    at typecheckFile (/app/node_modules/rollup-plugin-typescript2/src/index.ts:67:3)
+    at Object.<anonymous> (/app/node_modules/rollup-plugin-typescript2/src/index.ts:260:5)
+    at Generator.next (<anonymous>)
+    at /app/node_modules/rollup-plugin-typescript2/node_modules/tslib/tslib.es6.js:76:71[22m
