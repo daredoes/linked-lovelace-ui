@@ -1,24 +1,19 @@
-import { getHass, log } from "./helpers";
+import { log } from './helpers';
 
 export class Debug {
-  static self?: Debug
+  private static self?: Debug;
+  public debug = false;
 
-  debug = false;
-  dryRun = false;
-
-  log(msg: any, ...values: any[]): void {
-    if (this.debug) {
-      log(msg, ...values);
+  public static get instance(): Debug {
+    if (!this.self) {
+      this.self = new Debug();
     }
-  }
-
-  static get instance(): Debug {
-    if (this.self) {
-      return this.self;
-    }
-    const hass = getHass();
-    this.self = new Debug();
     return this.self;
   }
 
+  public log(message: any, ...optionalParams: any[]) {
+    if (this.debug) {
+      log(message, ...optionalParams);
+    }
+  }
 }

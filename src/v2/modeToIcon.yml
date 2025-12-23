@@ -1,8 +1,0 @@
-<% let mode = context.mode ? context.mode.toLowerCase() : '' _%>
-<%_ if (mode === "passive") { _%>
-mdi:peace
-<%_ } else if (mode === 'off') { _%>
-mdi:power
-<%_ } else { _%>
-mdi:progress-question
-<%_ } _%>

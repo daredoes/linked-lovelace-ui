@@ -9,8 +9,10 @@
   "type": "module",
   "dependencies": {
     "@lit-labs/scoped-registry-mixin": "^1.0.1",
+    "@types/diff": "^8.0.0",
     "axios": "^1.4.0",
     "custom-card-helpers": "^1.9.0",
+    "diff": "^8.0.2",
     "eta": "./eta-3.0.3.tgz",
     "home-assistant-js-websocket": "^8.0.1",
     "jest": "^29.5.0",
