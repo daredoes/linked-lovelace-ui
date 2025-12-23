@@ -6,13 +6,18 @@ jest.mock('../src/api');
 
 describe('TemplateManager', () => {
   let hass: HomeAssistant;
+  let templateManager: TemplateManager;
+  let mockApi: Api;
 
   beforeEach(() => {
     hass = {} as HomeAssistant;
+    // Reset the singleton instance before each test
+    (TemplateManager as any).instance = undefined;
+    templateManager = TemplateManager.getInstance(hass);
+    mockApi = (templateManager as any).api;
   });
 
   it('should be defined', () => {
-    const templateManager = new TemplateManager(hass);
     expect(templateManager).toBeDefined();
   });
 
@@ -40,14 +45,9 @@ describe('TemplateManager', () => {
         },
       ],
     };
-    (Api as jest.Mock).mockImplementation(() => {
-      return {
-        getDashboards: () => Promise.resolve(mockDashboards),
-        getDashboardConfig: () => Promise.resolve(mockConfig),
-      };
-    });
+    jest.spyOn(mockApi, 'getDashboards').mockResolvedValue(mockDashboards);
+    jest.spyOn(mockApi, 'getDashboardConfig').mockResolvedValue(mockConfig);
 
-    const templateManager = new TemplateManager(hass);
     await templateManager.discoverTemplatesAndPartials();
 
     expect(templateManager['templates'].get('test-template')).toEqual({
@@ -58,7 +58,6 @@ describe('TemplateManager', () => {
   });
 
   it('should render a template', async () => {
-    const templateManager = new TemplateManager(hass);
     templateManager['templates'].set('test-template', {
       type: 'markdown',
       content: '<%= context.name %>',
@@ -86,6 +85,7 @@ describe('TemplateManager', () => {
         {
           cards: [
             {
+              type: 'custom:linked-lovelace-template',
               ll_template: 'test-template',
               ll_context: { name: 'test' },
             },
@@ -93,13 +93,8 @@ describe('TemplateManager', () => {
         },
       ],
     };
-    (Api as jest.Mock).mockImplementation(() => {
-      return {
-        getDashboards: () => Promise.resolve(mockDashboards),
-        getDashboardConfig: () => Promise.resolve(mockConfig),
-      };
-    });
-    const templateManager = new TemplateManager(hass);
+    jest.spyOn(mockApi, 'getDashboards').mockResolvedValue(mockDashboards);
+    jest.spyOn(mockApi, 'getDashboardConfig').mockResolvedValue(mockConfig);
     templateManager.discoverTemplatesAndPartials = jest.fn();
     templateManager['templates'].set('test-template', {
       type: 'markdown',
@@ -111,5 +106,68 @@ describe('TemplateManager', () => {
       type: 'markdown',
       content: 'test',
     });
+  });
+
+  it('should populate examples', async () => {
+    const mockConfig = {
+      views: [],
+    };
+    const setDashboardConfig = jest.spyOn(mockApi, 'setDashboardConfig').mockResolvedValue();
+    jest.spyOn(mockApi, 'getDashboardConfig').mockResolvedValue(mockConfig);
+    await templateManager.populateExamples('test-dashboard');
+    expect(setDashboardConfig).toHaveBeenCalledWith('test-dashboard', {
+      views: expect.any(Array),
+    });
+  });
+
+  it('should render a nested template', () => {
+    templateManager['templates'].set('template-a', {
+      type: 'custom:linked-lovelace-template',
+      ll_template: 'template-b',
+      ll_context: { name: 'Nested' },
+    });
+    templateManager['templates'].set('template-b', {
+      type: 'markdown',
+      content: 'Hello, <%= context.name %>!',
+    });
+    const renderedCard = templateManager.renderTemplate('template-a', {});
+    expect(renderedCard).toEqual({
+      type: 'markdown',
+      content: 'Hello, Nested!',
+    });
+  });
+
+  it('should render a deeply nested template', () => {
+    templateManager['templates'].set('template-a', {
+      type: 'custom:linked-lovelace-template',
+      ll_template: 'template-b',
+    });
+    templateManager['templates'].set('template-b', {
+      type: 'custom:linked-lovelace-template',
+      ll_template: 'template-c',
+    });
+    templateManager['templates'].set('template-c', {
+      type: 'markdown',
+      content: 'Deeply nested',
+    });
+    const renderedCard = templateManager.renderTemplate('template-a', {});
+    expect(renderedCard).toEqual({
+      type: 'markdown',
+      content: 'Deeply nested',
+    });
+  });
+
+  it('should detect an infinite loop', () => {
+    templateManager['templates'].set('template-a', {
+      type: 'custom:linked-lovelace-template',
+      ll_template: 'template-b',
+    });
+    templateManager['templates'].set('template-b', {
+      type: 'custom:linked-lovelace-template',
+      ll_template: 'template-a',
+    });
+    const renderedCard = templateManager.renderTemplate('template-a', {});
+    expect(renderedCard.type).toBe('error');
+    expect(renderedCard.error).toContain('Circular reference detected');
   });
 });

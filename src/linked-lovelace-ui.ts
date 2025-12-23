@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { HomeAssistant, fireEvent } from 'custom-card-helpers';
+import { HomeAssistant, fireEvent, showFormDialog } from 'custom-card-helpers';
 import { TemplateManager } from './template-manager';
 import { Card } from './types';
 import './diff-viewer';
@@ -22,7 +22,7 @@ class LinkedLovelaceUI extends LitElement {
 
   setConfig(config: any) {
     this.config = config;
-    this.templateManager = new TemplateManager(this.hass);
+    this.templateManager = TemplateManager.getInstance(this.hass);
   }
 
   render() {
@@ -36,6 +36,7 @@ class LinkedLovelaceUI extends LitElement {
           ></ha-switch>
         </ha-formfield>
         <button @click=${this._processDashboards}>Update All</button>
+        <button @click=${this._showSelectDashboardDialog}>Populate Examples</button>
         ${this._newConfig
           ? html`
               <linked-lovelace-diff-viewer
@@ -76,6 +77,31 @@ class LinkedLovelaceUI extends LitElement {
     this.config = { ...this.config, debug: !this.config.debug };
     Debug.instance.debug = this.config.debug;
     fireEvent(this, 'config-changed', { config: this.config });
+  }
+
+  private async _showSelectDashboardDialog() {
+    const dashboards = await this.templateManager['api'].getDashboards();
+    const options = dashboards
+      .filter((d) => d.url_path !== null && d.url_path !== 'null')
+      .map((d) => [d.url_path, d.title]);
+
+    showFormDialog(this, {
+      title: 'Select a Dashboard',
+      schema: [
+        {
+          name: 'dashboard',
+          selector: {
+            select: {
+              options: options,
+            },
+          },
+        },
+      ],
+      dataChanged: (data) => console.log(data),
+      submit: (data) => {
+        this.templateManager.populateExamples(data.dashboard);
+      },
+    });
   }
 }
 

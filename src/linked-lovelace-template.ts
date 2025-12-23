@@ -55,7 +55,7 @@ class LinkedLovelaceTemplate extends LitElement {
   }
 
   private async _renderCard() {
-    const templateManager = new TemplateManager(this.hass);
+    const templateManager = TemplateManager.getInstance(this.hass);
     await templateManager.discoverTemplatesAndPartials();
     const cardConfig = templateManager.renderTemplate(this.config.ll_template, this.config.ll_context);
     this._renderer = createCard(cardConfig) as LitElement;

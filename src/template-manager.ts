@@ -3,18 +3,27 @@ import { Card } from './types';
 import { Debug } from './debug';
 import { Eta } from 'eta';
 import Api from './api';
+import { EXAMPLES } from './examples';
 
 export class TemplateManager {
+  private static instance: TemplateManager;
   private hass: HomeAssistant;
   private api: Api;
   private templates: Map<string, Card> = new Map();
   private partials: Map<string, string> = new Map();
   private eta: Eta;
 
-  constructor(hass: HomeAssistant) {
+  private constructor(hass: HomeAssistant) {
     this.hass = hass;
     this.api = new Api(hass);
     this.eta = new Eta({ useWith: true });
+  }
+
+  public static getInstance(hass: HomeAssistant): TemplateManager {
+    if (!TemplateManager.instance) {
+      TemplateManager.instance = new TemplateManager(hass);
+    }
+    return TemplateManager.instance;
   }
 
   private configureEta() {
@@ -67,6 +76,19 @@ export class TemplateManager {
   }
 
   public renderTemplate(templateKey: string, context: any): Card {
+    return this._renderTemplate(templateKey, context, []);
+  }
+
+  private _renderTemplate(templateKey: string, context: any, callStack: string[]): Card {
+    if (callStack.includes(templateKey)) {
+      const error = `Circular reference detected in templates: ${callStack.join(' -> ')} -> ${templateKey}`;
+      console.error(`[Linked Lovelace] ${error}`);
+      return {
+        type: 'error',
+        error: error,
+      };
+    }
+
     const templateCard = this.templates.get(templateKey);
     if (!templateCard) {
       const error = `Template with key "${templateKey}" not found.`;
@@ -83,6 +105,12 @@ export class TemplateManager {
     try {
       const renderedString = this.eta.renderString(templateString, { context });
       const renderedCard = JSON.parse(renderedString);
+      if (renderedCard.ll_template) {
+        return this._renderTemplate(renderedCard.ll_template, renderedCard.ll_context, [
+          ...callStack,
+          templateKey,
+        ]);
+      }
       return renderedCard;
     } catch (e: any) {
       console.error(`[Linked Lovelace] Error rendering template '${templateKey}':`, e);
@@ -126,5 +154,11 @@ export class TemplateManager {
       newConfigs[dashboard.url_path] = newConfig;
     }
     return { originalConfigs, newConfigs };
+  }
+
+  public async populateExamples(dashboardUrl: string) {
+    const dashboardConfig = await this.api.getDashboardConfig(dashboardUrl);
+    dashboardConfig.views = [...dashboardConfig.views, ...EXAMPLES.views];
+    await this.api.setDashboardConfig(dashboardUrl, dashboardConfig);
   }
 }
