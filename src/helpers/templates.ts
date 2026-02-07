@@ -1,6 +1,22 @@
 import { TemplateEngine } from '../v2/template-engine';
 import { DashboardCard, DashboardView } from '../types';
 
+/**
+ * Creates a safe context proxy that returns empty strings for undefined properties
+ * instead of rendering them as "undefined" in templates
+ */
+export function createSafeContext<T extends Record<string, any>>(context: T): Record<string, any> {
+  return new Proxy(context, {
+    get: (target: any, prop: string | symbol): any => {
+      if (prop in target) {
+        return target[prop];
+      }
+      // Return empty string for undefined properties instead of 'undefined'
+      return '';
+    }
+  });
+}
+
 export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
   if (card.ll_template) {
     return [card.ll_template];
@@ -37,7 +53,9 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       dataFromTemplate = {...dataFromTemplate, ...(templateCardData?.ll_context || {})}
       // If data in template, find and replace each key
       let template = JSON.stringify(templateCardData);
-      template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
+      // Use safe context to prevent "undefined" being rendered for missing variables
+      const safeContext = createSafeContext(dataFromTemplate);
+      template = TemplateEngine.instance.eta.renderString(template, safeContext)
       try {
         // Convert rendered string back to JSON
         data = JSON.parse(template);
