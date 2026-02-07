@@ -1,5 +1,6 @@
 /node_modules/
 /.rpt2_cache/
+/.cache/
 package-lock.json
 /dist
 src/version.ts
