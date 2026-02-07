@@ -1,0 +1,283 @@
+{
+  "analysisMetadata": {
+    "repository": "https://github.com/daredoes/linked-lovelace-ui",
+    "analysisDate": "2026-02-06",
+    "totalCommits": 158,
+    "currentVersion": "2.2.5",
+    "analyst": "Home Assistant Plugin Helper"
+  },
+  "phases": [
+    {
+      "phase": "Initial Development (V1)",
+      "timeframe": "2022-10-29 to 2022-11-15",
+      "commits": "1-22",
+      "description": "Basic concept and first working implementation",
+      "keyFeatures": [
+        "Initial boilerplate card structure",
+        "WebSocket integration with Home Assistant",
+        "Basic template rendering",
+        "Editor UI for configuration",
+        "First working version with card display"
+      ],
+      "architecture": {
+        "mainFiles": [
+          "src/linked-lovelace-card.ts (later renamed to linked-lovelace-ui.ts)",
+          "src/linked-lovelace.ts",
+          "src/editor.ts",
+          "src/types.ts"
+        ],
+        "pattern": "Monolithic card with internal state management"
+      },
+      "criticalDecisions": [
+        "Used custom action-handler-directive.ts (later removed in commit 77773f72c)",
+        "Initially integrated with Home Assistant dashboards",
+        "Basic Eta templating support from the start"
+      ],
+      "regressions": [],
+      "lessonsLearned": [
+        "Action handler directive was unnecessary complexity",
+        "Separation of concerns needed for scalability"
+      ]
+    },
+    {
+      "phase": "Refactoring and Component Extraction",
+      "timeframe": "2022-11-05 to 2022-11-09",
+      "commits": "17-25",
+      "description": "Breaking monolithic files into focused components",
+      "keyFeatures": [
+        "Created dashboard.ts and view.ts as separate components",
+        "Created shared-linked-lovelace.ts for common logic",
+        "Split helpers into separate files (dashboards.ts, templates.ts, hass.ts)",
+        "Added JSON viewer and YAML parser"
+      ],
+      "architecture": {
+        "mainFiles": [
+          "src/dashboard.ts",
+          "src/view.ts",
+          "src/shared-linked-lovelace.ts",
+          "src/helpers/dashboards.ts",
+          "src/helpers/templates.ts",
+          "src/helpers/hass.ts"
+        ],
+        "pattern": "Component-based architecture with shared utilities"
+      },
+      "criticalDecisions": [
+        "Extracted dashboard and view logic into separate classes",
+        "Created helper modules for specialized functionality",
+        "Added YAML parsing for template validation"
+      ],
+      "regressions": [],
+      "lessonsLearned": [
+        "Smaller files are easier to maintain",
+        "Shared utilities reduce code duplication"
+      ]
+    },
+    {
+      "phase": "Template Card Feature Addition",
+      "timeframe": "2022-11-19",
+      "commits": "28-29",
+      "description": "Adding separate template card functionality",
+      "keyFeatures": [
+        "Created linked-lovelace-template.ts",
+        "Added template-editor.ts",
+        "Support for template-only cards without linking"
+      ],
+      "architecture": {
+        "mainFiles": [
+          "src/linked-lovelace-template.ts",
+          "src/template-editor.ts"
+        ],
+        "pattern": "Dual card types (linked card + template card)"
+      },
+      "criticalDecisions": [
+        "Template cards can exist independently",
+        "Separate editor for template configuration"
+      ],
+      "regressions": [],
+      "lessonsLearned": [
+        "Template-only cards are a valid use case",
+        "Separate editors reduce UI complexity"
+      ]
+    },
+    {
+      "phase": "V2 Architecture Overhaul",
+      "timeframe": "2023 onwards (middle commits)",
+      "commits": "~30-120",
+      "description": "Complete rewrite with simplified architecture",
+      "keyFeatures": [
+        "Created v2 directory with new implementation",
+        "Simplified API: just add ll_key to any card",
+        "Integrated template system with automatic processing",
+        "Priority-based template ordering for nested templates",
+        "Removed need for separate template dashboards",
+        "Added comprehensive test suite"
+      ],
+      "architecture": {
+        "mainFiles": [
+          "src/v2/linkedLovelace.ts",
+          "src/v2/linkedLovelaceSingleton.ts",
+          "src/v2/template-engine.ts",
+          "src/controllers/template.ts",
+          "src/controllers/hass.ts"
+        ],
+        "pattern": "Singleton pattern with automatic card processing"
+      },
+      "criticalDecisions": [
+        "Any top-level card can be a template (just add ll_key)",
+        "Singleton pattern for global template registry",
+        "Priority-based rendering order for nested templates",
+        "Automatic template processing on dashboard load"
+      ],
+      "regressions": [
+        "ll_keys feature partially broken (2 test failures noted in README)",
+        "Breaking changes from V1 to V2 configuration"
+      ],
+      "lessonsLearned": [
+        "Simplicity wins - users don't want separate template dashboards",
+        "Automatic processing reduces user cognitive load",
+        "Some features become complexity traps (ll_keys)",
+        "Breaking changes need clear migration paths"
+      ]
+    },
+    {
+      "phase": "V2 Refinement and Testing",
+      "timeframe": "2023 onwards (later commits)",
+      "commits": "~121-158",
+      "description": "Adding comprehensive tests, API integration, and polish",
+      "keyFeatures": [
+        "Added extensive test suite for all components",
+        "Created linked-lovelace-api.ts for external integration",
+        "Added status tracking system",
+        "Added Eta controller for template management",
+        "Enhanced partials support with URL fetching"
+      ],
+      "architecture": {
+        "mainFiles": [
+          "src/linked-lovelace-api.ts",
+          "src/linked-lovelace-status.ts",
+          "src/controllers/eta.ts",
+          "src/controllers/template.ts"
+        ],
+        "additional": [
+          "Test files: *.test.ts",
+          "Partial support with remote URL fetching"
+        ],
+        "pattern": "API-first design with comprehensive testing"
+      },
+      "criticalDecisions": [
+        "Expose API for external integrations",
+        "Comprehensive test coverage for reliability",
+        "Partial templates can be fetched from URLs"
+      ],
+      "regressions": [],
+      "lessonsLearned": [
+        "Test coverage is critical for refactoring confidence",
+        "API exposure enables ecosystem growth",
+        "Remote partials increase flexibility but add complexity"
+      ]
+    }
+  ],
+  "currentArchitecture": {
+    "version": "2.2.5",
+    "coreComponents": [
+      {
+        "file": "src/v2/linkedLovelace.ts",
+        "purpose": "Main orchestrator for template processing",
+        "pattern": "Singleton pattern"
+      },
+      {
+        "file": "src/v2/template-engine.ts",
+        "purpose": "Eta template rendering engine",
+        "pattern": "Engine pattern"
+      },
+      {
+        "file": "src/linked-lovelace-ui.ts",
+        "purpose": "UI component that references templates",
+        "pattern": "Reference-based rendering"
+      },
+      {
+        "file": "src/controllers/template.ts",
+        "purpose": "Template management and storage",
+        "pattern": "Controller pattern"
+      },
+      {
+        "file": "src/linked-lovelace-partials.ts",
+        "purpose": "Partial template management",
+        "pattern": "Registry pattern"
+      }
+    ],
+    "templating": {
+      "engine": "Eta JS (custom v3.0.3)",
+      "variablePrefix": "<%=",
+      "variableSuffix": "%>",
+      "contextVariable": "context",
+      "partialSyntax": "Standard Eta partial syntax"
+    },
+    "testCoverage": {
+      "unitTests": [
+        "src/controllers/eta.test.ts",
+        "src/controllers/template.test.ts",
+        "src/helpers/templates.test.ts",
+        "src/v2/linkedLovelace.test.ts",
+        "src/v2/template-engine.test.ts"
+      ],
+      "status": "Comprehensive coverage of core logic"
+    }
+  },
+  "keyInsights": {
+    "whatWorked": [
+      "Singleton pattern for global template registry",
+      "Priority-based template ordering for nested templates",
+      "Automatic processing - minimal user configuration",
+      "Comprehensive test suite",
+      "Component extraction from monolithic files"
+    ],
+    "whatDidntWork": [
+      "Action handler directive (removed early)",
+      "Separate template dashboards (removed in V2)",
+      "ll_keys feature (partially broken, considered for removal)",
+      "Monolithic file structure (refactored early)"
+    ],
+    "recurringThemes": [
+      "Simplification over features",
+      "Breaking changes for architectural clarity",
+      "Test-driven development in later stages",
+      "Component-based architecture"
+    ]
+  },
+  "optimalSystemDesign": {
+    "corePrinciples": [
+      "Simplicity - minimal configuration required",
+      "Automatic processing - no manual trigger needed",
+      "Extensible - can add features without breaking changes",
+      "Testable - comprehensive test coverage",
+      "Documented - clear examples and migration guides"
+    ],
+    "recommendedArchitecture": {
+      "templateRegistry": "Singleton pattern (current V2 approach)",
+      "renderingEngine": "Template engine pattern (current approach)",
+      "uiComponents": "Reference-based rendering (current approach)",
+      "controllers": "Separate controllers for different concerns",
+      "testing": "Test-driven development with high coverage"
+    },
+    "featuresToKeep": [
+      "Priority-based template ordering",
+      "Automatic template processing",
+      "Partial templates with URL support",
+      "Context variable for template data",
+      "Comprehensive test suite"
+    ],
+    "featuresToConsiderRemoving": [
+      "ll_keys feature (partially broken, adds complexity)",
+      "Template editor if not widely used",
+      "Deprecated V1 support (if migration is complete)"
+    ],
+    "potentialImprovements": [
+      "Switch to Jinja templating (as requested)",
+      "Better error messages for template failures",
+      "Template preview in editor",
+      "Performance optimization for large dashboards",
+      "Better migration documentation from V1 to V2"
+    ]
+  }
+}
