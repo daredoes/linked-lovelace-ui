@@ -1,0 +1,1 @@
+{"testInfrastructure": {"issue": "Jest cache permission errors in sandbox environment", "status": "blocked", "workaround": "Tests cannot run due to EPERM errors with transform cache", "note": "This appears to be a sandbox limitation, not a code issue. Tests need to run in unrestricted environment."}}
