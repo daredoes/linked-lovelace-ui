@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="37b1b329-7122-4950-b3cf-4517e96ae115" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/v3/template-engine-test-data.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/v3/testData/simple-example-cards.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/v3/testData/simple-example-cards/mode-button-card.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/v3/testData/simple-example-cards/navigation-card.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/constants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/constants.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/controllers/hass.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/controllers/hass.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/helpers/eta/sortPriorityCardsByPriority.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers/eta/sortPriorityCardsByPriority.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/linked-lovelace-key.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/linked-lovelace-key.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/linked-lovelace-status.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/linked-lovelace-status.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/template-editor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/template-editor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/v2/linkedLovelace.test.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/v2/linkedLovelace.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/v2/linkedLovelaceSingleton.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/v3/template-engine.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/v3/template-engine.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/v3/template-engine.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/v3/template-engine.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2zlAj1qmBYH2qf2f7xUgDWWYDUg" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.TemplateEngine.Complex.should render a complex view.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.TemplateEngine.Complex.should render a modified view.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.TemplateEngine.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.TemplateEngine.when handling modeButtonCard.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.TemplateEngine.when handling roomModeButtonCard.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;v3/refactor-existing-code-with-tests&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/dare/Git/linked-lovelace-ui&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/Users/dare/Git/linked-lovelace-ui/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/dare/Git/linked-lovelace-ui/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="es6.move.members.recent.items">
+      <recent name="$PROJECT_DIR$/src/v3/testData/simple-example-cards/navigation-card.ts" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Jest.TemplateEngine.when handling roomModeButtonCard">
+    <configuration name="TemplateEngine" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/src/v3/template-engine.test.ts" />
+      <test-names>
+        <test-name value="TemplateEngine" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="TemplateEngine.Complex.should render a complex view" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/src/v3/template-engine.test.ts" />
+      <test-names>
+        <test-name value="TemplateEngine" />
+        <test-name value="Complex" />
+        <test-name value="should render a complex view" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="TemplateEngine.Complex.should render a modified view" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST" />
+      <test-file value="$PROJECT_DIR$/src/v3/template-engine.test.ts" />
+      <test-names>
+        <test-name value="TemplateEngine" />
+        <test-name value="Complex" />
+        <test-name value="should render a modified view" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="TemplateEngine.when handling modeButtonCard" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/src/v3/template-engine.test.ts" />
+      <test-names>
+        <test-name value="TemplateEngine" />
+        <test-name value="when handling modeButtonCard" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="TemplateEngine.when handling roomModeButtonCard" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/src/v3/template-engine.test.ts" />
+      <test-names>
+        <test-name value="TemplateEngine" />
+        <test-name value="when handling roomModeButtonCard" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.TemplateEngine.when handling roomModeButtonCard" />
+        <item itemvalue="Jest.TemplateEngine" />
+        <item itemvalue="Jest.TemplateEngine.when handling modeButtonCard" />
+        <item itemvalue="Jest.TemplateEngine.Complex.should render a modified view" />
+        <item itemvalue="Jest.TemplateEngine.Complex.should render a complex view" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.26927.40" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="37b1b329-7122-4950-b3cf-4517e96ae115" name="Changes" comment="" />
+      <created>1752295417964</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1752295417964</updated>
+      <workItem from="1752295419419" duration="10935000" />
+      <workItem from="1755653417502" duration="5912000" />
+      <workItem from="1759260452059" duration="6000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/v3/template-engine.ts</url>
+          <line>74</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
