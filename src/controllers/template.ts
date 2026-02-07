@@ -1,10 +1,17 @@
-import { updateCardTemplate } from '../helpers';
+import { updateCardTemplate, detectCircularDependencies } from '../helpers';
 import { DashboardCard } from '../types';
 
 class TemplateController {
   templates: Record<string, DashboardCard> = {};
 
   addTemplate(key: string, template: DashboardCard, overwrite = true): boolean {
+    // Check for circular dependencies before adding
+    const testTemplates = { ...this.templates, [key]: template };
+    if (detectCircularDependencies(key, testTemplates)) {
+      console.error(`Failed to add template "${key}": Circular dependency detected`);
+      throw new Error(`Circular dependency detected for template "${key}"`);
+    }
+
     if (overwrite) {
       this.templates[key] = template;
       return true;

@@ -17,6 +17,86 @@ export function createSafeContext<T extends Record<string, any>>(context: T): Re
   });
 }
 
+/**
+ * Extracts template keys referenced in a template string or object
+ * Looks for ll_template values and context variable references
+ */
+export function extractTemplateDependencies(templateOrCard: string | DashboardCard, templateData: Record<string, DashboardCard>): string[] {
+  const dependencies: string[] = new Set();
+  const seen = new Set<string | number | symbol>();
+
+  function extractFromObject(obj: any): void {
+    if (!obj || typeof obj !== 'object' || seen.has(obj)) return;
+    seen.add(obj);
+
+    if (Array.isArray(obj)) {
+      obj.forEach(item => extractFromObject(item));
+      return;
+    }
+
+    // Check for ll_template reference
+    if (obj.ll_template && typeof obj.ll_template === 'string') {
+      dependencies.add(obj.ll_template);
+      // Recursively extract dependencies from the referenced template
+      if (templateData[obj.ll_template]) {
+        extractFromObject(templateData[obj.ll_template]);
+      }
+    }
+
+    // Recursively check all properties
+    for (const key of Object.keys(obj)) {
+      extractFromObject(obj[key]);
+    }
+  }
+
+  if (typeof templateOrCard === 'string') {
+    // It's a template string, look for context variable references
+    // Context variables don't necessarily mean template dependencies, so we focus on ll_template
+    return [];
+  } else {
+    extractFromObject(templateOrCard);
+  }
+
+  return Array.from(dependencies);
+}
+
+/**
+ * Detects circular dependencies in templates
+ * Returns true if a circular dependency is found
+ */
+export function detectCircularDependencies(
+  key: string,
+  templateData: Record<string, DashboardCard>,
+  visited: Set<string> = new Set(),
+  visiting: Set<string> = new Set()
+): boolean {
+  if (visiting.has(key)) {
+    console.error(`Circular dependency detected: ${Array.from(visiting).join(' -> ')} -> ${key}`);
+    return true; // Circular dependency found
+  }
+
+  if (visited.has(key)) {
+    return false; // Already processed, no circular dependency here
+  }
+
+  if (!templateData[key]) {
+    return false; // Template doesn't exist yet
+  }
+
+  visiting.add(key);
+  const dependencies = extractTemplateDependencies(templateData[key], templateData);
+
+  for (const dep of dependencies) {
+    if (detectCircularDependencies(dep, templateData, visited, visiting)) {
+      return true;
+    }
+  }
+
+  visiting.delete(key);
+  visited.add(key);
+  return false;
+}
+
 export const getTemplatesUsedInCard = (card: DashboardCard): string[] => {
   if (card.ll_template) {
     return [card.ll_template];
