@@ -22,7 +22,7 @@ export function createSafeContext<T extends Record<string, any>>(context: T): Re
  * Looks for ll_template values and context variable references
  */
 export function extractTemplateDependencies(templateOrCard: string | DashboardCard, templateData: Record<string, DashboardCard>): string[] {
-  const dependencies: string[] = new Set();
+  const dependencies = new Set<string>();
   const seen = new Set<string | number | symbol>();
 
   function extractFromObject(obj: any): void {
