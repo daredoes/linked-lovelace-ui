@@ -1,17 +1,11 @@
 // See https://aka.ms/vscode-remote/devcontainer.json for format details.
 {
   "name": "Linked Lovelace Card Development",
-  "image": "ludeeus/container:monster",
-  "context": "..",
-  "appPort": [
-    "5001:5000",
-    // "9123:8123"
-  ],
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "devcontainer",
+  "runServices": ["devcontainer", "homeassistant"],
+  "workspaceFolder": "/workspaces/linked-lovelace-ui",
   "postCreateCommand": "yarn",
-  "runArgs": [
-    "-v",
-    "${env:HOME}${env:USERPROFILE}/.ssh:/tmp/.ssh" // This is added so you can push from inside the container
-  ],
   "extensions": [
     "github.vscode-pull-request-github",
     "eamodio.gitlens",

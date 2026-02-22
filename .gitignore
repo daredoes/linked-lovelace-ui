@@ -6,3 +6,7 @@ src/version.ts
 /coverage
 docs_site/.vitepress/cache
 docs_site/node_modules
+
+/dev
+!/dev/config/configuration.yaml
+!/dev/config/ui-lovelace.yaml
