@@ -1,0 +1,33 @@
+{
+  "project": "linked-lovelace-ui",
+  "architecture_diagram": "graph TD\n    HA[Home Assistant] -- WebSocket API --> Api[LinkedLovelaceApi]\n    Api -- Dashboard Configs --> DE[DiscoveryEngine]\n    DE -- Discovers --> Templates[Templates Store]\n    DE -- Discovers --> Partials[Partials Store]\n    Templates -- Used by --> TC[TemplateController]\n    Partials -- Loaded into --> EC[EtaController]\n    TC -- Uses --> TE[TemplateEngine]\n    EC -- Configures --> TE\n    TE -- Renders --> RenderedCards[Updated Dashboard Configs]\n    RenderedCards -- Overwrites via API --> HA",
+  "history": [
+    {
+      "version": "1.0.0",
+      "status": "Initial Working Version",
+      "architecture": "Single-file core (linked-lovelace.ts) using string.replaceAll with $VAR$ syntax for templating.",
+      "key_features": ["Dashboard/View/Card traversal", "Simple variable replacement", "WebSocket API integration for HA config"],
+      "diagram": "graph TD\n    HA[Home Assistant] -- WebSocket --> LL[LinkedLovelace Core]\n    LL -- traverse --> Views\n    Views -- traverse --> Cards\n    Cards -- replace $vars$ --> RenderedCards"
+    },
+    {
+      "version": "1.3.3",
+      "status": "Bug Fix - Max Stack Call",
+      "description": "Fixed a regression where nested cards were processed multiple times, leading to infinite recursion if self-referencing or deep nesting occurred.",
+      "fix": "Moved child card/object processing to an 'else' block so they only process if the current node IS NOT a template itself."
+    },
+    {
+      "version": "2.0.0",
+      "status": "Architecture Revamp",
+      "architecture": "Multi-controller pattern (Eta, Template, Hass). Switching to Eta engine for powerful templating.",
+      "key_features": ["Eta templates", "Partials support", "LL_Keys for mapping data", "Priority-based template registration"],
+      "diagram": "graph TD\n    UI[Custom Card UI] --> GlobalLL[Global Instance]\n    GlobalLL --> Controller[LL Controller]\n    Controller --> Eta[Eta Controller]\n    Controller --> Template[Template Controller]\n    Template -- uses --> Engine[Template Engine]\n    Engine -- renders --> Cards"
+    }
+  ],
+  "optimal_system_characteristics": [
+    "Strict separation of concerns: API, Template Engine, and UI components.",
+    "Non-recursive traversal with cycle detection or controlled depth for nested templates.",
+    "Efficient partials caching and template pre-compilation.",
+    "Strong typing for all Home Assistant dashboard entities.",
+    "Extensive unit testing for templating logic independent of Home Assistant state."
+  ]
+}
