@@ -1,18 +1,8 @@
-import { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial } from 'src/types';
+import { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial, DiscoveryView } from '../types';
 import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from '../v2/linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';
 import { toConsole } from 'src/helpers/log';
-
-const getS = (array) => {
-  return array?.length !== 1 ? 's' : ''
-}
-
-interface View {
-  id: string
-  templates: Record<string, DashboardCard>
-  partials: Record<string, LinkedLovelacePartial>
-}
 
 interface AddToLog {
   msg: string, 
@@ -21,7 +11,7 @@ interface AddToLog {
 
 class HassController {
   linkedLovelaceController: LinkedLovelaceController = new LinkedLovelaceController();
-  dashboardsToViews: Record<string, Record<string, View>> = {}
+  dashboardsToViews: Record<string, Record<string, DiscoveryView>> = {}
   logs: string[] = [];
   forwardLogs = false;
 
@@ -38,73 +28,13 @@ class HassController {
   refresh = async (): Promise<void> => {
     this.addToLogs({msg: `Beginning Refresh`})
     this.linkedLovelaceController = new LinkedLovelaceController();
-    this.dashboardsToViews = {}
-    this.addToLogs({msg: `Discovering Dashboards`})
-    const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();
-    this.addToLogs({msg: `Discovered ${dashboards.length} Dashboard${getS(dashboards)}`}, dashboards)
-    this.addToLogs({msg: `Retrieving Dashboard Configs`})
-    const dashboardConfigs = await Promise.all(
-      dashboards.map(async (db) => {
-        try {
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieving details for dashboard`}, db)
-          const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(db.url_path);
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieved ${config.views?.length} View${getS(config.views)} for dashboard`}, db, config)
-          return [config, db]
-        } catch (e) {
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Failed to retrieve details for dashboard`, level: 'ERROR'}, db, e)
-        }
-        return [undefined, undefined]
-      }),
-    );
-    this.addToLogs({msg: `Retrieved ${dashboardConfigs.length}/${dashboards.length} Dashboard Config${getS(dashboards)}`}, dashboards, dashboardConfigs)
-    this.addToLogs({msg: `Discovering Templates and Partials within Dashboard Configs`})
-    const templates: Record<string, DashboardCard> = {};
-    await Promise.all(dashboardConfigs.map(async (dbcs) => {
-      const config = dbcs[0] as DashboardConfig
-      const dashboard = dbcs[1] as Dashboard
-      if (config?.views) {
-        const dashboardPath = dashboard.url_path ? dashboard.url_path : '';
-        if (!this.dashboardsToViews[dashboardPath]) {
-          this.dashboardsToViews[dashboardPath] = {}
-        }
-        return await Promise.all(config.views.map(async (view) => {
-          const viewKey = view.path || '';
-          if (!this.dashboardsToViews[dashboardPath][viewKey]) {
-            this.dashboardsToViews[dashboardPath][viewKey] = {
-              id: viewKey,
-              templates: {},
-              partials: {}
-            }
-          }
-          this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`}, dashboard, view)
-          return await Promise.all((view.cards || []).map(async (card) => {
-            if (card.ll_key) {
-              this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] [template:${card.ll_key}] [priority:${card.ll_priority || 0}] Discovered Template`}, dashboard, view, card)
-              if (templates[card.ll_key] && (templates[card.ll_key].ll_priority || 0) < (card.ll_priority || 0)) { 
-                this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Template already exists with tag ${card.ll_key}`, level: "WARN"}, dashboard, view, card)
-              } else {
-                templates[card.ll_key] = card
-              }
-              this.dashboardsToViews[dashboardPath][viewKey].templates = {...this.dashboardsToViews[dashboardPath][viewKey].templates, ...{[card.ll_key]: card}}
-            }
-            
-            const partials = await this.linkedLovelaceController.registerPartials(card)
-            const partialKeys = Object.keys(partials);
-            if (partialKeys.length) {
-              this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovered ${partialKeys.length} Partial${getS(partialKeys)}`}, dashboard, view, partials)
-            }
-            this.dashboardsToViews[dashboardPath][viewKey].partials = partials;
-          }))
-        }))
-      }
-      return undefined
-    }))
-    // The above await puts the partials into the controller
-    this.addToLogs({msg: "Registering Partials"})
-    this.linkedLovelaceController.etaController.loadPartials()
+    
+    this.addToLogs({msg: `Discovering Templates and Partials` })
+    const result = await this.linkedLovelaceController.discoverAndRegisterAll();
+    this.dashboardsToViews = result.dashboardsToViews as any;
+    
     TemplateEngine.instance.eta = this.linkedLovelaceController.eta
-    this.addToLogs({msg: "Registering Templates"})
-    this.linkedLovelaceController.registerTemplates(templates)
+    this.addToLogs({msg: `Finished Refresh` })
   };
 
   update = async (urlPath: string | null, dryRun = false): Promise<DashboardConfig | null | undefined> => {

@@ -2,6 +2,7 @@ import { DashboardCard, DashboardConfig, DashboardView, LinkedLovelacePartial } 
 import TemplateController from '../controllers/template';
 import {GlobalLinkedLovelace} from '../instance'
 import EtaTemplateController from '../controllers/eta';
+import { DiscoveryEngine, DiscoveryResult } from './discovery-engine';
 
 const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
   return Object.keys(templates).sort((kA, kB) => {
@@ -14,6 +15,17 @@ const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
 class LinkedLovelaceController {
   templateController: TemplateController = new TemplateController();
   etaController: EtaTemplateController = new EtaTemplateController();
+  discoveryEngine: DiscoveryEngine;
+
+  constructor() {
+    this.discoveryEngine = new DiscoveryEngine(this.templateController, this.etaController);
+  }
+
+  discoverAndRegisterAll = async (): Promise<DiscoveryResult> => {
+    const result = await this.discoveryEngine.discoverAll();
+    await this.discoveryEngine.registerAll(result);
+    return result;
+  };
 
   registerTemplates = (templates: Record<string, DashboardCard>): void => {
     sortTemplatesByPriority(templates).forEach((key) => {

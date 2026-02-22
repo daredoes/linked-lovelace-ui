@@ -93,3 +93,9 @@ interface LLDashboard extends Dashboard {
 }
 
 export const LINKED_LOVELACE_PARTIALS = 'linked-lovelace-partials'
+
+export interface DiscoveryView {
+  id: string
+  templates: Record<string, DashboardCard>
+  partials: Record<string, LinkedLovelacePartial>
+}
