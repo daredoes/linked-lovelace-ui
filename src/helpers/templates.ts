@@ -90,7 +90,15 @@ export const updateCardTemplate = (
 
     let currentData = node;
     const templateKey = currentData.ll_template;
-    let dataFromTemplate = { ...context, ...(currentData.ll_context || {}) };
+    let contextFromCard = currentData.ll_context || {};
+    if (typeof contextFromCard === 'string') {
+      try {
+        contextFromCard = JSON.parse(contextFromCard);
+      } catch (e) {
+        // ignore
+      }
+    }
+    let dataFromTemplate = { ...context, ...contextFromCard };
 
     if (templateKey && templateData[templateKey]) {
       if (visitedTemplates.has(templateKey)) {
@@ -125,15 +133,25 @@ export const updateCardTemplate = (
 
       const originalLlKeys = currentData.ll_keys;
       if (originalLlKeys) {
-        Object.keys(originalLlKeys).forEach((ll_key) => {
-          const targetKey = originalLlKeys[ll_key];
-          if (targetKey && dataFromTemplate[targetKey] !== undefined) {
-            currentData[targetKey] = Array.isArray(dataFromTemplate[targetKey]) ? [...dataFromTemplate[targetKey]] : (typeof dataFromTemplate[targetKey] === 'object' && dataFromTemplate[targetKey] !== null ? { ...dataFromTemplate[targetKey] } : dataFromTemplate[targetKey]);
-          }
-        });
+        if (Array.isArray(originalLlKeys)) {
+          originalLlKeys.forEach((key) => {
+            if (key && dataFromTemplate[key] !== undefined) {
+              currentData[key] = Array.isArray(dataFromTemplate[key]) ? [...dataFromTemplate[key]] : (typeof dataFromTemplate[key] === 'object' && dataFromTemplate[key] !== null ? { ...dataFromTemplate[key] } : dataFromTemplate[key]);
+            }
+          });
+        } else {
+          Object.keys(originalLlKeys).forEach((cardKey) => {
+            const contextKey = originalLlKeys[cardKey];
+            if (contextKey && dataFromTemplate[contextKey] !== undefined) {
+              // console.log(`Mapping ${contextKey} to ${cardKey}: ${dataFromTemplate[contextKey]}`);
+              currentData[cardKey] = Array.isArray(dataFromTemplate[contextKey]) ? [...dataFromTemplate[contextKey]] : (typeof dataFromTemplate[contextKey] === 'object' && dataFromTemplate[contextKey] !== null ? { ...dataFromTemplate[contextKey] } : dataFromTemplate[contextKey]);
+            }
+          });
+        }
 
         Object.keys(originalLlKeys).forEach((cardKey) => {
-          const val = dataFromTemplate[cardKey];
+          const contextKey = Array.isArray(originalLlKeys) ? originalLlKeys[cardKey as any] : originalLlKeys[cardKey];
+          const val = dataFromTemplate[contextKey];
           if (typeof val === 'object' && val !== null) {
             if (Array.isArray(val)) {
               currentData[cardKey] = [...val];

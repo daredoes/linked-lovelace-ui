@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="37b1b329-7122-4950-b3cf-4517e96ae115" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.aiassistant/HEARTBEAT.md" beforeDir="false" afterPath="$PROJECT_DIR$/.aiassistant/HEARTBEAT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/helpers/templates.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/helpers/templates.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

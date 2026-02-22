@@ -37,12 +37,18 @@ export interface Dashboard {
   url_path: string | null;
 }
 
+export interface DashboardSection {
+  title?: string;
+  cards?: DashboardCard[];
+  [x: string]: any;
+}
+
 export interface LLCard extends LovelaceCardConfig {
   ll_template?: string
-  sections?: LovelaceCardConfig[]
+  sections?: DashboardSection[]
   ll_context?: Record<string, any>
   // A map from a key in the current level of the card to a key in the current context data
-  ll_keys?: Record<string, string>
+  ll_keys?: Record<string, string> | string[]
   [x: string]: any;
 }
 
@@ -70,13 +76,13 @@ export interface DashboardPartialsCard extends LovelaceCardConfig {
 }
 
 export interface DashboardView {
-  title: string;
+  title?: string;
   path?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   badges?: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cards?: DashboardCard[];
-  sections?: DashboardCard[];
+  sections?: DashboardSection[];
   theme?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
