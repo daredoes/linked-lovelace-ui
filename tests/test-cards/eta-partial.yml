@@ -1,0 +1,12 @@
+# Eta Partial Template Card
+# This template demonstrates using a partial within an Eta template.
+# The template in Home Assistant might look like:
+# ---
+# type: 'markdown'
+# content: |
+#   Hello, <%~ include("partial_greeting", {name: context.name}) %>!
+# ---
+type: 'custom:linked-lovelace'
+ll_template: 'template_with_partial'
+ll_context:
+  name: 'World'

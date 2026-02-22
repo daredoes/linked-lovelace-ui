@@ -1,0 +1,9 @@
+# Nested Template Card
+# This card demonstrates nested templates.
+type: 'custom:linked-lovelace'
+ll_template: 'parent_template'
+ll_context:
+  parent_name: 'Parent'
+  child_template: 'child_template'
+  child_context:
+    child_name: 'Child'

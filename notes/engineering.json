@@ -5,20 +5,25 @@
     {
       "version": "1.0.0",
       "status": "Initial Working Version",
-      "architecture": "Single-file core (linked-lovelace.ts) using string.replaceAll with $VAR$ syntax for templating.",
+      "architecture": "Single-file core (src/linked-lovelace.ts) using JSON.stringify and string.replaceAll with $VAR$ syntax for templating.",
       "key_features": ["Dashboard/View/Card traversal", "Simple variable replacement", "WebSocket API integration for HA config"],
       "diagram": "graph TD\n    HA[Home Assistant] -- WebSocket --> LL[LinkedLovelace Core]\n    LL -- traverse --> Views\n    Views -- traverse --> Cards\n    Cards -- replace $vars$ --> RenderedCards"
     },
     {
       "version": "1.3.3",
       "status": "Bug Fix - Max Stack Call",
-      "description": "Fixed a regression where nested cards were processed multiple times, leading to infinite recursion if self-referencing or deep nesting occurred.",
+      "description": "Fixed a regression where nested cards were processed multiple times, leading to infinite recursion if self-referencing or deep nesting occurred. This happened because every node was checked for template substitution regardless of its children.",
       "fix": "Moved child card/object processing to an 'else' block so they only process if the current node IS NOT a template itself."
+    },
+    {
+      "version": "1.6.0",
+      "status": "Refactor and Cleanup",
+      "description": "Began moving towards a more modular architecture with controllers and helpers."
     },
     {
       "version": "2.0.0",
       "status": "Architecture Revamp",
-      "architecture": "Multi-controller pattern (Eta, Template, Hass). Switching to Eta engine for powerful templating.",
+      "architecture": "Multi-controller pattern (Eta, Template, Hass). Switching to Eta engine for powerful templating. Introduced ll_template, ll_context, and ll_keys prefixes to avoid namespace collisions.",
       "key_features": ["Eta templates", "Partials support", "LL_Keys for mapping data", "Priority-based template registration"],
       "diagram": "graph TD\n    UI[Custom Card UI] --> GlobalLL[Global Instance]\n    GlobalLL --> Controller[LL Controller]\n    Controller --> Eta[Eta Controller]\n    Controller --> Template[Template Controller]\n    Template -- uses --> Engine[Template Engine]\n    Engine -- renders --> Cards"
     }

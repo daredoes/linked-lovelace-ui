@@ -1,0 +1,7 @@
+# Basic Template Card
+# This card demonstrates simple template substitution.
+type: 'custom:linked-lovelace'
+ll_template: 'my_simple_template'
+ll_context:
+  name: 'World'
+  color: 'red'

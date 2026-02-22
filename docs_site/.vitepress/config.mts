@@ -20,6 +20,8 @@ export default defineConfig({
           { text: 'Using the Status Card', link: '/using-the-status-card' },
           { text: 'Providing Template Context', link: '/providing-template-context' },
           { text: 'Creating Partials', link: '/creating-partials' },
+          { text: 'History', link: '/history' },
+          { text: 'The Ideal Plugin', link: '/ideal-plugin' },
         ]
       }
     ],

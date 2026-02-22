@@ -1,0 +1,10 @@
+# LL_Keys Mapping Card
+# This card demonstrates mapping context data to card properties using ll_keys.
+type: 'button'
+ll_template: 'mapped_button'
+ll_keys:
+  name: 'dynamic_name'
+  icon: 'dynamic_icon'
+ll_context:
+  dynamic_name: 'Mapped Button'
+  dynamic_icon: 'mdi:check'
