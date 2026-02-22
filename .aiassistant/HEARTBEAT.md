@@ -6,6 +6,7 @@
 
 Read over the following list of tasks, and edit any tasks below task 1 to make this more effective during the next heartbeat.
 1. Read over all the rules in ./rules/
-2. This is a copy of the git repository https://github.com/daredoes/linked-lovelace-ui. Look over the commit history from the very first commit. Take detailed notes for yourself on how it worked in the first iteration, why each major change was made, where regressions were introduced, and what an optimal system looks like. Use JSON and mermaid diagrams. Update the docs_site folder, which is a vitepress site, with this information.
-3. Ensure we are in a branch in the git repository called 'junie-refactor' and begin documenting any changes necessary to create the ideal plugin.
-4. Create a test plan that includes a set of cards that can be easily reuploaded and tested with the plugin.
+2. Implement the "Ideal Plugin" roadmap in the `junie-refactor` branch. Start by refactoring `src/helpers/templates.ts` to use an iterative traversal method with cycle detection to prevent the historical "Max Stack Call" regressions.
+3. Develop the `DiscoveryEngine` as a standalone module to handle periodic dashboard scanning and asset registration, replacing the current ad-hoc discovery logic.
+4. Integrate the test cards in `tests/test-cards/` into a new automated integration testing suite to verify rendering accuracy against the `tests/test-plan.md` requirements.
+5. Review and strengthen TypeScript interfaces and validation for Home Assistant dashboard configurations to ensure robust data handling throughout the rendering pipeline.
