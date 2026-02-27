@@ -1,0 +1,17 @@
+# ll_keys Data Mapping Test
+# Tests mapping template context to card properties
+
+type: 'custom:linked-lovelace'
+ll_template: 'll_keys_template'
+ll_context:
+  card_name: "My Sensor Card"
+  card_icon: "mdi:thermometer"
+  entity_id: "sensor.temperature"
+  entity_state: "72°"
+  custom_color: "blue"
+
+# Expected:
+# - ll_keys should override card properties with context values
+# - name should become "My Sensor Card"
+# - icon should become "mdi:thermometer"
+# - Entity-specific properties should be mapped correctly

@@ -15,14 +15,18 @@ export default defineConfig({
       {
         text: 'Quick Start',
         items: [
-          { text: 'Getting Started', link: '/getting-started' },
-          { text: 'Creating Your First Template', link: '/create-your-first-template' },
-          { text: 'Using the Status Card', link: '/using-the-status-card' },
-          { text: 'Providing Template Context', link: '/providing-template-context' },
-          { text: 'Creating Partials', link: '/creating-partials' },
-          { text: 'History', link: '/history' },
-          { text: 'The Ideal Plugin', link: '/ideal-plugin' },
+                    { text: 'usingTheStatusCard', link: '/using-the-status-card' },
+                    { text: 'providingTemplateContext', link: '/providing-template-context' },
+                    { text: 'linkedPartials', link: '/linked-partials' },
+                    { text: 'index', link: '/index' },
+                    { text: 'idealPlugin', link: '/ideal-plugin' },
+                    { text: 'history', link: '/history' },
+                    { text: 'gettingStarted', link: '/getting-started' },
+                    { text: 'creatingPartials', link: '/creating-partials' },
+                    { text: 'createYourFirstTemplate', link: '/create-your-first-template' },
         ]
+      }
+    ],
       }
     ],
 

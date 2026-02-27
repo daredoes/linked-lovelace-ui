@@ -1,0 +1,12 @@
+# Advanced Template Test Card
+# Demonstrates basic Eta.js template substitution
+
+type: 'custom:linked-lovelace'
+ll_template: 'advanced_template'
+ll_context:
+  title: "My Dashboard"
+  count: 123
+  active: true
+
+# Expected: Template should receive title, count, and active variables
+# Should render with proper type conversion (number stays number, boolean stays boolean)

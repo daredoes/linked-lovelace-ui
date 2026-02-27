@@ -1,0 +1,15 @@
+# Template Card - Eta.js Partials Test
+# Tests partial template inclusion via Eta.js
+
+type: 'custom:linked-lovelace'
+ll_template: 'partial_test_template'
+ll_context:
+  partial_name: "mypartial"
+  shared_data:
+    value: 42
+    label: "test"
+
+# Expected:
+# - Template includes partial using <%~ include("mypartial", context) %>
+# - Partial receives context variables
+# - All shared_data properties are accessible in partial scope

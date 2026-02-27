@@ -42,7 +42,7 @@
   },
   "scripts": {
     "test": "jest",
-    "make-version": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "make-version": "node -p \"'export const LIB_VERSION = ' + JSON.stringify(require('./package.json').version) + ';\" > src/version.ts",
     "prestart": "npm run make-version",
     "prebuild": "npm run make-version",
     "clean": "rimraf dist .parcel-cache",
@@ -50,6 +50,8 @@
     "obuild": "npm run clean && parcel build ",
     "ostart": "parcel",
     "start": "rollup -c --watch",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "docs:sync": "tsx scripts/docs-sync.ts",
+    "docs:check": "tsx scripts/docs-sync.ts --check"
   }
 }

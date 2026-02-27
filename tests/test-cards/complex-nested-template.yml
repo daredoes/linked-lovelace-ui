@@ -1,0 +1,19 @@
+# Complex Nested Template Test
+# Tests deep nesting of templates with context passing
+
+type: 'custom:linked-lovelace'
+ll_template: 'complex_nested_template'
+ll_context:
+  level1:
+    title: "Level 1 Card"
+    level2:
+      title: "Level 2 Card"
+      level3:
+        title: "Level 3 Card"
+          level4:
+            title: "Level 4 Card"
+
+# Expected:
+# - Template should handle 4 levels of nesting
+# - Context should be properly passed through the chain
+# - Each level should have access to its title
