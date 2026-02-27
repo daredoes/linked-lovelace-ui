@@ -1,0 +1,21 @@
+{
+  "name": "linked-lovelace-ui-testing",
+  "version": "1.0.0",
+  "description": "Playwright test runner for Home Assistant Lovelace cards",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e-headed": "playwright test --headed",
+    "test:e2e-report": "playwright show-report",
+    "test:integration": "jest tests/integration/*.integration.test.ts",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
