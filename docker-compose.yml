@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  builder:
+    image: oven/bun:latest
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: /bin/sh -c "bun install --global rollup && bun install && bun run start"
+
+  homeassistant:
+    image: homeassistant/home-assistant:stable
+    volumes:
+      - ./dev/config:/config
+      - ./dist:/config/www
+    environment:
+      - TZ=UTC
+    ports:
+      - "8123:8123"
