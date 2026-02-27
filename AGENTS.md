@@ -131,6 +131,7 @@ noUnusedParameters: true
 - `src/helpers/` - Helper function patterns
 
 ## Special Considerations
+Follow all rules in `.opencode/rules/` folder.
 
 ### Home Assistant Integration
 - **Card configs**: All configs extend `LovelaceCardConfig` or `LovelaceCardEditor`
