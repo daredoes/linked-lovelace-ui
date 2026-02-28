@@ -11,7 +11,7 @@ This document details the technical evolution of the API and architecture from t
 ## Architecture Evolution Timeline
 
 ```mermaid
-flowchart TD
+graph TD
     A[Nov 2022] --> B[Phase 1: Initial]
     B --> C[Jan 2023] --> D[Apr 2023]
     D --> E[Jun 2023] --> F[Aug 2023]
@@ -46,11 +46,11 @@ classDiagram
         +updateCard()
         +handleEvent()
     }
-    
-    Initial_Commit : Simple DOM Manipulation
-    Initial_Commit : Basic Configuration Parsing
-    Initial_Commit : Direct Data Binding
 ```
+
+- **Simple DOM Manipulation**
+- **Basic Configuration Parsing**
+- **Direct Data Binding**
 
 ### Controller Refactor (Jan 2023)
 
@@ -71,21 +71,19 @@ classDiagram
     
     class StateManager {
         +config: Config
-        +templates: {}
-        +partials: {}
+        +templates: {}()
+        +partials: {}()
         +update(context)
     }
     
     Controller --> StateManager : manages
     Controller --> TemplateEngine : uses
-    TemplateEngine 
-    StateManager {State Management}
 ```
 
 ### Key API Changes
 
 ```mermaid
-graph TD
+flowchart TD
     A[v1 API] --> A1[Config Object]
     A --> A2[Render Callback]
     A --> A3[Event Handler]
@@ -111,33 +109,22 @@ graph TD
 ### v1 State Flow
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Initialized
-    Initialized --> LoadingTemplates
-    LoadingTemplates --> TemplatesLoaded
+stateDiagram
+    [*] --> Initialize
+    Initialize --> LoadDashboard
+    LoadDashboard --> FetchTemplates
+    FetchTemplates --> RenderCards
+    RenderCards --> WaitForWebSocketEvent
+    WaitForWebSocketEvent --> RenderCards
     
-    TemplatesLoaded --> Watching
-    
-    Watching --> ProcessingEvents
-    ProcessingEvents --> TemplatesLoaded
-    
-    Watching --> ConfigChanged
-    ConfigChanged --> TemplatesLoaded
-    
-    state "Configuration" as Config {
-        direction TB
-        ConfigChange --> Validate
-        Validate --> ParseTemplates
-    }
-    
-    style Initialized fill:#ff9
-    style TemplatesLoaded fill:#ff9
+    style Initialize fill:#ff9
+    style RenderCards fill:#ff9
 ```
 
-### v2 State Flow 
+### v2 State Flow
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> Initializing
     
     Initializing --> LoadingConfig
@@ -149,28 +136,12 @@ stateDiagram-v2
     
     Ready --> ProcessingEvents
     
-    state TemplateProcessing {
-        direction LR
-        Processing --> TemplateParsing
-        TemplateParsing --> ContextResolution
-        ContextResolution --> PartialInclusion
-        PartialInclusion --> Execution
-        
-        Processing: Watch for Context Changes
-    }
+    Processing --> TemplateParsing
+    TemplateParsing --> ContextResolution
+    ContextResolution --> PartialInclusion
+    PartialInclusion --> Execution
     
-    ProcessingEvents --> TemplateProcessing
-    
-    state ContextManagement {
-        direction TB
-        GetContext --> FetchVariables
-        FetchVariables --> MergeContext
-        MergeContext --> TemplateExecution
-    }
-    
-    TemplateProcessing --> ContextManagement
-    
-    Ready --> ProcessingEvents
+    ExecuteTemplate --> RenderOutput
     
     style Initializing fill:#ff9
     style Ready fill:#9f9
@@ -223,7 +194,7 @@ flowchart TD
 
 **Example v2 Template:**
 ```yaml
-template: |  
+template: |
   <% let temp = context.temperature %>%
   <%= temp %>°F
 ```
@@ -235,7 +206,7 @@ template: |
 ### Partials Lifecycle
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> PartialsInitialized
     
     PartialsInitialized --> RegisteringPartials
@@ -258,14 +229,6 @@ stateDiagram-v2
     
     ReturnResult --> WaitingForIncludes
     
-    state Loading {
-        CheckCache --> LoadFromStorage
-        LoadFromStorage --> ParsePartial
-        ParsePartial --> RegisterForExecution
-    }
-    
-    LoadingPartials --> Loading
-    
     style PartialsInitialized fill:#ff9
     style ReturnResult fill:#ff9
 ```
@@ -281,27 +244,13 @@ classDiagram
         +clear()
     }
     
-    class PartialsInstance {
-        +context: Context
-        +partialTemplates: List
-    }
-    
-    PartialsRegistry --> PartialsInstance : manages
-    
-    class PartialsCard {
-        +type: custom:linked-lovelace-partials
-        +partials: Array
-    }
-    
-    PartialsCard ..> PartialsRegistry : interacts with
-    
     class PartialTemplate {
         +key: string
         +template: string
-        +context: object
+        +context: Object
     }
     
-    PartialsCard o-- PartialTemplate
+    PartialsRegistry o-- PartialTemplate
 ```
 
 ---
@@ -337,27 +286,19 @@ flowchart TB
 
 ```mermaid
 graph TB
-    subgraph "Context Inheritance Tree"
-        A[ll_context Root]
-        
-        A --> B[Dashboard Context]
-        
-        A --> C[View Context]
-        
-        A --> D[Card Context]
-        
-        B --> E[View Variables]
-        B --> F[Dashboard Variables]
-        
-        C --> G[View Variables]
-        
-        D --> H[Card Variables]
-        
-        E --> I{Context Available?}
-        F --> I
-        G --> I
-        H --> I
-    end
+    A[ll_context Root] --> B[Dashboard Context] --> C[View Context] --> D[Card Context]
+    
+    B --> E[View Variables]
+    B --> F[Dashboard Variables]
+    
+    C --> G[View Variables]
+    
+    D --> H[Card Variables]
+    
+    E --> I{Context Available?}
+    F --> I
+    G --> I
+    H --> I
     
     A fill:#9f9
     I fill:#ff9
@@ -417,25 +358,17 @@ classDiagram
         +register()
     }
     
-    class TemplateRegistry {
-        +templates: Map
-        +partials: Map
-        +config: Config
-    }
-    
     TemplateEngine --> TemplateCache : uses for caching
-    TemplateEngine --> TemplateRegistry : manages
-    TemplateCache ..> TemplateRegistry : caches templates
 ```
 
 ---
 
 ## Event Flow Diagram
 
-### Full Event LifeCycle
+### Full Event Lifecycle
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> Initialized
     
     Initialized --> WaitingForConfig
@@ -461,38 +394,8 @@ stateDiagram-v2
     DashboardReady --> CardAdded
     CardAdded --> ProcessTemplates
     
-    DashboardReady --> CardRemoved
-    CardRemoved --> RefreshTemplates
-    
-    state "Template Processing" as TemplateProc {
-        --> Parse
-        Parse --> Resolve
-        Resolve --> CheckIncludes
-        CheckIncludes --> ExecuteIncludes
-        Include --> Process
-        Process --> Execute
-        Execute --> Render
-        
-        Processing: Check Includes
-        Include: Include Statement
-        Included: Process Partial
-        Included: Execute Template
-        ProcessTemplates --> TemplateProc
-        
-        Checking: Check Includes
-        Include: Include Statement
-        Check: Process
-        ProcessTemplates --> TemplateProc
-        
-        style Initialized fill:#ff9
-        style DashboardReady fill:#9f9
-        style TemplateProc fill:#ff9
-    }
-    
-    TemplateProc --> UpdateUI
-    
     style Initialized fill:#ff9
-    style DashboardReady fill:#ff9
+    style DashboardReady fill:#9f9
 ```
 
 ---
@@ -508,11 +411,7 @@ flowchart TD
     A --> D[❌ No Type Safety]
     A --> E[❌ Hard to Extend]
     
-    B --> F[New Tech Stack]
-    C --> F
-    D --> F
-    E --> F
-    
+    F[New Tech Stack]
     F --> G[✅ TypeScript]
     F --> H[✅ Lit Components]
     F --> I[✅ ETAJS Syntax]
@@ -536,16 +435,16 @@ gantt
     Architecture Design          :done, des1, 2023-05-01, 7d
     
     section Phase 2
-    TypeScript Setup            :done, des2, 2023-05-08, 7d
-    Lit Components              :active, des3, 2023-05-15, 14d
+    TypeScript Setup            :active, des2, 2023-05-08, 7d
+    Lit Components              :2023-05-15, 14d
     
     section Phase 3
-    ETAJS Integration           :done, des4, 2023-06-01, 14d
-    Template Refactor           :done, des5, 2023-06-15, 21d
+    ETAJS Integration           :2023-06-01, 14d
+    Template Refactor           :2023-06-15, 21d
     
     section Phase 4
-    Testing Setup               :done, des6, 2023-07-01, 14d
-    Documentation               :done, des7, 2023-07-15, 14d
+    Testing Setup               :2023-07-01, 14d
+    Documentation               :2023-07-15, 14d
 ```
 
 ---
@@ -581,7 +480,7 @@ flowchart TD
 ### CI/CD Pipeline
 
 ```mermaid
-graph TD
+flowchart TD
     A[Push to master] --> B[Run Unit Tests]
     B --> C{Tests Pass?}
     C -->|Yes| D[Build Project]
@@ -646,15 +545,6 @@ graph LR
 ll_templates:
   temperature-card: |
     temperature <%= context.temperature %>°F
-  icon: |
-    <% if (context.mode === 'movie') { %>%
-      mdi:video
-    <% } else { %>%
-      mdi:sun-temperature
-    <% } %>%
-  color:
-    active: green
-    inactive: red
 
 dashboard: my-dashboard
 ll_context:
@@ -669,8 +559,9 @@ ll_context:
 ### Card Lifecycle
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> ParsingConfiguration
+    
     ParsingConfiguration --> ConfigParsed
     
     ConfigParsed --> InitializeTemplates
@@ -693,16 +584,8 @@ stateDiagram-v2
     WatchingUpdates --> ContextChanged
     ContextChanged --> RenderCards
     
-    WatchingUpdates --> TemplateChanged
+    watchingUpdates --> TemplateChanged
     TemplateChanged --> RenderCards
-    
-    state "Element Creation" as Create {
-        ProcessCardData --> CreateTemplate
-        CreateTemplate --> InjectStyles
-        InjectStyles --> ShadowDOM
-    }
-    
-    CreateElements --> Create
     
     style ControllerReady fill:#ff9
     style DisplayCards fill:#9f9

@@ -132,7 +132,7 @@ graph LR
 ### How It Worked (v1.0 Architecture)
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> Initialize
     Initialize --> LoadDashboard
     LoadDashboard --> FetchTemplates
@@ -186,23 +186,6 @@ Improve the user experience by **refactoring architecture** to use controller-ba
 - After: Controller-based architecture with separation of concerns
 - Value: Easier to maintain, test, and extend
 
-```mermaid
-flowchart LR
-    subgraph Before
-        A1[Raw Code] --> B1[Different Logic]
-        B1 --> C1[More Logic]
-    end
-    
-    subgraph After
-        A2[Controller] --> B2[Service]
-        B2 --> C2[Template Engine]
-        A2 --> D2[State Management]
-    end
-    
-    style Before fill:#ff9
-    style After fill:#9f9
-```
-
 ### Feature Timeline
 
 ```mermaid
@@ -212,10 +195,10 @@ gantt
     section Template Editor
     Improve Editor Card      :done, 2023-01-01, 14d
     section Architecture
-    Controller Refactor     :done, 2023-02-01, 21d
+    Controller Refactor      :done, 2023-02-01, 21d
     section Core Features
     LL_Keys Support          :done, 2023-03-01, 14d
-    Backup/Restore          :done, 2023-03-15, 10d
+    Backup/Restore           :done, 2023-03-15, 10d
     section UX Improvements
     Nested Templates         :active, 2023-04-01, 21d
 ```
@@ -337,24 +320,27 @@ template: |
 ```yaml
 template: |
   <% let temp = context.temperature %>%
-  $<% if (temp > 70) { %>
-    warm: the room is <%= temp %>%°F
+  <% if (temp > 70) { %>
+    warm: the room is <%= temp %>°F
   <% } else { %>
-    cold: the room is <%= temp %>%°F
-  <% } %>%
+    cold: the room is <%= temp %>°F
+  <% } %>
   # Modern ETAJS syntax
 ```
 
 ### Technology Stack Evolution
 
 ```mermaid
-graph TD
+flowchart TD
+    direction TB
     subgraph v1_Technology
+        direction TB
         A[Vanilla JavaScript] --> B[Direct DOM Updates]
         B --> C[Custom $ Variables]
     end
     
     subgraph v2_Technology
+        direction TB
         D[TypeScript + Lit] --> E[Shadow DOM Components]
         E --> F[ETAJS Template Engine]
     end
@@ -386,9 +372,9 @@ graph TD
     B --> D[Icon Based on Mode]
     B --> E[Color Based on Status]
     
-    C --> F[<%= context.temperature %>°F]
-    D --> G[<%~ include('modeToIcon', context) %>
-    E --> H[<%~ include('modeToColor', context) %>
+    C --> F[Temperature Display]
+    D --> G[Icon Logic]
+    E --> H[Color Logic]
     
     style A fill:#9f9
     style F fill:#9f9
@@ -513,42 +499,39 @@ gantt
 
 ```mermaid
 flowchart TB
-    subgraph Current_Links_Lovelace_UI
-        A[Home Assistant Lovelace Card Library]
-        
-        A --> B[Core Features]
-        A --> C[Template System]
-        A --> D[Status Cards]
-        A --> E[Documentation]
-        A --> F[Tests]
-        
-        B --> B1[Dashboard Templates]
-        B --> B2[Nested Templates]
-        B --> B3[LL_Keys Integration]
-        B --> B4[Context Inheritance]
-        
-        C --> C1[ETAJS Template Engine]
-        C --> C2[Partials System]
-        C --> C3[Include Syntax]
-        C --> C4[Template Caching]
-        
-        D --> D1[Status Cards]
-        D --> D2[Dynamic Icons]
-        D --> D3[Color Indicators]
-        D --> D4[Context Display]
-        
-        E --> E1[Vitepress Docs]
-        E --> E2[Examples]
-        E --> E3[API Reference]
-        E --> E4[Getting Started]
-        
-        F --> F1[Unit Tests (Jest)]
-        F --> F2[Integration Tests (HA)]
-        F --> F3[E2E Tests (Playwright)]
-        F --> F4[CI/CD Pipeline]
-    end
+    direction TB
+    A[Home Assistant Lovelace Card Library] --> B[Core Features]
+    A --> C[Template System]
+    A --> D[Status Cards]
+    A --> E[Documentation]
+    A --> F[Tests]
     
-    style Current_Links_Lovelace_UI fill:#9f9,stroke:#333
+    B --> B1[Dashboard Templates]
+    B --> B2[Nested Templates]
+    B --> B3[LL_Keys Integration]
+    B --> B4[Context Inheritance]
+    
+    C --> C1[ETAJS Template Engine]
+    C --> C2[Partials System]
+    C --> C3[Include Syntax]
+    C --> C4[Template Caching]
+    
+    D --> D1[Status Cards]
+    D --> D2[Dynamic Icons]
+    D --> D3[Color Indicators]
+    D --> D4[Context Display]
+    
+    E --> E1[Vitepress Docs]
+    E --> E2[Examples]
+    E --> E3[API Reference]
+    E --> E4[Getting Started]
+    
+    F --> F1[Unit Tests (Jest)]
+    F --> F2[Integration Tests (HA)]
+    F --> F3[E2E Tests (Playwright)]
+    F --> F4[CI/CD Pipeline]
+    
+    style A fill:#9f9,stroke:#333
 ```
 
 ### Features & Capabilities
@@ -607,32 +590,11 @@ stateDiagram-v2
     User_Installs --> Configure_Dashboard
     Configure_Dashboard --> Load_Template
     Load_Template --> Initialize_Status_Card
-    
     Initialize_Status_Card --> Watch_for_Changes
     Watch_for_Changes --> Update_Templates
     Update_Templates --> Render_Cards
     Render_Cards --> Display_in_View
-    
     Display_in_View --> Render_Cards
-    
-    subgraph Context_System
-        Update_Templates --> Fetch_Context
-        Fetch_Context --> Apply_to_Templates
-        
-        Fetch_Context --> Include_Partials
-        Include_Partials --> Merge_With_Context
-        
-        Merge_With_Context --> Apply_to_Template
-    end
-    
-    subgraph Template_Engine
-        Apply_to_Template --> Parse_Templates
-        Parse_Templates --> Execute_Template
-        Execute_Template --> Render_Output
-        
-        Include_Partials --> Resolve_Partials
-        Resolve_Partials --> Render_Partials
-    end
     
     style User_Installs fill:#9f9
     style Display_in_View fill:#9f9
@@ -656,11 +618,11 @@ templates:
     <% let temp = context._temperature %>%
     <%= temp %>°F
   icon: |
-    <% if (context.mode === 'movie') { %>%
+    <% if (context.mode === 'movie') { %>
       mdi:video
-    <% } else { %>%
+    <% } else { %>
       mdi:sun-temperature
-    <% } %>%
+    <% } %>
 dashboard: "My Dashboard"
 ```
 
@@ -715,7 +677,8 @@ dashboard: "My Dashboard"
 ### Future Directions
 
 ```mermaid
-graph TD
+flowchart TD
+    direction TB
     A[Current State] --> B[Performance Optimization]
     A --> C[Template Editor UI]
     A --> D[Visual Template Builder]
@@ -767,8 +730,8 @@ gantt
 
 ```mermaid
 pie title Technology Stack Evolution
-    "JavaScript (v1)" : 300
-    "TypeScript (v2)" : 700
+    "JavaScript" : 300
+    "TypeScript" : 700
     "Lit Components" : 650
     "ETAJS Templates" : 500
     "Rollup Build" : 400
