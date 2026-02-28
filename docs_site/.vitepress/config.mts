@@ -1,7 +1,8 @@
 import { defineConfig } from 'vitepress'
+import {withMermaid} from "vitepress-plugin-mermaid";
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: "Linked Lovelace",
   description: "Usage and Development Notes",
   base: "/linked-lovelace-ui/",
@@ -37,4 +38,4 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/daredoes/linked-lovelace-ui' }
     ]
   }
-})
+}))
