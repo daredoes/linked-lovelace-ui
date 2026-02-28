@@ -48,10 +48,6 @@ classDiagram
     }
 ```
 
-- **Simple DOM Manipulation**
-- **Basic Configuration Parsing**
-- **Direct Data Binding**
-
 ### Controller Refactor (Jan 2023)
 
 ```mermaid
@@ -71,8 +67,8 @@ classDiagram
     
     class StateManager {
         +config: Config
-        +templates: {}()
-        +partials: {}()
+        +templates: Dictionary
+        +partials: Dictionary
         +update(context)
     }
     
@@ -83,7 +79,7 @@ classDiagram
 ### Key API Changes
 
 ```mermaid
-flowchart TD
+graph TD
     A[v1 API] --> A1[Config Object]
     A --> A2[Render Callback]
     A --> A3[Event Handler]
@@ -135,13 +131,13 @@ stateDiagram
     LoadingPartials --> Ready
     
     Ready --> ProcessingEvents
+    ProcessingEvents --> ProcessTemplates
+    ProcessTemplates --> RenderCards
     
-    Processing --> TemplateParsing
-    TemplateParsing --> ContextResolution
-    ContextResolution --> PartialInclusion
-    PartialInclusion --> Execution
-    
-    ExecuteTemplate --> RenderOutput
+    ProcessingEvents --> ContextManagement
+    ProcessTemplates --> TemplateParsing
+    ProcessTemplates --> ContextResolution
+    ProcessTemplates --> PartialInclusion
     
     style Initializing fill:#ff9
     style Ready fill:#9f9
@@ -207,29 +203,23 @@ template: |
 
 ```mermaid
 stateDiagram
-    [*] --> PartialsInitialized
-    
-    PartialsInitialized --> RegisteringPartials
+    [*] --> PartialsInitialize
+    PartialsInitialize --> RegisteringPartials
     
     RegisteringPartials --> PartialsRegistered
-    
     PartialsRegistered --> WaitingForIncludes
     
     WaitingForIncludes --> IncludeDetected
-    
     IncludeDetected --> LoadPartial
-    
     LoadPartial --> RenderPartial
     
     RenderPartial --> MergeContext
-    
     MergeContext --> ExecuteInContext
-    
     ExecuteInContext --> ReturnResult
     
     ReturnResult --> WaitingForIncludes
     
-    style PartialsInitialized fill:#ff9
+    style PartialsInitialize fill:#ff9
     style ReturnResult fill:#ff9
 ```
 
@@ -238,7 +228,7 @@ stateDiagram
 ```mermaid
 classDiagram
     class PartialsRegistry {
-        +partials: Map
+        +partials
         +register(key, template)
         +getPartial(key)
         +clear()
@@ -300,8 +290,8 @@ graph TB
     G --> I
     H --> I
     
-    A fill:#9f9
-    I fill:#ff9
+    style A fill:#9f9
+    style I fill:#ff9
 ```
 
 ---
@@ -327,7 +317,6 @@ flowchart TD
     G -->|No| I[Parse Template]
     
     I --> J{Has Include?}
-    
     H --> J
     
     J -->|Yes| K[Resolve Partials]
@@ -336,8 +325,8 @@ flowchart TD
     K --> L
     L --> M[Render Output]
     
-    C fill:#ff9
-    M fill:#9f9
+    style C fill:#ff9
+    style M fill:#9f9
 ```
 
 ### Template Cache Strategy
@@ -358,7 +347,8 @@ classDiagram
         +register()
     }
     
-    TemplateEngine --> TemplateCache : uses for caching
+    TemplateEngine --> TemplateCache : uses
+    TemplateEngine --> TemplateRegistry : manages
 ```
 
 ---
@@ -375,7 +365,6 @@ stateDiagram
     WaitingForConfig --> ConfigReceived
     
     ConfigReceived --> InitializingEngine
-    
     InitializingEngine --> LoadingTemplates
     LoadingTemplates --> LoadingPartials
     
@@ -384,7 +373,6 @@ stateDiagram
     DashboardReady --> WatchingContext
     
     WatchingContext --> ContextChange
-    
     ContextChange --> ProcessTemplates
     
     ProcessTemplates --> UpdateUI
@@ -393,6 +381,9 @@ stateDiagram
     
     DashboardReady --> CardAdded
     CardAdded --> ProcessTemplates
+    
+    DashboardReady --> CardRemoved
+    CardRemoved --> RefreshTemplates
     
     style Initialized fill:#ff9
     style DashboardReady fill:#9f9
@@ -407,8 +398,8 @@ stateDiagram
 ```mermaid
 flowchart TD
     A[Current State v1] --> B[❌ Vanilla JS]
-    A --> C[❌ Custom $ Syntax]
-    A --> D[❌ No Type Safety]
+    A --> C[❌ Custom Variables]
+    A --> D[❌ noTypeSafety]
     A --> E[❌ Hard to Extend]
     
     F[New Tech Stack]
@@ -431,6 +422,7 @@ flowchart TD
 gantt
     title v2 Migration Timeline
     dateFormat  YYYY-MM-DD
+    axisFormat  %Y-%m
     section Phase 1
     Architecture Design          :done, des1, 2023-05-01, 7d
     
@@ -454,7 +446,7 @@ gantt
 ### Test Strategy Overview
 
 ```mermaid
-flowchart TD
+flowchart TB
     A[Testing Strategy] --> B[Unit Tests]
     A --> C[Integration Tests]
     A --> D[E2E Tests]
@@ -492,6 +484,7 @@ flowchart TD
     
     style A fill:#ff9
     style I fill:#9f9
+    style C fill:#ff9
 ```
 
 ---
@@ -503,11 +496,11 @@ flowchart TD
 ```mermaid
 graph LR
     A[config.yaml] --> B[templates:]
-    B --> C[template: "key"]
-    C --> D[view: "Main"]
+    B --> C[template key]
+    C --> D[view Main]
     D --> E[sections:]
     E --> F[subsections:]
-    F --> G[card: "type"]
+    F --> G[card type]
     
     style A fill:#ff9
 ```
@@ -584,7 +577,6 @@ stateDiagram
     WatchingUpdates --> ContextChanged
     ContextChanged --> RenderCards
     
-    watchingUpdates --> TemplateChanged
     TemplateChanged --> RenderCards
     
     style ControllerReady fill:#ff9

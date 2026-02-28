@@ -19,13 +19,13 @@ graph TD
     E --> F[Mar 2024]
     F --> G[Feb 2026]
     
-    A -->|Initial Commit| B1[Template Editor Card]
-    B -->|First Working Build| B2[Template Dashboards & Websockets]
-    C -->|v1 Beta| C1[Core Functionality]
-    D -->|Controller Refactor| D1[Better UX & Architecture]
-    E -->|v2 Rewrite| E1[Modern Stack & ETAJS]
-    F -->|Documentation| F1[Vitepress & CI/CD]
-    G -->|Testing| G1[Comprehensive Tests]
+    A --> A1[Template Editor Card]
+    B --> B2[Template Dashboards & Websockets]
+    C --> C1[Core Functionality]
+    D --> D1[Better UX & Architecture]
+    E --> E1[Modern Stack & ETAJS]
+    F --> F1[Vitepress & CI/CD]
+    G --> G1[Comprehensive Tests]
     
     style A fill:#f9f,stroke:#333
     style E fill:#ff9,stroke:#333
@@ -50,7 +50,7 @@ The project began as a **template editor card** for Home Assistant. The goal was
 ### How It Worked (Before)
 
 ```mermaid
-flowchart TD
+graph TD
     A[User Opened Card] --> B[Raw Config Input]
     B --> C[Manual YAML Editing]
     C --> D[Save to Dashboard]
@@ -61,7 +61,7 @@ flowchart TD
 ### How It Worked (After)
 
 ```mermaid
-flowchart TD
+graph TD
     A[User Opened Card] --> B[User-Friendly Editor]
     B --> C[Template Preview]
     C --> D[Save to Dashboard]
@@ -140,8 +140,8 @@ stateDiagram
     RenderCards --> WaitForWebSocketEvent
     WaitForWebSocketEvent --> RenderCards
     
-    style Initialize fill:#9f9
-    style RenderCards fill:#9f9
+    style Initialize fill:#ff9
+    style RenderCards fill:#ff9
 ```
 
 ### Before/After Comparison
@@ -159,7 +159,7 @@ cards:
 type: custom:linked-lovelace
 templates:
   - key: "My Dashboard"
-    template: "<% variables.temperature %>%°F"
+    template: "<% variables.temperature %>°F"
 ```
 
 ---
@@ -192,6 +192,7 @@ Improve the user experience by **refactoring architecture** to use controller-ba
 gantt
     title v1 Beta Features
     dateFormat  YYYY-MM-DD
+    axisFormat  %Y-%m
     section Template Editor
     Improve Editor Card      :done, 2023-01-01, 14d
     section Architecture
@@ -285,6 +286,13 @@ ll_context:
 
 ```mermaid
 classDiagram
+    class V1_Controller
+    class V2_TemplateController
+    class V2_State
+    
+    V2_TemplateController --|> V2_State : manages
+    V1_Controller ..|> V2_TemplateController : evolved into
+    
     class V1_Controller {
         +render()
         +update()
@@ -302,9 +310,6 @@ classDiagram
         +partials: Record
         +config: Config
     }
-    
-    V2_TemplateController --> V2_State : manages
-    V1_Controller ..> V2_TemplateController : evolved into
 ```
 
 ### Before/After: Template Syntax
@@ -320,31 +325,28 @@ template: |
 ```yaml
 template: |
   <% let temp = context.temperature %>%
-  <% if (temp > 70) { %>
+  <% if (temp > 70) { %>%
     warm: the room is <%= temp %>°F
-  <% } else { %>
+  <% } else { %>%
     cold: the room is <%= temp %>°F
-  <% } %>
+  <% } %>%
   # Modern ETAJS syntax
 ```
 
 ### Technology Stack Evolution
 
 ```mermaid
-flowchart TD
-    direction TB
+graph TD
     subgraph v1_Technology
         direction TB
         A[Vanilla JavaScript] --> B[Direct DOM Updates]
-        B --> C[Custom $ Variables]
+        B --> C[Custom Variables]
     end
-    
     subgraph v2_Technology
         direction TB
         D[TypeScript + Lit] --> E[Shadow DOM Components]
         E --> F[ETAJS Template Engine]
     end
-    
     style v1_Technology fill:#ff9
     style v2_Technology fill:#9f9
 ```
@@ -371,11 +373,9 @@ graph TD
     B --> C[Display Current Temperature]
     B --> D[Icon Based on Mode]
     B --> E[Color Based on Status]
-    
     C --> F[Temperature Display]
     D --> G[Icon Logic]
     E --> H[Color Logic]
-    
     style A fill:#9f9
     style F fill:#9f9
 ```
@@ -404,19 +404,17 @@ graph TD
 ### Documentation Site
 
 ```mermaid
-flowchart TD
+graph TD
     A[Documentation Site] --> B[Home Page]
     A --> C[Getting Started]
     A --> D[Creating Partials]
     A --> E[Templates Context]
     A --> F[Runtime API Examples]
-    
     B --> G[Quick Links]
     C --> H[Installation Guide]
     D --> I[Partial Templates]
     E --> J[Template Variables]
     F --> K[Code Examples]
-    
     style A fill:#9f9
     style G fill:#9f9
 ```
@@ -433,7 +431,6 @@ graph TD
     F -->|Yes| G[Deploy to HACS]
     F -->|No| H[Report Build Failure]
     G --> I[Update Version]
-    
     style A fill:#ff9
     style C fill:#ff9
     style I fill:#9f9
@@ -442,7 +439,7 @@ graph TD
 ### Testing Infrastructure
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> Unit_Tests
     Unit_Tests -->|Pass| Docker_Container
     Docker_Container --> Integration_Tests
@@ -450,7 +447,6 @@ stateDiagram-v2
     Playwright_Browser --> E2E_Tests
     E2E_Tests -->|Pass| Generate_Report
     Generate_Report --> [*]
-    
     style Unit_Tests fill:#9f9
     style E2E_Tests fill:#ff9
     style Generate_Report fill:#9f9
@@ -476,19 +472,18 @@ stateDiagram-v2
 gantt
     title Version History
     dateFormat  YYYY-MM-DD
+    axisFormat  %Y-%m
     section v1 Era
-    Original Release           :done, v1.0, 2022-12-01, 30d
-    Template Improvements      :done, v1.1, 2023-01-15, 45d
-    v1 Beta Features           :done, v1.2-beta, 2023-02-01, 60d
-    
+    Original Release           :done, v1.0, 2022-12-01, 2022-12-31
+    Template Improvements      :done, v1.1, 2023-01-15, 2023-03-01
+    v1 Beta Features           :done, v1.2-beta, 2023-02-01, 2023-04-01
     section v2 Era
-    v2 Rewrite                 :done, v2.0, 2023-06-01, 90d
-    Template Engine Update     :done, v2.1, 2023-07-15, 30d
-    Modern Stack Migration     :done, v2.2, 2023-08-01, 60d
-    
+    v2 Rewrite                 :done, v2.0, 2023-06-01, 2023-07-30
+    Template Engine Update     :done, v2.1, 2023-07-15, 2023-08-15
+    Modern Stack Migration     :done, v2.2, 2023-08-01, 2023-08-31
     section Ecosystem
-    Documentation Site         :done, v3.0-docs, 2024-03-01, 90d
-    Testing Infrastructure     :active, v3.1-tests, 2026-02-27, 30d
+    Documentation Site         :done, v3.0-docs, 2024-03-01, 2024-05-31
+    Testing Infrastructure     :active, v3.1-tests, 2026-02-01, 2026-02-28
 ```
 
 ---
@@ -498,39 +493,33 @@ gantt
 ### What the Project Is Now
 
 ```mermaid
-flowchart TB
-    direction TB
-    A[Home Assistant Lovelace Card Library] --> B[Core Features]
+grid TB
+    A[Home Assistant Lovelace Card Library]
+    A --> B[Core Features]
     A --> C[Template System]
     A --> D[Status Cards]
     A --> E[Documentation]
     A --> F[Tests]
-    
     B --> B1[Dashboard Templates]
     B --> B2[Nested Templates]
     B --> B3[LL_Keys Integration]
     B --> B4[Context Inheritance]
-    
     C --> C1[ETAJS Template Engine]
     C --> C2[Partials System]
     C --> C3[Include Syntax]
     C --> C4[Template Caching]
-    
     D --> D1[Status Cards]
     D --> D2[Dynamic Icons]
     D --> D3[Color Indicators]
     D --> D4[Context Display]
-    
     E --> E1[Vitepress Docs]
     E --> E2[Examples]
     E --> E3[API Reference]
     E --> E4[Getting Started]
-    
     F --> F1[Unit Tests (Jest)]
     F --> F2[Integration Tests (HA)]
     F --> F3[E2E Tests (Playwright)]
     F --> F4[CI/CD Pipeline]
-    
     style A fill:#9f9,stroke:#333
 ```
 
@@ -585,7 +574,7 @@ flowchart TB
 ### How It Works Now
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> User_Installs
     User_Installs --> Configure_Dashboard
     Configure_Dashboard --> Load_Template
@@ -595,7 +584,6 @@ stateDiagram-v2
     Update_Templates --> Render_Cards
     Render_Cards --> Display_in_View
     Display_in_View --> Render_Cards
-    
     style User_Installs fill:#9f9
     style Display_in_View fill:#9f9
 ```
@@ -618,11 +606,11 @@ templates:
     <% let temp = context._temperature %>%
     <%= temp %>°F
   icon: |
-    <% if (context.mode === 'movie') { %>
+    <% if (context.mode === 'movie') { %>%
       mdi:video
-    <% } else { %>
+    <% } else { %>%
       mdi:sun-temperature
-    <% } %>
+    <% } %>%
 dashboard: "My Dashboard"
 ```
 
@@ -677,29 +665,23 @@ dashboard: "My Dashboard"
 ### Future Directions
 
 ```mermaid
-flowchart TD
-    direction TB
+graph TD
     A[Current State] --> B[Performance Optimization]
     A --> C[Template Editor UI]
     A --> D[Visual Template Builder]
     A --> E[Smart Defaults]
-    
     B --> B1[Template Pre-compilation]
     B --> B2[Execution Caching]
     B --> B3[Lazy Loading]
-    
     C --> C1[Syntax Highlighting]
     C --> C2[Intellisense]
     C --> C3[Auto-complete]
-    
     D --> D1[Drag & Drop]
     D --> D2[Visual Context Mapping]
     D --> D3[Live Preview]
-    
     E --> E1[Context Auto-detection]
     E --> E2[Suggested Templates]
     E --> E3[Error Warnings]
-    
     style A fill:#9f9
     style B1 fill:#ff9
     style C1 fill:#ff9
@@ -719,24 +701,25 @@ gantt
     dateFormat  YYYY-MM-DD
     axisFormat  %Y-%m
     section Commits
-    Initial Phase          :done,    2022-11-01, 2022-12-31
-    v1 Beta Phase          :done,    2022-12-15, 2023-04-01
-    v2 Rewrite Phase       :done,    2023-06-01, 2023-08-30
-    Documentation Phase    :done,    2024-03-01, 2024-05-30
-    Testing Phase          :active,  2026-02-01, 2026-02-28
+    Initial Phase          :done, 2022-11-01, 2022-12-31
+    v1 Beta Phase          :done, 2022-12-15, 2023-04-01
+    v2 Rewrite Phase       :done, 2023-06-01, 2023-08-30
+    Documentation Phase    :done, 2024-03-01, 2024-05-30
+    Testing Phase          :active, 2026-02-01, 2026-02-28
 ```
 
 ### Technology Adoption
 
 ```mermaid
-pie title Technology Stack Evolution
-    "JavaScript" : 300
-    "TypeScript" : 700
-    "Lit Components" : 650
-    "ETAJS Templates" : 500
-    "Rollup Build" : 400
-    "Jest Testing" : 200
-    "Playwright E2E" : 100
+pie
+    title Technology Stack Evolution
+        "JavaScript" : 300
+        "TypeScript" : 700
+        "Lit Components" : 650
+        "ETAJS Templates" : 500
+        "Rollup Build" : 400
+        "Jest Testing" : 200
+        "Playwright E2E" : 100
 ```
 
 ---
