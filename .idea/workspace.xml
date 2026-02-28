@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="37b1b329-7122-4950-b3cf-4517e96ae115" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs_site/.vitepress/config.mts" beforeDir="false" afterPath="$PROJECT_DIR$/docs_site/.vitepress/config.mts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs_site/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/docs_site/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +13,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="224" />
+    <option name="cachedIndexableFilesCount" value="265" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -181,7 +179,7 @@
       <workItem from="1755653417502" duration="5912000" />
       <workItem from="1759260452059" duration="6000" />
       <workItem from="1772175095948" duration="1351000" />
-      <workItem from="1772224815767" duration="2721000" />
+      <workItem from="1772224815767" duration="6586000" />
     </task>
     <servers />
   </component>
