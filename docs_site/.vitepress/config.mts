@@ -13,13 +13,22 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: 'Quick Start',
+        text: 'Documentation',
         items: [
+          { text: 'Home', link: '/' },
           { text: 'Getting Started', link: '/getting-started' },
           { text: 'Creating Your First Template', link: '/create-your-first-template' },
           { text: 'Using the Status Card', link: '/using-the-status-card' },
           { text: 'Providing Template Context', link: '/providing-template-context' },
           { text: 'Creating Partials', link: '/creating-partials' },
+          { text: 'API Examples', link: '/api-examples' },
+        ]
+      },
+      {
+        text: 'Project',
+        items: [
+          { text: 'Project History', link: '/project-history' },
+          { text: 'API Evolution', link: '/api-evolution' },
         ]
       }
     ],
