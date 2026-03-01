@@ -1,6 +1,0 @@
-<% let mode = context.mode ? context.mode.toLowerCase() : '' _%>
-<%_ if (mode === "passive") { _%>
-<%_ } else if (mode === 'off') { _%>
-red
-<%_ } else { _%>
-<%_ } _%>
