@@ -1,5 +1,5 @@
 /node_modules/
-/.rpt2_cache/
+.rpt2_cache/
 package-lock.json
 /dist
 src/version.ts
@@ -11,3 +11,19 @@ docs_site/node_modules
 !/dev/config/configuration.yaml
 !/dev/config/ui-lovelace.yaml
 /.tmp
+
+# Test artifacts - do not commit
+test-results/
+**/test-results/
+test-outputs/
+**/test-outputs/
+**/*.webm
+**/*.png
+**/*.mp4
+**/.trace/
+**/*.har
+**/video*/
+test-attachments/
+**/test-results/**/*.png
+**/playwright-report/
+**/playwright/.cache/
