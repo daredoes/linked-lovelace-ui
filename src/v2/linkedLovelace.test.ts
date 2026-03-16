@@ -6,14 +6,16 @@ describe('[class] LinkedLovelaceController', () => {
     expect(controller).toBeDefined;
   });
 
-  test('gets something with something when given an ID', () => {
+  test('gets something with something when given an ID', async () => {
     const controller = new LinkedLovelaceController();
     controller.templateController.templates
-    controller.registerTemplates({'test': {
-      type: 'test'
-    }})
+    await controller.registerTemplates({
+      'test': {
+        type: 'test'
+      }
+    })
     expect(Object.keys(controller.templateController.templates)).toHaveLength(1)
   });
-  
-  
+
+
 });

@@ -8,11 +8,11 @@ import type { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial, 
 import './types';
 import { localize } from './localize/localize';
 import { LinkedLovelaceTemplateCardEditor } from './template-editor';
-import { log } from './helpers';
+import { log } from './util';
 import HassController from './controllers/hass';
 import { GlobalLinkedLovelace } from './instance';
 import Diff from './helpers/diff';
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 
 const stringify = (text) => {
@@ -27,7 +27,7 @@ const createDiff = (obj1 = {}, obj2 = {}) => {
   try {
 
     const differ = new Diff()
-    const di = differ.main(stringify(obj1), stringify(obj2), false, 0) 
+    const di = differ.main(stringify(obj1), stringify(obj2), false, 0)
     return di;
   } catch (e) {
     console.error(e)
@@ -74,7 +74,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   @state() private _partials: Record<string, LinkedLovelacePartial> = {};
   @state() private _templates: Record<string, DashboardCard> = {};
-  @state() private _dashboards: Record<string,Dashboard> = {};
+  @state() private _dashboards: Record<string, Dashboard> = {};
   @state() private _diffedDashboards: Record<string, string> = {};
   @state() private _backedUpDashboardConfigs: Record<string, DashboardConfig | null | undefined> = {};
   @state() private _backupString: string = "";
@@ -141,12 +141,12 @@ export class LinkedLovelaceStatusCard extends LitElement {
     const oldForward = this._controller?.forwardLogs || false;
     this._controller = new HassController();
     this._controller.forwardLogs = oldForward;
-    this._controller!.addToLogs({msg: "Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled."})
+    this._controller!.addToLogs({ msg: "Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled." })
     const backupDashboardConfigs = {}
     await GlobalLinkedLovelace.instance.api.getDashboards().then(async (dashboards) => {
       return Promise.all(dashboards.map(async (dashboard) => {
         return await GlobalLinkedLovelace.instance.api.getDashboardConfig(dashboard.url_path).then((config) => {
-          backupDashboardConfigs[dashboard.url_path ? dashboard.url_path : ''] = config; 
+          backupDashboardConfigs[dashboard.url_path ? dashboard.url_path : ''] = config;
         }).catch((e) => {
           console.error(`Failed to get dashboard at url ${dashboard.url_path}`, dashboard, e)
         });
@@ -156,24 +156,24 @@ export class LinkedLovelaceStatusCard extends LitElement {
     });
     this._backedUpDashboardConfigs = backupDashboardConfigs;
     this._backupString = "text/json;charset=utf-8," + encodeURIComponent(stringify(backupDashboardConfigs));
-    this._controller!.addToLogs({msg: "Backed up current dashboard data. Download as JSON via button."})
+    this._controller!.addToLogs({ msg: "Backed up current dashboard data. Download as JSON via button." })
     await this._controller.refresh();
-    this._partials = this._controller.linkedLovelaceController.etaController.partials
+    this._partials = this._controller.linkedLovelaceController.templatePartialController.partials
     this._templates = this._controller.linkedLovelaceController.templateController.templates
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards()
     dashboards.forEach((dashboard) => {
       this._dashboards[dashboard.url_path ? dashboard.url_path : ''] = dashboard
     })
-    this._controller!.addToLogs({msg: "Determining Changes. Ignore 'Update' Messages. Dry-Run is enabled."})
+    this._controller!.addToLogs({ msg: "Determining Changes. Ignore 'Update' Messages. Dry-Run is enabled." })
     await this.handleDryRun()
-    this._controller!.addToLogs({msg: "Determined Changes. Ignore 'Update' Messages. Dry-Run is enabled."})
-    this._controller!.addToLogs({msg: "Ready for user input."})
+    this._controller!.addToLogs({ msg: "Determined Changes. Ignore 'Update' Messages. Dry-Run is enabled." })
+    this._controller!.addToLogs({ msg: "Ready for user input." })
     this._loaded = true;
     this._repaint();
   };
 
-  
-  
+
+
 
   private toggleShowDryRun = async () => {
     this._show_difference = !this._show_difference;
@@ -211,7 +211,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
   private handleRun = async () => {
     if (confirm(`This will overwrite the contents of all modified dashboards. Proceed at your own risk. Be sure to back up your system before making changes you are not sure about.`)) {
       const dashboardKeys = Object.keys(this._diffedDashboards)
-      for(let i = 0; i < dashboardKeys.length; i++) {
+      for (let i = 0; i < dashboardKeys.length; i++) {
         await this.overwriteDashboard(dashboardKeys[i], true)
       }
       this._repaint()
@@ -278,11 +278,11 @@ export class LinkedLovelaceStatusCard extends LitElement {
         ${this._loaded ? html`
         <div class="tabs">
         ${Object.keys(this._tabs).map((tabKey) => {
-          const tabData = this._tabs[tabKey];
-          return html`
-            <div class="tab ${this._tab === tabKey ? 'active' : ''}" @click="${() => {this._tab = tabKey; this._repaint()}}">${tabData.name}</div>
+      const tabData = this._tabs[tabKey];
+      return html`
+            <div class="tab ${this._tab === tabKey ? 'active' : ''}" @click="${() => { this._tab = tabKey; this._repaint() }}">${tabData.name}</div>
           `
-        })}
+    })}
         </div>
         <div>
         <div class="tab-content ${this._tab === TAB_DASHBOARDS ? 'active' : ''}">
@@ -293,13 +293,13 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <span class="accordion-bar" @click=${this.toggleShowTemplates}><span class="icon">${this._show_templates ? html`&#9660;` : html`&#9658;`} </span><span class="title">Templates</span></span>
           </div>
           ${Object.keys(this._controller?.dashboardsToViews || {}).map((dashboardUrl) => {
-            const views = this._controller?.dashboardsToViews[dashboardUrl]
-            return Object.keys(views || {}).map((viewKey) => {
-              const view = views![viewKey]
-              const templates = view.templates
-              return Object.keys(templates || {}).map((templateKey) => {
-                const templateData = templates![templateKey]
-              return html`
+      const views = this._controller?.dashboardsToViews[dashboardUrl]
+      return Object.keys(views || {}).map((viewKey) => {
+        const view = views![viewKey]
+        const templates = view.templates
+        return Object.keys(templates || {}).map((templateKey) => {
+          const templateData = templates![templateKey]
+          return html`
               <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${templateKey}</a>
               <pre class="${this._show_templates ? '' : 'hidden'}">
               <code>
@@ -307,10 +307,10 @@ export class LinkedLovelaceStatusCard extends LitElement {
               </code>
               </pre>
                 `
-              })
-            })
-          }
-          )}
+        })
+      })
+    }
+    )}
           </div>
         </div>
         <div class="tab-content ${this._tab === TAB_PARTIALS ? 'active' : ''}">
@@ -319,13 +319,13 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <span class="accordion-bar" @click=${this.toggleShowPartials}><span class="icon">${this._show_partials ? html`&#9660;` : html`&#9658;`} </span><span class="title">Partials</span></span>
           </div>
           ${Object.keys(this._controller?.dashboardsToViews || {}).map((dashboardUrl) => {
-            const views = this._controller?.dashboardsToViews[dashboardUrl]
-            return Object.keys(views || {}).map((viewKey) => {
-              const view = views![viewKey]
-              const partials = view.partials
-            return Object.keys(partials || {}).map((partialKey) => {
-              const partialData = partials![partialKey]
-            return html`
+      const views = this._controller?.dashboardsToViews[dashboardUrl]
+      return Object.keys(views || {}).map((viewKey) => {
+        const view = views![viewKey]
+        const partials = view.partials
+        return Object.keys(partials || {}).map((partialKey) => {
+          const partialData = partials![partialKey]
+          return html`
             <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${partialKey}</a>
             <pre class="${this._show_partials ? '' : 'hidden'}">
             <code>
@@ -333,10 +333,10 @@ export class LinkedLovelaceStatusCard extends LitElement {
             </code>
             </pre>
               `
-            })
-            })
-          }
-          )}
+        })
+      })
+    }
+    )}
           </div>
         </div>
         <div class="tab-content ${this._tab === TAB_LOGS ? 'active' : ''}">
@@ -347,8 +347,8 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <pre class="${this._show_logs ? '' : 'hidden'}">
           <code>
           ${this._controller?.logs.map((logText) => {
-            return html`<p>${logText}</p>`
-          })}
+      return html`<p>${logText}</p>`
+    })}
           </code>
           </pre>
           </div>
@@ -365,12 +365,12 @@ export class LinkedLovelaceStatusCard extends LitElement {
         ${this._difference && html`
         ${this._show_difference ? html`<div>
         ${diffedDashboardKeys.map((dashboardKey) => {
-          const dashboardData = this._dashboards[dashboardKey]
-          const myDiff = this._diffedDashboards[dashboardKey]
-          return html`
+      const dashboardData = this._dashboards[dashboardKey]
+      const myDiff = this._diffedDashboards[dashboardKey]
+      return html`
           <div class="header">
             <p>Dashboard: ${dashboardData.title}</p>
-            <ha-progress-button @click=${() => {this.overwriteDashboard(dashboardKey)}}>
+            <ha-progress-button @click=${() => { this.overwriteDashboard(dashboardKey) }}>
                  Update
             </ha-progress-button>
           </div>
@@ -380,7 +380,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
           </code>
           </pre>
           `
-        })}
+    })}
         </div>` : ''}
         `}
         </div>

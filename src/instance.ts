@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { getHass, log } from "./helpers";
+import { getHass, log } from "./util";
 import LinkedLovelaceApi from "./linked-lovelace-api";
 import { Debug } from "./debug";
 
@@ -31,7 +31,7 @@ export const initialize = (onFinish?: () => void) => {
     // may get overwritten by the polyfill if card-mod is loaded as a module
     while (customElements.get('home-assistant') === undefined)
       await new Promise((resolve) => window.setTimeout(resolve, 100));
-  
+
     Debug.instance.log('initalized')
     if (onFinish) {
       onFinish()
