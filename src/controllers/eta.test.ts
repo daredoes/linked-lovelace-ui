@@ -1,6 +1,11 @@
 import { DashboardPartialsCard, LINKED_LOVELACE_PARTIALS } from '../types';
 import EtaTemplateController from './eta';
 
+// Mock axios to avoid live network calls in tests
+jest.mock('axios', () => ({
+  get: jest.fn().mockResolvedValue({ data: 'testtest' })
+}));
+
 describe('[class] TemplateController', () => {
   test('sets up as expected', () => {
     const controller = new EtaTemplateController();
