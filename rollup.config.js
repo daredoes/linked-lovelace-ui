@@ -41,7 +41,11 @@ const plugins = [
   }),
   typescript({
     tsconfigOverride: {
-      exclude: ["**/__tests__", "**/*.test.ts"]
+      // Only build the card from src/. The e2e/ dir is a separate Playwright
+      // project with its own deps (@playwright/test) and must not be typechecked
+      // here, or CI `yarn build` fails with TS2307 (deps only in e2e/node_modules).
+      include: ["src/**/*"],
+      exclude: ["**/__tests__", "**/*.test.ts", "e2e", "docs_site"]
     }
   }),
   json(),

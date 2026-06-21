@@ -22,5 +22,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "baseUrl": "./",
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "e2e", "docs_site", "rollup-plugins"]
 }
