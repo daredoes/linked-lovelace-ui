@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+// withMermaid wraps the standard config so ```mermaid code fences render as diagrams.
+export default withMermaid(defineConfig({
   title: "Linked Lovelace",
   description: "Reusable card templates for Home Assistant dashboards",
   base: "/linked-lovelace-ui/",
@@ -11,6 +13,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
       { text: 'Starter Dashboard', link: '/starter-dashboard' },
+      { text: 'Lifecycles', link: '/lifecycles' },
       { text: 'API Reference', link: '/api-reference' },
     ],
 
@@ -40,6 +43,12 @@ export default defineConfig({
           { text: 'Troubleshooting', link: '/troubleshooting' },
         ]
       },
+      {
+        text: 'Internals',
+        items: [
+          { text: 'Lifecycles', link: '/lifecycles' },
+        ]
+      },
     ],
 
     socialLinks: [
@@ -54,5 +63,9 @@ export default defineConfig({
       message: 'Released under the MIT License.',
       copyright: 'Copyright © Daniel Evans'
     }
+  },
+
+  mermaid: {
+    // mermaid options — inherit theme from the page, leave defaults otherwise
   }
-})
+}))
