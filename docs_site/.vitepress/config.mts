@@ -10,6 +10,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
+      { text: 'Starter Dashboard', link: '/starter-dashboard' },
       { text: 'API Reference', link: '/api-reference' },
     ],
 
@@ -18,6 +19,7 @@ export default defineConfig({
         text: 'Quick Start',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
+          { text: 'Starter Dashboard', link: '/starter-dashboard' },
           { text: 'Creating Your First Template', link: '/create-your-first-template' },
           { text: 'Using the Status Card', link: '/using-the-status-card' },
           { text: 'Providing Template Context', link: '/providing-template-context' },

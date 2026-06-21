@@ -45,6 +45,11 @@ is `yarn`. Note `.devcontainer/ui-lovelace.yaml` references the **stale** type
 - `src/linked-lovelace-ui.ts` — entry; imports + registers the cards.
 - `src/linked-lovelace-status.ts` — overview/control card (Load Data, Update All).
 - `src/linked-lovelace-template.ts` / `-partials.ts` — template/partial cards.
+- `src/linked-lovelace-starter.ts` — Starter card: one click → drops in the
+  pre-built demo dashboard (showcase config in `src/demoDashboard.ts`, unit
+  tested in `src/demoDashboard.test.ts`, e2e in `e2e/tests/starter.spec.ts`,
+  documented at `docs_site/starter-dashboard.md`). Adds `createDashboard` to
+  `src/linked-lovelace-api.ts`.
 - `src/controllers/hass.ts` — `HassController`: refresh/discover/update against HA.
 - `src/linked-lovelace-api.ts` — thin `hass.callWS` wrapper (lovelace/* APIs).
 - `src/v2/` — `LinkedLovelaceController` + Eta `TemplateEngine` (the unit-tested core).

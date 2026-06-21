@@ -5,6 +5,7 @@ import { initialize } from './instance';
 import './linked-lovelace-template';
 import './linked-lovelace-status';
 import './linked-lovelace-partials';
+import './linked-lovelace-starter';
 
 initialize(() => {log(`Version: ${LIB_VERSION}`);})
 

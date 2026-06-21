@@ -40,6 +40,14 @@ Each test creates an isolated storage dashboard (`lovelace/dashboards/create` +
 (`lovelace/config`), and deletes the dashboard afterwards. Helpers live in
 `e2e/tests/helpers.ts`.
 
+`e2e/tests/starter.spec.ts` additionally covers the **Starter Card**
+(`custom:linked-lovelace-starter`): clicking **Create Demo Dashboard** drops in
+the pre-built `linked-lovelace-demo` showcase, and the test then syncs it and
+asserts the reused `room` template + nested `panel` template render. The
+showcase config is one source of truth in `src/demoDashboard.ts` (also unit
+tested in `src/demoDashboard.test.ts` and documented at
+`docs_site/starter-dashboard.md`).
+
 > Storage dashboards are writable even though the main demo dashboard is in yaml
 > mode; the card bundle is loaded for **all** dashboards via
 > `frontend.extra_module_url` (not a lovelace `resources:` entry, which would only
@@ -165,15 +173,16 @@ documentation artifacts.
 | `e2e/playwright.config.ts`        | Playwright config (baseURL, storageState)          |
 | `e2e/tests/linked-lovelace.spec.ts` | Core checks: registration / render / live discovery |
 | `e2e/tests/features.spec.ts`      | Feature coverage (the 8 features above)            |
+| `e2e/tests/starter.spec.ts`       | Starter card → drop-in demo dashboard → sync       |
 | `e2e/tests/helpers.ts`            | Storage-dashboard + status-card test helpers       |
+| `src/demoDashboard.ts`            | The drop-in showcase config (single source of truth) |
 
 ## Current status
 
 - ✅ HA demo runs in Docker; freshly built card served at `/local/`.
 - ✅ Onboarding/login fully automated (idempotent).
-- ✅ 12/12 e2e tests pass: 4 core checks + 8 feature checks (add controller card,
-  add/use/modify+sync templates, variables, create/use partials, nested templates).
-- ✅ 102/102 Jest unit tests still pass (`yarn test`).
+- ✅ 15/15 e2e tests pass: 4 core + 8 feature + 3 starter-card checks.
+- ✅ 108/108 Jest unit tests pass (`yarn test`; e2e specs excluded via jest config).
 - ✅ CI gate: `.github/workflows/e2e.yml` runs the suite on every PR to `master`.
 - ✅ Doc screenshots auto-generated from the live demo (`scripts/screenshots.sh`).
 

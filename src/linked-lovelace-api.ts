@@ -30,6 +30,19 @@ class LinkedLovelaceApi {
     });
   };
 
+  createDashboard = async (urlPath: string, title: string, showInSidebar = true): Promise<Dashboard> => {
+    if (Debug.instance.debug) {
+      log(`Creating Lovelace Dashboard: ${urlPath}`);
+    }
+    return this.hass.callWS<Dashboard>({
+      type: 'lovelace/dashboards/create',
+      url_path: urlPath,
+      title,
+      mode: 'storage',
+      show_in_sidebar: showInSidebar,
+    });
+  };
+
   getDashboardConfig = async (urlPath: string | null): Promise<DashboardConfig> => {
     if (Debug.instance.debug) {
       log(`Getting Lovelace User-Created Dashboard: ${urlPath}`);
