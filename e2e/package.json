@@ -1,0 +1,14 @@
+{
+  "name": "linked-lovelace-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright e2e suite running Linked Lovelace against a real Home Assistant",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "report": "playwright show-report playwright-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0"
+  }
+}

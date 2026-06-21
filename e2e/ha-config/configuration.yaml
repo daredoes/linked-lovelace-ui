@@ -1,0 +1,25 @@
+# Home Assistant config for the Linked Lovelace e2e demo environment.
+# default_config pulls in the frontend + websocket APIs the cards talk to.
+default_config:
+
+# Load the freshly-built card bundle GLOBALLY (every dashboard, yaml *and*
+# storage mode) via extra_module_url. A lovelace `resources:` entry would only
+# apply to the yaml dashboard; the feature e2e tests use writable storage
+# dashboards, which need the elements registered too. Single load mechanism =
+# no double customElements.define(). Served from /local/ (mapped to ha-config/www).
+frontend:
+  extra_module_url:
+    - /local/linked-lovelace-ui.js
+
+# Keep the main demo dashboard in yaml mode (declarative; used by the original
+# suite + screenshots). Storage dashboards created at runtime stay writable,
+# which is what `Update All` / sync needs.
+lovelace:
+  mode: yaml
+
+# Demo entities so the dashboard has something real to point at.
+demo:
+
+# Quiet down logs we don't care about for the demo.
+logger:
+  default: warning

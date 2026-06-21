@@ -1,0 +1,11 @@
+# Playwright / node
+node_modules/
+storage-state.json
+playwright-report/
+test-results/
+
+# Home Assistant runtime state — everything in ha-config except the two
+# checked-in source files (configuration.yaml, ui-lovelace.yaml).
+ha-config/*
+!ha-config/configuration.yaml
+!ha-config/ui-lovelace.yaml

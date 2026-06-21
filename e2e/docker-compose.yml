@@ -1,0 +1,15 @@
+# Home Assistant instance for the Linked Lovelace e2e demo.
+# The freshly-built card bundle is copied into ha-config/www by the e2e runner
+# (see scripts/e2e.sh) before this starts, so HA serves it at
+# /local/linked-lovelace-ui.js. We mount the whole config dir (single-file
+# bind mounts are unreliable on macOS virtiofs).
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2024.12
+    container_name: linked-lovelace-ha
+    ports:
+      - "8123:8123"
+    volumes:
+      - ./ha-config:/config
+    environment:
+      - TZ=UTC

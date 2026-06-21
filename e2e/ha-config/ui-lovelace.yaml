@@ -1,0 +1,36 @@
+# Self-contained Linked Lovelace demo dashboard (no external URLs, no network).
+# Exercises: the status/overview card, a partial registration, a template
+# definition (ll_key), and a template-usage card (linked-lovelace-template).
+title: Linked Lovelace Demo
+views:
+  - title: Demo
+    path: demo
+    cards:
+      # The overview / control card. Discovers templates + partials, offers
+      # backup / dry-run / Update All against the live HA lovelace API.
+      - type: custom:linked-lovelace-status
+
+      # Register an Eta partial used by templates below.
+      - type: custom:linked-lovelace-partials
+        partials:
+          - key: stateToIcon
+            priority: 0
+            template: >-
+              <% let state = context.state ? context.state.toLowerCase() : '' _%>
+              <%_ if (state === "movie") { _%>mdi:movie<%_ } else { _%>mdi:power<%_ } _%>
+
+      # A template DEFINITION: any top-level card with ll_key becomes a reusable
+      # template. This markdown template renders context.title / context.content.
+      - type: markdown
+        ll_key: text
+        title: <%= context.title %>
+        content: <%= context.content %><%= context.suffix %>
+
+      # A template USAGE card: references the "text" template by key. After an
+      # "Update All", the status card rewrites this into a rendered markdown card.
+      - type: custom:linked-lovelace-template
+        ll_template: text
+        ll_context:
+          title: Hello from Linked Lovelace
+          content: Templated content rendered by Eta
+          suffix: "!"
