@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture documentation screenshots of the Linked Lovelace flow from the live
-# e2e demo. Output -> docs/imgs/e2e/. Brings HA up if it isn't already.
+# e2e demo. Output -> docs_site/images/e2e/. Brings HA up if it isn't already.
 # Usage: ./scripts/screenshots.sh
 set -euo pipefail
 
@@ -27,5 +27,5 @@ echo "==> Capturing screenshots"
 ( cd "$E2E" && yarn install --silent && npx playwright install chromium >/dev/null 2>&1 || true )
 ( cd "$E2E" && HA_URL="$HA_URL" npx playwright test -c playwright.screenshots.config.ts )
 
-echo "==> Screenshots written to docs/imgs/e2e/"
-ls -1 "$ROOT/docs/imgs/e2e"
+echo "==> Screenshots written to docs_site/images/e2e/"
+ls -1 "$ROOT/docs_site/images/e2e"

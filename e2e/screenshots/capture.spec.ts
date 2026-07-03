@@ -4,10 +4,10 @@ import * as path from 'path';
 import { ws, createDashboard, deleteDashboard, loadData, updateAll } from '../tests/helpers';
 
 // Captures documentation screenshots of the Linked Lovelace status card flow,
-// running against the real Home Assistant demo. Output -> docs/imgs/e2e/ and
+// running against the real Home Assistant demo. Output -> docs_site/images/e2e/ and
 // docs_site/images/ (for the VitePress site).
 // Run via: ./scripts/screenshots.sh  (NOT part of the CI e2e gate).
-const OUT = path.resolve('..', 'docs', 'imgs', 'e2e');
+const OUT = path.resolve('..', 'docs_site', 'images', 'e2e');
 const SITE = path.resolve('..', 'docs_site', 'images');
 fs.mkdirSync(OUT, { recursive: true });
 fs.mkdirSync(SITE, { recursive: true });

@@ -87,22 +87,22 @@ always reflect the real card in a real Home Assistant.
 card, the Eta partials card (`stateToIcon`), a raw `ll_key: text` template
 definition, and the template-usage card with its migration notice.
 
-![Demo dashboard](./imgs/e2e/01-demo-dashboard.png)
+![Demo dashboard](../images/e2e/01-demo-dashboard.png)
 
 **2. After clicking _Load Data_** — the status card drives the live Lovelace
 websocket API, then reveals the Dashboards/Templates/Partials/Logs tabs and the
 `Refresh` / `Update All` controls.
 
-![Status card after Load Data](./imgs/e2e/03-status-card-loaded.png)
+![Status card after Load Data](../images/e2e/03-status-card-loaded.png)
 
 **3. Templates tab** — the `text` template was **discovered from the live
 dashboard config** (not a mock) and is listed for inspection.
 
-![Templates tab](./imgs/e2e/04-templates-tab.png)
+![Templates tab](../images/e2e/04-templates-tab.png)
 
 **4. Partials tab** — the `stateToIcon` Eta partial, likewise discovered live.
 
-![Partials tab](./imgs/e2e/05-partials-tab.png)
+![Partials tab](../images/e2e/05-partials-tab.png)
 
 ## How the auth shortcut works
 
@@ -151,7 +151,7 @@ installs the Chromium Playwright browser.
 ### Regenerating screenshots
 
 ```bash
-./scripts/screenshots.sh   # build -> ensure HA up -> capture -> docs/imgs/e2e/
+./scripts/screenshots.sh   # build -> ensure HA up -> capture -> docs_site/images/e2e/
 ```
 
 Uses a separate Playwright config (`e2e/playwright.screenshots.config.ts`,
@@ -163,7 +163,7 @@ documentation artifacts.
 | Path                              | Purpose                                            |
 | --------------------------------- | -------------------------------------------------- |
 | `scripts/e2e.sh`                  | Orchestrates build → HA up → wait → test → down    |
-| `scripts/screenshots.sh`          | Captures the doc screenshots in `docs/imgs/e2e/`   |
+| `scripts/screenshots.sh`          | Captures the doc screenshots in `docs_site/images/e2e/`   |
 | `e2e/playwright.screenshots.config.ts` | Screenshot-only config (excluded from CI gate) |
 | `.github/workflows/e2e.yml`       | CI: runs the e2e suite on PRs to `master`          |
 | `e2e/docker-compose.yml`          | Home Assistant service (port 8123)                 |

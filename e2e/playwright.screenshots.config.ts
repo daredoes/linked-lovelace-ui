@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Separate Playwright config used only to capture documentation screenshots
-// (../docs/imgs/e2e). Kept out of the default config (testDir ./tests) so the
+// (../docs_site/images/e2e). Kept out of the default config (testDir ./tests) so the
 // CI e2e gate never depends on / writes documentation artifacts.
 const HA_URL = process.env.HA_URL || 'http://localhost:8123';
 

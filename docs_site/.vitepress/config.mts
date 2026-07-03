@@ -9,6 +9,10 @@ export default withMermaid(defineConfig({
   description: "Reusable card templates for Home Assistant dashboards",
   base: "/linked-lovelace-ui/",
 
+  // Maintainer-facing docs live in internal/ (architecture, e2e design).
+  // They stay in the repo for GitHub readers but never publish to the site.
+  srcExclude: ["internal/**"],
+
   vite: {
     resolve: {
       alias: [

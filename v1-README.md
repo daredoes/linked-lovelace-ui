@@ -1,6 +1,10 @@
 # Linked Lovelace by [@daredoes](https://www.github.com/daredoes)
 
-![Linked Lovelace Demo](/docs/imgs/LinkedLoveLace.gif)
+> This page documents the retired V1 cards. For current docs see the
+> [documentation site](https://daredoes.github.io/linked-lovelace-ui/), and for
+> upgrading read [Migration From V1](https://daredoes.github.io/linked-lovelace-ui/advanced-features#migration-from-v1).
+
+![Linked Lovelace Demo](/docs_site/images/LinkedLoveLace.gif)
 
 A front-end only implementation of re-usable cards between Home Assistant Dashboards (excluding Overview)
 
@@ -55,21 +59,21 @@ The first thing needed when creating a template card is a dashboard to hold thes
 
 Create a dashboard inside of Hassio at `http://YOUR_INSTANCE.local:8123/config/lovelace/dashboards`
 
-   ![Add New Dashboard](/docs/imgs/LovelaceDashboards.png)
+   ![Add New Dashboard](/docs_site/images/LovelaceDashboards.png)
 
 For our example, we'll create a `Templates` dashboard with the path `lovelace-templates`. The settings here don't really matter, it only matters that we have a dashboard.
 
-   ![Add Template Dashboard](/docs/imgs/AddNewDashboard.png)
+   ![Add Template Dashboard](/docs_site/images/AddNewDashboard.png)
 
 1. On the `Templates` dashboard, click the `⋮` to access a menu, and click `Edit Dashboard`.
 
-   ![Edit Dashboard](/docs/imgs/EditDashboard.png)
+   ![Edit Dashboard](/docs_site/images/EditDashboard.png)
 2. Once again, click the `⋮` to access another menu, and click `Raw configuration editor`.
 
-   ![Edit Dashboard Header](/docs/imgs/RawConfigurationEditorMenu.png)
+   ![Edit Dashboard Header](/docs_site/images/RawConfigurationEditorMenu.png)
 3. Add `template: true` to the top of the configuration file
 
-   ![Configuration](/docs/imgs/Configuration.png)
+   ![Configuration](/docs_site/images/Configuration.png)
 
 That's it! Any view in this dashboard that has exactly one card in it will now be converted into a template.
 
@@ -116,7 +120,7 @@ cards:
     template: version-card
 ```
 
-![Broken Template Card](/docs/imgs/BrokenTemplate.png)
+![Broken Template Card](/docs_site/images/BrokenTemplate.png)
 
 Wait, that doesn't look like a very useful card. Maybe it'll be more useful once we render it. Save the card, and then click it! You may be prompted to refresh the page, if not, refresh anyways since the changes won't appear until we do.
 
@@ -135,7 +139,7 @@ cards:
     template: version-card
 ```
 
-![Working Template Card](/docs/imgs/WorkingTemplate.png)
+![Working Template Card](/docs_site/images/WorkingTemplate.png)
 
 The main takeaway here is where `template_data`, `version`, and `$version$` are used.
 

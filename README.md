@@ -65,10 +65,10 @@ A `partial` object has the following shape
 
 1. Install Linked Lovelace 2.0
 2. Navigate to a user-created dashboard. (pretty much anything but Overview I think)
-3. Put the content from [sample-dashboard.yml](https://github.com/daredoes/linked-lovelace-ui/blob/master/sample-dashboard.yml) into your dashboard using the raw configuration editor. The result should look like ![V2 Before Dashboard](/docs/imgs/v2before.png)
-4. Click "Update All" and it should now look like ![V2 After Dashboard](/docs/imgs/v2after.png)
+3. Put the content from [sample-dashboard.yml](https://github.com/daredoes/linked-lovelace-ui/blob/master/sample-dashboard.yml) into your dashboard using the raw configuration editor. The result should look like ![V2 Before Dashboard](/docs_site/images/v2before.png)
+4. Click "Update All" and it should now look like ![V2 After Dashboard](/docs_site/images/v2after.png)
 Before -> After
-![Linked Lovelace V2 Demo](/docs/imgs/llv2.gif)
+![Linked Lovelace V2 Demo](/docs_site/images/llv2.gif)
 5. Reverse engineer it for your own needs, or file an issue, or [join the discord](https://discord.gg/WbsNtASKau) to chat with me directly about it.
 
 ## V1 to V2 conversion (or useful information)
@@ -84,6 +84,10 @@ Before -> After
   * example: `<%= context.example %>`
 
 * ### file an issue if I forgot something plz UwU
+
+## Development
+
+The `eta` dependency installs from a vendored tarball (`eta-3.0.3.tgz`) instead of the npm registry. The published package pulls in Node-only modules (`node:path`, `node:fs`) for server-side features this card never uses, and they break the browser bundle. The tarball is the same 3.0.3 release with those imports stripped. If you upgrade eta, rebuild the tarball the same way or confirm upstream no longer needs the patch.
 
 ---
 
