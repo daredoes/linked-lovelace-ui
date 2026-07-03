@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { customElement, property, state } from 'lit/decorators';
+ 
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant } from 'custom-card-helpers';
 
 import './types';
@@ -20,7 +20,7 @@ import { buildDemoDashboardConfig, DEMO_DASHBOARD_TITLE, DEMO_DASHBOARD_URL_PATH
 type Status = 'idle' | 'working' | 'done' | 'error';
 
 @customElement('linked-lovelace-starter')
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export class LinkedLovelaceStarterCard extends LitElement {
   @property({ attribute: false }) public hass!: HomeAssistant;
 

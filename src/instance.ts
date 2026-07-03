@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { getHass, log } from "./helpers";
+import { getHass } from "./helpers";
 import LinkedLovelaceApi from "./linked-lovelace-api";
 import { Debug } from "./debug";
 

@@ -1,4 +1,4 @@
-import { getHass, log } from "./helpers";
+import { log } from "./helpers";
 
 export class Debug {
   static self?: Debug
@@ -16,7 +16,6 @@ export class Debug {
     if (this.self) {
       return this.self;
     }
-    const hass = getHass();
     this.self = new Debug();
     return this.self;
   }

@@ -1,13 +1,13 @@
 import { DashboardCard, LinkedLovelacePartial, DashboardPartialsCard, LINKED_LOVELACE_PARTIALS } from "../types";
-import axios from "axios";
 
 export const getCardTemplate = async (possiblePartial: LinkedLovelacePartial) => {
   if (possiblePartial.url) {
     try {
-      const response = await axios.get(possiblePartial.url, { responseType: 'text'})
-      if (typeof response.data === 'string') {
-        return response.data
+      const response = await fetch(possiblePartial.url)
+      if (response.ok) {
+        return await response.text()
       }
+      console.error("Could not fetch data from url", response.status, possiblePartial)
     } catch (e) {
       console.error("Could not fetch data from url", e, possiblePartial)
     }

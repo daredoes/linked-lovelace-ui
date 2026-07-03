@@ -1386,13 +1386,8 @@ diff.prototype.fromDelta = function(text1, delta) {
 };
 
 
-// Export these global variables so that they survive Google's JS compiler.
-// In a browser, 'this' will be 'window'.
-// Users of node.js should 'require' the uncompressed version since Google's
-// JS compiler may break the following exports for non-browser environments.
-this['diff'] = diff;
-this['DIFF_DELETE'] = DIFF_DELETE;
-this['DIFF_INSERT'] = DIFF_INSERT;
-this['DIFF_EQUAL'] = DIFF_EQUAL;
-
-module.exports = diff;
+// ESM exports. The upstream file assigned to top-level `this` for Google's
+// JS compiler; rollup rewrites module-level `this` to undefined, which
+// crashed the bundle at load, so the vendored copy exports directly.
+export { DIFF_DELETE, DIFF_INSERT, DIFF_EQUAL };
+export default diff;

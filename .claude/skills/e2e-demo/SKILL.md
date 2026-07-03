@@ -7,7 +7,7 @@ description: Run, debug, or extend the Linked Lovelace end-to-end demo — a rea
 
 Runs the **built card inside a real Home Assistant** and drives it with
 Playwright. Validates what the Jest unit tests mock: the live Lovelace websocket
-API, custom-element registration, and Lit rendering. Full design: `docs/E2E.md`.
+API, custom-element registration, and Lit rendering. Full design: `docs_site/internal/E2E.md`.
 
 ## Run
 
@@ -16,7 +16,7 @@ API, custom-element registration, and Lit rendering. Full design: `docs/E2E.md`.
 KEEP_UP=1 ./scripts/e2e.sh       # leave HA running for iteration
 cd e2e && npx playwright test    # against already-running HA
 cd e2e && npx playwright test --ui   # interactive debugging
-./scripts/screenshots.sh         # capture doc screenshots -> docs/imgs/e2e/
+./scripts/screenshots.sh         # capture doc screenshots -> docs_site/images/e2e/
 ```
 
 CI runs the suite on PRs to `master` via `.github/workflows/e2e.yml` (calls
@@ -25,7 +25,7 @@ CI runs the suite on PRs to `master` via `.github/workflows/e2e.yml` (calls
 artifacts are never coupled to the CI gate.
 
 First run pulls `ghcr.io/home-assistant/home-assistant:2024.12` and installs
-Chromium for Playwright. Requires Docker + yarn + Node.
+Chromium for Playwright. Requires Docker + bun + Node.
 
 ## How it fits together
 

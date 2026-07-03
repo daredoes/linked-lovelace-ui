@@ -4,7 +4,7 @@ import TemplateController from './template';
 describe('[class] TemplateController', () => {
   test('sets up as expected', () => {
     const controller = new TemplateController();
-    expect(controller).toBeDefined;
+    expect(controller).toBeDefined();
   });
 
   test('adds a new template as expected', () => {

@@ -134,7 +134,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
       data[k] = updatedData[k]
     })
   }
-  if (data.hasOwnProperty('ll_keys') && typeof data.ll_keys === 'undefined') {
+  if (Object.prototype.hasOwnProperty.call(data, 'll_keys') && typeof data.ll_keys === 'undefined') {
     delete data.ll_keys;
   }
   return data;

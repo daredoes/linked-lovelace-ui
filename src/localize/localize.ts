@@ -12,7 +12,7 @@ export function localize(string: string, search = '', replace = ''): string {
 
   try {
     translated = string.split('.').reduce((o, i) => o[i], languages[lang]);
-  } catch (e) {
+  } catch {
     translated = string.split('.').reduce((o, i) => o[i], languages['en']);
   }
 

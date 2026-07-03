@@ -1,4 +1,3 @@
-import { HomeAssistant } from "custom-card-helpers";
 import Controller from './linkedLovelace'
 
 export class LinkedLovelaceSingleton {

@@ -12,10 +12,10 @@ A client-side Home Assistant Lovelace card. Rollup bundles
 ## Commands
 
 ```bash
-yarn install        # deps (yarn 1.x; .nvmrc pins node v16 but v22 builds fine)
-yarn build          # rollup -c  -> dist/linked-lovelace-ui.js (minified)
-yarn start          # rollup -c --watch + serve on http://0.0.0.0:5000
-yarn test           # jest (102 unit tests; engine + controllers)
+bun install         # deps (bun 1.2; mise.toml pins node 22 + bun)
+bun run build       # rollup -c  -> dist/linked-lovelace-ui.js (minified)
+bun run start       # rollup -c --watch + serve on http://0.0.0.0:5000
+bun run test        # jest (108 unit tests; engine + controllers)
 ```
 
 `prebuild`/`prestart` run `make-version` which writes `src/version.ts` from
@@ -25,7 +25,7 @@ yarn test           # jest (102 unit tests; engine + controllers)
 
 Two options:
 
-1. **rollup serve** (`yarn start`) exposes the bundle on `:5000`. Reference it
+1. **rollup serve** (`bun run start`) exposes the bundle on `:5000`. Reference it
    from a dashboard resource: `url: http://127.0.0.1:5000/linked-lovelace-ui.js`,
    `type: module`. The browser (not HA) fetches it, so the host port is what
    matters. CORS headers are already set in `rollup.config.js`.
@@ -36,7 +36,7 @@ Two options:
 ## Devcontainer
 
 `.devcontainer/` uses `ludeeus/container:monster` (HA + node). `postCreateCommand`
-is `yarn`. Note `.devcontainer/ui-lovelace.yaml` references the **stale** type
+is `npm install -g bun && bun install`. Note `.devcontainer/ui-lovelace.yaml` references the **stale** type
 `custom:linked-lovelace-ui` — the real cards are `linked-lovelace-status` /
 `-template` / `-partials` (see `e2e-demo` skill).
 
@@ -56,6 +56,6 @@ is `yarn`. Note `.devcontainer/ui-lovelace.yaml` references the **stale** type
 
 ## Verifying a change end-to-end
 
-`yarn test` covers the engine. To confirm rendering + live HA wiring, use the
+`bun run test` covers the engine. To confirm rendering + live HA wiring, use the
 `e2e-demo` skill (`./scripts/e2e.sh`) — it rebuilds and runs Playwright against
 a real HA.

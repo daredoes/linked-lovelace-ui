@@ -4,12 +4,12 @@ import { HomeAssistant, fireEvent, LovelaceCardEditor } from 'custom-card-helper
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { DashboardCard, LinkedLovelaceTemplateCardConfig } from './types';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { customElement, property, state } from 'lit/decorators';
+ 
+import { customElement, property, state } from 'lit/decorators.js';
 import HassController from './controllers/hass';
 
 @customElement('linked-lovelace-template-editor')
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElement) implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
@@ -128,7 +128,7 @@ export class LinkedLovelaceTemplateCardEditor extends ScopedRegistryHost(LitElem
           const template: DashboardCard | undefined =
             this._controller?.linkedLovelaceController.templateController.templates[target.value];
           this._config = {
-            /* @ts-ignore we want this to be first in the output, but need to make sure the value is correct */
+            // Intentionally duplicated below so the key lands first in the output while the spread keeps the correct value
             [target.configValue]: target.checked !== undefined ? target.checked : target.value,
             ...template,
             ...{

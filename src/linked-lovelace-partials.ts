@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { customElement, property, state } from 'lit/decorators';
+ 
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
 import { LINKED_LOVELACE_PARTIALS, type DashboardPartialsCard } from './types';
@@ -18,7 +18,7 @@ import { log } from './helpers';
 });
 
 @customElement(LINKED_LOVELACE_PARTIALS)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export class LinkedLovelaceTemplatesCard extends LitElement {
   constructor() {
     super();

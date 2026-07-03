@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { customElement, property, state } from 'lit/decorators';
+ 
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
 import type { LinkedLovelaceTemplateCardConfig } from './types';
@@ -20,7 +20,7 @@ import HassController from './controllers/hass';
 });
 
 @customElement('linked-lovelace-template')
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export class LinkedLovelaceTemplateCard extends LitElement {
   constructor() {
     super();
@@ -97,8 +97,6 @@ export class LinkedLovelaceTemplateCard extends LitElement {
 
   // https://lit.dev/docs/components/rendering/
   protected render(): TemplateResult | void {
-    //  Finish edit mode
-    const editMode = false;
     return html`
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
         class="linked-lovelace-container">

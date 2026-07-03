@@ -10,7 +10,7 @@ E2E="$ROOT/e2e"
 HA_URL="${HA_URL:-http://localhost:8123}"
 
 echo "==> Building card bundle"
-( cd "$ROOT" && yarn build >/dev/null )
+( cd "$ROOT" && bun run build >/dev/null )
 
 echo "==> Copying bundle into HA www"
 mkdir -p "$E2E/ha-config/www"
@@ -28,7 +28,7 @@ for i in $(seq 1 60); do
 done
 
 echo "==> Ensuring Playwright deps"
-( cd "$E2E" && yarn install --silent && npx playwright install chromium >/dev/null 2>&1 || true )
+( cd "$E2E" && bun install >/dev/null && npx playwright install chromium >/dev/null 2>&1 || true )
 
 echo "==> Running Playwright e2e"
 set +e

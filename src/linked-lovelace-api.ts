@@ -57,7 +57,7 @@ class LinkedLovelaceApi {
 
   toggleDashboardAsTemplate = async (urlPath: string, isTemplate?: boolean): Promise<DashboardConfig> => {
     const dashboardConfig = await this.getDashboardConfig(urlPath);
-    dashboardConfig.template = typeof isTemplate === 'undefined' ? !Boolean(dashboardConfig.template) : isTemplate;
+    dashboardConfig.template = typeof isTemplate === 'undefined' ? !dashboardConfig.template : isTemplate;
     if (typeof dashboardConfig.template !== 'undefined' && !dashboardConfig.template) {
       delete dashboardConfig.template;
     }

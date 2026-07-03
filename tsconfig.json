@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2019",
+    "target": "es2021",
     "module": "esnext",
     "moduleResolution": "node",
+    "useDefineForClassFields": false,
     "lib": [
-      "ES2016",
-      "es2019",
-      "ES2021.String",
+      "es2021",
       "dom",
       "dom.iterable"
     ],
