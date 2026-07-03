@@ -27,10 +27,10 @@ ll_priority: 0
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `ll_template` | `string` | ✅ | Key of the template to use (must match an `ll_key` on a source card). |
-| `ll_context` | `object` | — | Variables passed to the Eta template engine. Accessible as `context.variableName`. |
-| `ll_keys` | `object` | — | Maps a template property to a context value, enabling dynamic injection of rendered sub-cards. See [ll_keys](#ll-keys). |
-| `ll_priority` | `number` | — | Load order for this template reference. Lower numbers run first. Defaults to `0`. |
+| `ll_template` | `string` | Yes | Key of the template to use (must match an `ll_key` on a source card). |
+| `ll_context` | `object` | No | Variables passed to the Eta template engine. Accessible as `context.variableName`. |
+| `ll_keys` | `object` | No | Maps a template property to a context value, enabling dynamic injection of rendered sub-cards. See [ll_keys](#ll-keys). |
+| `ll_priority` | `number` | No | Load order for this template reference. Lower numbers run first. Defaults to `0`. |
 
 ---
 
@@ -42,12 +42,7 @@ The **control** card. Add this to any dashboard to see which templates are regis
 type: custom:linked-lovelace-status
 ```
 
-No additional configuration keys are required. The card provides an interactive UI with the following tabs:
-
-- **Dashboards** – see which dashboards will be affected and preview the diff
-- **Templates** – list of all registered `ll_key` cards
-- **Partials** – list of all registered Eta partials
-- **Logs** – runtime log output
+No additional configuration keys are required. The card provides an interactive UI with four tabs. **Dashboards** shows which dashboards will be affected and previews the diff. **Templates** lists all registered `ll_key` cards. **Partials** lists all registered Eta partials. **Logs** shows runtime log output.
 
 ---
 
@@ -73,10 +68,10 @@ partials:
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `key` | `string` | ✅ | Name used to call this partial with `include()`. |
-| `template` | `string` | ✅ (or `url`) | Inline Eta template string. |
-| `url` | `string` | ✅ (or `template`) | URL to fetch the template from at run-time. |
-| `priority` | `number` | — | Load order. Lower numbers are loaded first. Defaults to `0`. |
+| `key` | `string` | Yes | Name used to call this partial with `include()`. |
+| `template` | `string` | Yes, unless `url` is set | Inline Eta template string. |
+| `url` | `string` | Yes, unless `template` is set | URL to fetch the template from at run time. |
+| `priority` | `number` | No | Load order. Lower numbers are loaded first. Defaults to `0`. |
 
 ::: tip
 When both `template` and `url` are supplied, `url` takes precedence. Use `priority` when one partial depends on another.
@@ -86,7 +81,7 @@ When both `template` and `url` are supplied, `url` takes precedence. Use `priori
 
 ## Source Card Keys
 
-Any existing card can become a **template source** by adding `ll_key` to its YAML. These keys do **not** affect how the card looks or behaves in the UI.
+Any existing card can become a template source by adding `ll_key` to its YAML. These keys do not affect how the card looks or behaves in the UI.
 
 ### `ll_key`
 
@@ -145,7 +140,7 @@ ll_keys:
 ```
 
 - **Type:** `Record<string, string>`
-- A map where both key and value are the **same context property name**. Each entry causes the system to:
+- A map where both key and value are the same context property name. Each entry causes the system to:
   1. Read the context array/object for that property.
   2. Render any `ll_template` references found within it.
   3. Inject the rendered result into the corresponding template property.
@@ -155,7 +150,7 @@ ll_keys:
 
 ## Template Syntax
 
-Templates use **[Eta JS](https://eta.js.org/)** with `varName: 'context'` and `autoEscape: false`.
+Templates use [Eta JS](https://eta.js.org/) with `varName: 'context'` and `autoEscape: false`.
 
 | Syntax | Purpose |
 |--------|---------|
@@ -179,7 +174,7 @@ See the full [Template Syntax Guide](./template-syntax) for examples.
 
 ## Key Interactions & Rendering Order
 
-1. The Status card collects all **partials** (`custom:linked-lovelace-partials`) from all dashboards and registers them with Eta.
-2. It collects all **source cards** (`ll_key`) and registers them as templates, sorted by `ll_priority` (ascending).
+1. The Status card collects all partials (`custom:linked-lovelace-partials`) from all dashboards and registers them with Eta.
+2. It collects all source cards (`ll_key`) and registers them as templates, sorted by `ll_priority` (ascending).
 3. When syncing a dashboard, each card is recursively traversed. Cards with `ll_template` are replaced with the rendered template output.
-4. Context flows **downward**: a `ll_context` on a consumer card is merged with any `parentContext` inherited from containing non-template cards.
+4. Context flows downward: a `ll_context` on a consumer card is merged with any `parentContext` inherited from containing non-template cards.

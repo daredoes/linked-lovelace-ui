@@ -105,4 +105,4 @@ It's time for you to create your own powerful cards.
 - Keep the [Template Syntax reference](./template-syntax) handy while you write.
 - Prototype ideas safely in the [Live Demo](./demo) before touching your real dashboards.
 
-Most of your templates will be unique to your setup — that's normal for Home Assistant. Start small, sync often.
+Most of your templates will be unique to your setup, which is normal for Home Assistant. Start small and sync often.

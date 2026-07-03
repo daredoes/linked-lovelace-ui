@@ -12,10 +12,10 @@ outline: deep
 
 **Check list:**
 
-1. **HACS installation** – In Home Assistant go to HACS → Frontend and confirm that "Linked Lovelace" appears and has a checkmark.
-2. **Resource registration** – Go to Settings → Dashboards → ⋮ → Manage resources and confirm that `/hacsfiles/linked-lovelace-ui/linked-lovelace-ui.js` is listed as a JavaScript module.
-3. **Hard reload** – After installing, do a hard reload in the browser (`Ctrl+Shift+R` / `Cmd+Shift+R`). Service workers can cache the old state.
-4. **Browser console** – Open DevTools (F12) → Console. Look for errors mentioning `linked-lovelace`.
+1. In Home Assistant go to HACS → Frontend and confirm that "Linked Lovelace" appears and has a checkmark.
+2. Go to Settings → Dashboards → ⋮ → Manage resources and confirm that `/hacsfiles/linked-lovelace-ui/linked-lovelace-ui.js` is listed as a JavaScript module.
+3. After installing, do a hard reload in the browser (`Ctrl+Shift+R` / `Cmd+Shift+R`). Service workers can cache the old state.
+4. Open DevTools (F12) → Console and look for errors mentioning `linked-lovelace`.
 
 ---
 
@@ -46,7 +46,7 @@ outline: deep
 # Before
 name: "<%= context.label %>"
 
-# After – with fallback
+# After, with fallback
 name: "<%= context.label || 'Default Name' %>"
 ```
 
@@ -65,9 +65,9 @@ ll_context:
 
 **Check list:**
 
-1. **Admin access** – Linked Lovelace runs in the browser context. If your user does not have admin access to a dashboard it cannot write to it.
-2. **YAML-mode dashboards** – Dashboards managed in `configuration.yaml` or `ui-lovelace.yaml` are **read-only** via the API. Linked Lovelace cannot modify them.
-3. **Network / WebSocket errors** – Check the Logs tab in the Status card for WebSocket errors when fetching dashboard configs.
+1. Linked Lovelace runs in the browser context. If your user does not have admin access to a dashboard it cannot write to it.
+2. Dashboards managed in `configuration.yaml` or `ui-lovelace.yaml` are read-only via the API. Linked Lovelace cannot modify them.
+3. Check the Logs tab in the Status card for WebSocket errors when fetching dashboard configs.
 
 ---
 
@@ -107,19 +107,19 @@ ll_context:
 
 **Check list:**
 
-1. Both the key and value in `ll_keys` must be the **same string** and must match a property on the template and a property in `ll_context`.
+1. Both the key and value in `ll_keys` must be the same string and must match a property on the template and a property in `ll_context`.
 
    ```yaml
    # Correct
    ll_keys:
      cards: cards
 
-   # Wrong – key and value differ
+   # Wrong: key and value differ
    ll_keys:
      cards: myCards
    ```
 
-2. The context property must be an **array of objects** (not strings) for cards to be rendered.
+2. The context property must be an array of objects, not strings, for cards to be rendered.
 3. Each object in the array that you want rendered must have `ll_template` set.
 4. Make sure the referenced templates are registered before the parent template (`ll_priority`).
 
@@ -129,7 +129,7 @@ ll_context:
 
 **Symptom:** After a Home Assistant restart, dashboards revert to the template placeholders.
 
-**Explanation:** Linked Lovelace modifies dashboard configs stored in the `.storage/lovelace.*` files. These changes **are** persistent across restarts. If you are seeing reverts, one of these is likely happening:
+**Explanation:** Linked Lovelace modifies dashboard configs stored in the `.storage/lovelace.*` files. These changes *do* persist across restarts. If you are seeing reverts, one of these is likely happening:
 
 1. A Home Assistant update reset the storage file.
 2. Another tool or automation is overwriting the dashboard config.

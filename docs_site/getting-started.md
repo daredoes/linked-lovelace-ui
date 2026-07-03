@@ -5,8 +5,8 @@ outline: deep
 # Getting Started
 
 ::: tip Not installed yet? Try it first.
-You can play with Linked Lovelace right now — no Home Assistant needed. The
-[**Live Demo**](./demo) runs the real template engine in your browser inside a
+You can play with Linked Lovelace right now without a Home Assistant install. The
+[Live Demo](./demo) runs the real template engine in your browser inside a
 simulated dashboard.
 :::
 
@@ -59,6 +59,6 @@ If it loads successfully, then we are up and running!
 
 Now that we have Linked Lovelace installed, it's time to learn how to use it!
 
-- **Fastest**: drop the [Starter Dashboard](./starter-dashboard) into your Home Assistant — a working showcase in one click.
-- **Hands-on**: learn how to [create your first template](./create-your-first-template).
-- **Still deciding?** Experiment safely in the [Live Demo](./demo) first.
+- The fastest route is the [Starter Dashboard](./starter-dashboard), which drops a working showcase into your Home Assistant in one click.
+- If you'd rather build it yourself, learn how to [create your first template](./create-your-first-template).
+- Still deciding? Experiment safely in the [Live Demo](./demo) first.

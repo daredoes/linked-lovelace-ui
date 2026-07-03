@@ -4,7 +4,7 @@ outline: deep
 
 # Lifecycles
 
-This page maps **every flow inside Linked Lovelace** — from the moment the
+This page maps every flow inside Linked Lovelace, from the moment the
 bundle loads in your browser through to writing rendered dashboards back to Home
 Assistant. Each section pairs a short description with a Mermaid diagram so you
 can follow the exact sequence of classes and methods involved.
@@ -59,7 +59,7 @@ flowchart TD
     C -- yes --> D["store config / state"]
     D --> E["firstUpdated()"]
     E --> F["await paint (setTimeout 0)"]
-    F --> G["_repaint() — toggles a @state flag"]
+    F --> G["_repaint(): toggles a @state flag"]
     G --> H["shouldUpdate(changedProps)"]
     H --> I{"config present &&<br/>hasConfigOrEntityChanged?"}
     I -- no --> J["skip render"]
@@ -88,10 +88,10 @@ flowchart LR
 ## 4. Partials: discovery & loading
 
 Partials live on `custom:linked-lovelace-partials` cards. During discovery each
-partial is resolved — a `url` partial is fetched with axios (its text becomes
-`template`), an inline partial is used directly. `loadPartials` then registers
-every partial that has template text into the Eta engine, **sorted by priority
-(lowest first)**, so they can be pulled in with `<%~ include('key') %>`.
+partial is resolved: a `url` partial is fetched with axios (its text becomes
+`template`), while an inline partial is used directly. `loadPartials` then registers
+every partial that has template text into the Eta engine, sorted by priority
+with the lowest first, so they can be pulled in with `<%~ include('key') %>`.
 
 ```mermaid
 flowchart TD
@@ -149,7 +149,7 @@ sequenceDiagram
 
 ## 6. Context resolution (`updateCardTemplate`)
 
-The recursive heart of rendering. When a card has `ll_template`, context is
+`updateCardTemplate` is the recursive heart of rendering. When a card has `ll_template`, context is
 merged from three layers, the template is rendered through Eta, `ll_keys` remap
 selected context values onto the card, and nested `ll_context` arrays/objects
 recurse. When a card has **no** template, the function instead walks `sections`,
@@ -213,9 +213,9 @@ sequenceDiagram
 ```
 
 ::: tip Per-dashboard updates
-The same flow powers the per-dashboard **Update** button — it calls
-`overwriteDashboard(key)` → `update(key, dryRun=false)` for a single dashboard
-instead of looping over all changed ones.
+The same flow powers the per-dashboard **Update** button. It calls
+`overwriteDashboard(key)`, which runs `update(key, dryRun=false)` for a single
+dashboard instead of looping over all changed ones.
 :::
 
 ## 8. Starter / demo install
@@ -245,7 +245,7 @@ flowchart TD
 runs a `refresh()` to discover templates, it renders one button per template.
 Clicking a button copies the template's body into the card config and fires a
 `config-changed` event so Lovelace persists it. The **Status editor** is
-minimal — it just loads card helpers and renders.
+minimal; it just loads card helpers and renders.
 
 ```mermaid
 flowchart TD

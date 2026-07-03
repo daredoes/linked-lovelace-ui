@@ -4,11 +4,11 @@ outline: deep
 
 # Template Syntax
 
-Linked Lovelace templates use **[Eta JS](https://eta.js.org/)** – a fast, lightweight templating engine. This page is a focused reference for using Eta inside your Home Assistant card configs.
+Linked Lovelace templates use [Eta JS](https://eta.js.org/), a small JavaScript templating engine. This page is a reference for using Eta inside your Home Assistant card configs.
 
 ::: info Key settings
 - Variable object: `context` (not `it`)
-- Auto-escape: **disabled** (raw output – needed for YAML values)
+- Auto-escape: disabled, since raw output is needed for YAML values
 - Whitespace trimming: available with `_` modifiers
 :::
 
