@@ -12,11 +12,14 @@ import {
 
 const yamlText = ref(defaultDashboardYaml())
 const activeView = ref(0)
+const editing = ref(false)
 const loaded = ref(false)
 const templateCount = ref(0)
 const partialCount = ref(0)
 const logs = ref<string[]>([])
 const flash = ref(false)
+const toast = ref('')
+let toastTimer: ReturnType<typeof setTimeout> | undefined
 
 const parsed = computed<{ config: DashboardConfig | null; error: string | null }>(() => {
   try {
@@ -29,6 +32,12 @@ const parsed = computed<{ config: DashboardConfig | null; error: string | null }
 const views = computed(() => parsed.value.config?.views || [])
 const currentView = computed(() => views.value[activeView.value] || views.value[0])
 
+const showToast = (message: string) => {
+  toast.value = message
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => (toast.value = ''), 4000)
+}
+
 const loadData = () => {
   if (!parsed.value.config) return
   // Dry run: discover + register, but do not write anything back.
@@ -37,6 +46,7 @@ const loadData = () => {
   partialCount.value = outcome.partials.length
   logs.value = outcome.logs
   loaded.value = true
+  showToast('Load Data read the YAML config: templates, partials, and each card’s ll_context come from there.')
 }
 
 const updateAll = () => {
@@ -51,6 +61,7 @@ const updateAll = () => {
   yamlText.value = stringifyDashboard(outcome.config)
   flash.value = true
   setTimeout(() => (flash.value = false), 700)
+  showToast('Sync wrote the rendered cards back to the YAML config. Open Edit YAML to inspect it.')
 }
 
 const reset = () => {
@@ -58,6 +69,8 @@ const reset = () => {
   loaded.value = false
   logs.value = []
   activeView.value = 0
+  editing.value = false
+  toast.value = ''
 }
 
 provide('ll-status-bridge', {
@@ -71,13 +84,32 @@ provide('ll-status-bridge', {
 
 <template>
   <div class="ll-playground">
-    <div class="ll-columns">
-      <!-- Left: the raw configuration editor, as in HA -->
-      <section class="ll-editor-pane">
-        <header class="ll-pane-header">
-          <span>Raw configuration editor</span>
-          <button class="ll-btn" @click="reset">Reset demo</button>
-        </header>
+    <!-- The simulated Home Assistant window -->
+    <section class="ll-ha-frame">
+      <header class="ll-ha-header">
+        <span class="ll-ha-menu">☰</span>
+        <span class="ll-ha-title">{{ parsed.config?.title || demoDashboardTitle }}</span>
+        <span class="ll-ha-actions">
+          <button
+            class="ll-ha-btn"
+            :class="{ active: editing }"
+            @click="editing = !editing"
+            :aria-pressed="editing"
+          >
+            {{ editing ? '✓ Done' : '✏️ Edit YAML' }}
+          </button>
+          <button class="ll-ha-btn" @click="reset">↺ Reset</button>
+        </span>
+      </header>
+
+      <!-- YAML mode: the raw configuration editor, in-page like HA's -->
+      <div v-if="editing" class="ll-editor-pane">
+        <p class="ll-editor-hint">
+          Raw configuration editor, the same thing you get in Home Assistant under
+          <em>Edit dashboard &gt; Raw configuration editor</em>. The dashboard is rendered from
+          this YAML, and on the first sync pass each template card's <code>ll_context</code>
+          here is the context its template renders with.
+        </p>
         <textarea
           v-model="yamlText"
           class="ll-editor"
@@ -90,14 +122,10 @@ provide('ll-status-bridge', {
           <summary>Sync logs ({{ logs.length }})</summary>
           <pre>{{ logs.join('\n') }}</pre>
         </details>
-      </section>
+      </div>
 
-      <!-- Right: the simulated Home Assistant window -->
-      <section class="ll-ha-frame">
-        <header class="ll-ha-header">
-          <span class="ll-ha-menu">☰</span>
-          <span class="ll-ha-title">{{ parsed.config?.title || demoDashboardTitle }}</span>
-        </header>
+      <!-- Dashboard mode -->
+      <template v-else>
         <nav v-if="views.length" class="ll-ha-tabs">
           <button
             v-for="(view, i) in views"
@@ -109,14 +137,27 @@ provide('ll-status-bridge', {
             {{ view.title || view.path || `View ${i + 1}` }}
           </button>
         </nav>
+        <div v-if="!loaded" class="ll-first-pass">
+          On the first pass, everything comes from the YAML: click <strong>Load Data</strong>
+          on the status card below and it reads this dashboard's config, including the
+          <code>ll_context</code> on each dashed template card. Click
+          <strong>✏️ Edit YAML</strong> above to see that config.
+        </div>
         <div class="ll-ha-body">
           <template v-if="currentView">
             <HaCard v-for="(card, i) in currentView.cards || []" :key="i" :card="card" />
           </template>
-          <p v-else class="ll-muted">Fix the YAML on the left to see the dashboard.</p>
+          <p v-else-if="parsed.error" class="ll-muted">
+            The YAML has an error. Click <strong>✏️ Edit YAML</strong> to fix it.
+          </p>
+          <p v-else class="ll-muted">No views in this dashboard yet.</p>
         </div>
-      </section>
-    </div>
+      </template>
+
+      <transition name="ll-toast">
+        <div v-if="toast" class="ll-toast">{{ toast }}</div>
+      </transition>
+    </section>
   </div>
 </template>
 
@@ -125,33 +166,145 @@ provide('ll-status-bridge', {
   margin: 1.5rem 0;
   font-size: 0.85rem;
 }
-.ll-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1rem;
-}
-@media (max-width: 860px) {
-  .ll-columns {
-    grid-template-columns: 1fr;
-  }
-}
 
-/* ---- Editor pane ---- */
-.ll-editor-pane {
-  display: flex;
-  flex-direction: column;
+/* ---- Fake Home Assistant window ---- */
+.ll-ha-frame {
+  position: relative;
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   overflow: hidden;
+  background: var(--vp-c-bg-alt);
+  display: flex;
+  flex-direction: column;
+}
+.ll-ha-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  background: #03a9f4;
+  color: #fff;
+  font-weight: 600;
+}
+.ll-ha-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ll-ha-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.ll-ha-btn {
+  padding: 0.25rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ll-ha-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+.ll-ha-btn.active {
+  background: #fff;
+  color: #03a9f4;
+}
+.ll-ha-tabs {
+  display: flex;
+  background: #03a9f4;
+  padding: 0 0.5rem;
+}
+.ll-ha-tab {
+  padding: 0.45rem 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+.ll-ha-tab.active {
+  color: #fff;
+  border-bottom-color: #fff;
+}
+.ll-ha-body {
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 480px;
+  max-height: 620px;
+  overflow: auto;
+}
+
+/* ---- First-pass hint ---- */
+.ll-first-pass {
+  margin: 0.75rem 0.9rem 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #03a9f4;
+  background: rgba(3, 169, 244, 0.08);
+  color: var(--vp-c-text-1);
+  line-height: 1.5;
+}
+.ll-first-pass code {
+  background: var(--vp-c-bg-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+/* ---- Toast ---- */
+.ll-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 0.9rem;
+  transform: translateX(-50%);
+  max-width: min(90%, 34rem);
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  background: var(--vp-c-text-1);
+  color: var(--vp-c-bg);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+.ll-toast-enter-active,
+.ll-toast-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.ll-toast-enter-from,
+.ll-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(0.5rem);
+}
+
+/* ---- Editor pane (in-page YAML mode) ---- */
+.ll-editor-pane {
+  display: flex;
+  flex-direction: column;
   background: var(--vp-c-bg-soft);
 }
-.ll-pane-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  font-weight: 600;
+.ll-editor-hint {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  color: var(--vp-c-text-2);
   border-bottom: 1px solid var(--vp-c-divider);
+  line-height: 1.5;
+}
+.ll-editor-hint code {
+  background: var(--vp-c-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
 }
 .ll-editor {
   flex: 1;
@@ -191,52 +344,6 @@ provide('ll-status-bridge', {
   overflow: auto;
   font-size: 0.7rem;
   background: var(--vp-c-bg);
-}
-
-/* ---- Fake Home Assistant window ---- */
-.ll-ha-frame {
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--vp-c-bg-alt);
-  display: flex;
-  flex-direction: column;
-}
-.ll-ha-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.9rem;
-  background: #03a9f4;
-  color: #fff;
-  font-weight: 600;
-}
-.ll-ha-tabs {
-  display: flex;
-  background: #03a9f4;
-  padding: 0 0.5rem;
-}
-.ll-ha-tab {
-  padding: 0.45rem 1rem;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 600;
-  border-bottom: 2px solid transparent;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-}
-.ll-ha-tab.active {
-  color: #fff;
-  border-bottom-color: #fff;
-}
-.ll-ha-body {
-  padding: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-height: 480px;
-  max-height: 620px;
-  overflow: auto;
 }
 
 /* ---- Cards ---- */
@@ -300,6 +407,15 @@ provide('ll-status-bridge', {
   background: var(--vp-c-bg-soft);
   padding: 0.1em 0.4em;
   border-radius: 4px;
+}
+.ll-context-dump {
+  margin: 0.25rem 0;
+  padding: 0.4rem 0.6rem;
+  background: var(--vp-c-bg-soft);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  overflow-x: auto;
 }
 
 .ll-status-card { border-left: 4px solid #03a9f4; }
