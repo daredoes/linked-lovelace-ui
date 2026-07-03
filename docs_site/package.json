@@ -5,8 +5,10 @@
     "docs:preview": "vitepress preview"
   },
   "devDependencies": {
+    "eta": "3.0.3",
     "mermaid": "^11.4.1",
     "vitepress": "^1.0.1",
-    "vitepress-plugin-mermaid": "^2.0.17"
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "yaml": "^2.4.5"
   }
 }

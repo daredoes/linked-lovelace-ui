@@ -8,6 +8,11 @@ The fastest way to understand what Linked Lovelace can do is to **see it
 running**. The **Starter Card** drops a complete, pre-built demo dashboard into
 your Home Assistant with a single click — no copy/paste, no YAML.
 
+::: tip No Home Assistant handy?
+The [**Live Demo**](./demo) runs this exact showcase in your browser using the
+real template engine — nothing to install.
+:::
+
 In one dashboard it shows the whole feature set:
 
 - **Reusable templates** — one `room` template rendered three times
@@ -76,6 +81,7 @@ Lovelace: author once, reuse everywhere, sync on demand.
 
 ## Where to next?
 
+- [Live Demo](./demo) — the same showcase, editable in your browser
 - [Creating Your First Template](./create-your-first-template) — build your own
 - [Providing Template Context](./providing-template-context) — variables in depth
 - [Creating Partials](./creating-partials) — share Eta snippets across templates

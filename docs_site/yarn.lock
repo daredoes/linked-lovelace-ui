@@ -1458,6 +1458,11 @@ estree-walker@^2.0.2:
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
   integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
 
+eta@3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/eta/-/eta-3.0.3.tgz#f438a7814c7070c18b1c9939f3b6c490a322f82f"
+  integrity sha512-92A9Ag87aSb/y7e9EwA17VsbV1t2NmZNVlxtwHIkQcxYq20Ch7aAVNJqb5w6bsJVXRsBdvzn6R8WDPCHI9ewdA==
+
 focus-trap@^7.6.4:
   version "7.8.0"
   resolved "https://registry.yarnpkg.com/focus-trap/-/focus-trap-7.8.0.tgz#b1d9463fa42b93ad7a5223d750493a6c09b672a8"
@@ -1998,6 +2003,11 @@ vue@^3.5.13:
     "@vue/runtime-dom" "3.5.38"
     "@vue/server-renderer" "3.5.38"
     "@vue/shared" "3.5.38"
+
+yaml@^2.4.5:
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.9.0.tgz#78274afd93598a1dfdd6130df6a566defcbf9aa4"
+  integrity sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==
 
 zwitch@^2.0.4:
   version "2.0.4"

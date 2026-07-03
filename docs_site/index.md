@@ -8,6 +8,9 @@ hero:
   tagline: Keep your Home Assistant dashboards in sync with zero copy-pasting.
   actions:
     - theme: brand
+      text: Try the Live Demo
+      link: /demo
+    - theme: brand
       text: Get Started
       link: /getting-started
     - theme: alt

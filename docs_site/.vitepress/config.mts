@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 
@@ -7,10 +8,29 @@ export default withMermaid(defineConfig({
   title: "Linked Lovelace",
   description: "Reusable card templates for Home Assistant dashboards",
   base: "/linked-lovelace-ui/",
+
+  vite: {
+    resolve: {
+      alias: [
+        // The live-demo playground imports the template engine straight from
+        // ../src, whose `import 'eta'` would otherwise resolve against the
+        // repo-root node_modules (absent in the docs-only CI build). Pin it
+        // to the copy installed for the docs site.
+        {
+          find: /^eta$/,
+          replacement: fileURLToPath(
+            new URL('../node_modules/eta/dist/browser.module.mjs', import.meta.url),
+          ),
+        },
+      ],
+    },
+  },
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
+      { text: 'Live Demo', link: '/demo' },
       { text: 'Getting Started', link: '/getting-started' },
       { text: 'Starter Dashboard', link: '/starter-dashboard' },
       { text: 'Lifecycles', link: '/lifecycles' },
@@ -21,6 +41,7 @@ export default withMermaid(defineConfig({
       {
         text: 'Quick Start',
         items: [
+          { text: 'Live Demo (in your browser)', link: '/demo' },
           { text: 'Getting Started', link: '/getting-started' },
           { text: 'Starter Dashboard', link: '/starter-dashboard' },
           { text: 'Creating Your First Template', link: '/create-your-first-template' },

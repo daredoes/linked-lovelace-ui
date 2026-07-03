@@ -101,4 +101,8 @@ The following demonstration will update our template to use context, and create 
 
 It's time for you to create your own powerful cards.
 
-We're working on providing some useful example cards, but as-is with most things in Home Assistant, you'll find that most of your templates are unique to your setup.
+- Share Eta logic between templates by [creating partials](./creating-partials).
+- Keep the [Template Syntax reference](./template-syntax) handy while you write.
+- Prototype ideas safely in the [Live Demo](./demo) before touching your real dashboards.
+
+Most of your templates will be unique to your setup — that's normal for Home Assistant. Start small, sync often.

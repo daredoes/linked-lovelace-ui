@@ -72,7 +72,7 @@ Now that we've created our first template, we'll use the Template card to help u
 
 1. Use the UI Selector to choose the Linked Lovelace Template card `type: custom:linked-lovelace-template`. This card will look up our available templates, and swap the code needed for the Status card to work properly into place with just a button click.
 ![Linked Lovelace Template Card](./images/linked-lovelace-template-card.png)
-2. Modify any new or existing card yaml to have the top level key `ll_template` with a value that matches the `ll_key` value we created earlier. In our example. this would be `help-button`.
+2. Modify any new or existing card yaml to have the top level key `ll_template` with a value that matches the `ll_key` value we created earlier. In our example, this would be `help-button`.
 ![Linked Lovelace Template Card Code](./images/linked-lovelace-template-card-code.png)
 
 *Using a template, both ways*

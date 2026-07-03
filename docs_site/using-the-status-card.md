@@ -4,7 +4,7 @@ outline: deep
 
 # Using the Status card
 
-It is recommend to use the status card as a singular card in a panel view.
+It is recommended to use the status card as a singular card in a panel view.
 
 ::: danger NOTE
 
