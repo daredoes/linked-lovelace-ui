@@ -6,6 +6,7 @@ import './linked-lovelace-template';
 import './linked-lovelace-status';
 import './linked-lovelace-partials';
 import './linked-lovelace-starter';
+import './linked-lovelace-key-chip';
 
 initialize(() => {log(`Version: ${LIB_VERSION}`);})
 

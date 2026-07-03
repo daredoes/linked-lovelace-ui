@@ -2,6 +2,7 @@ import { DashboardCard, DashboardConfig, DashboardView, LinkedLovelacePartial } 
 import TemplateController from '../controllers/template';
 import {GlobalLinkedLovelace} from '../instance'
 import EtaTemplateController from '../controllers/eta';
+import { unwrapKeyChipCard, wrapKeyChipCard } from '../helpers/keyChip';
 
 const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
   return Object.keys(templates).sort((kA, kB) => {
@@ -14,6 +15,7 @@ const sortTemplatesByPriority = (templates: Record<string, DashboardCard>) => {
 class LinkedLovelaceController {
   templateController: TemplateController = new TemplateController();
   etaController: EtaTemplateController = new EtaTemplateController();
+  showKeyChips = false;
 
   registerTemplates = (templates: Record<string, DashboardCard>): void => {
     sortTemplatesByPriority(templates).forEach((key) => {
@@ -40,7 +42,11 @@ class LinkedLovelaceController {
       if (view.cards) {
         // For every card in the config, store a copy of the rendered card
         view.cards.forEach((card) => {
-          const newCard = this.templateController.renderCard(card);
+          const canonical = unwrapKeyChipCard(card);
+          let newCard = this.templateController.renderCard(canonical);
+          if (this.showKeyChips && newCard.ll_key) {
+            newCard = wrapKeyChipCard(newCard);
+          }
           cards.push(newCard);
         });
         // Replace the cards in the view
@@ -51,7 +57,7 @@ class LinkedLovelaceController {
           const cards = view.sections[i].cards
           if (cards && Array.isArray(cards)) {
             cards.forEach((card, j) => {
-              const newCard = this.templateController.renderCard(card);
+              const newCard = this.templateController.renderCard(unwrapKeyChipCard(card));
               view.sections![i].cards![j] = newCard
             });
           }

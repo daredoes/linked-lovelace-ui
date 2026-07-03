@@ -3,6 +3,7 @@ import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from '../v2/linkedLovelace';
 import { TemplateEngine } from 'src/v2/template-engine';
 import { toConsole } from 'src/helpers/log';
+import { unwrapKeyChipCard } from 'src/helpers/keyChip';
 
 const getS = (array) => {
   return array?.length !== 1 ? 's' : ''
@@ -24,6 +25,7 @@ class HassController {
   dashboardsToViews: Record<string, Record<string, View>> = {}
   logs: string[] = [];
   forwardLogs = false;
+  showKeyChips = false;
 
   addToLogs = ({msg, level = 'INFO'}: AddToLog, ...values: any[]) => {
     const timestamp = new Date().toISOString()
@@ -38,6 +40,7 @@ class HassController {
   refresh = async (): Promise<void> => {
     this.addToLogs({msg: `Beginning Refresh`})
     this.linkedLovelaceController = new LinkedLovelaceController();
+    this.linkedLovelaceController.showKeyChips = this.showKeyChips;
     this.dashboardsToViews = {}
     this.addToLogs({msg: `Discovering Dashboards`})
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();
@@ -78,17 +81,18 @@ class HassController {
           }
           this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`}, dashboard, view)
           return await Promise.all((view.cards || []).map(async (card) => {
-            if (card.ll_key) {
-              this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] [template:${card.ll_key}] [priority:${card.ll_priority || 0}] Discovered Template`}, dashboard, view, card)
-              if (templates[card.ll_key] && (templates[card.ll_key].ll_priority || 0) < (card.ll_priority || 0)) { 
-                this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Template already exists with tag ${card.ll_key}`, level: "WARN"}, dashboard, view, card)
+            const definition = unwrapKeyChipCard(card);
+            if (definition.ll_key) {
+              this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] [template:${definition.ll_key}] [priority:${definition.ll_priority || 0}] Discovered Template`}, dashboard, view, definition)
+              if (templates[definition.ll_key] && (templates[definition.ll_key].ll_priority || 0) < (definition.ll_priority || 0)) {
+                this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Template already exists with tag ${definition.ll_key}`, level: "WARN"}, dashboard, view, definition)
               } else {
-                templates[card.ll_key] = card
+                templates[definition.ll_key] = definition
               }
-              this.dashboardsToViews[dashboardPath][viewKey].templates = {...this.dashboardsToViews[dashboardPath][viewKey].templates, ...{[card.ll_key]: card}}
+              this.dashboardsToViews[dashboardPath][viewKey].templates = {...this.dashboardsToViews[dashboardPath][viewKey].templates, ...{[definition.ll_key]: definition}}
             }
-            
-            const partials = await this.linkedLovelaceController.registerPartials(card)
+
+            const partials = await this.linkedLovelaceController.registerPartials(definition)
             const partialKeys = Object.keys(partials);
             if (partialKeys.length) {
               this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovered ${partialKeys.length} Partial${getS(partialKeys)}`}, dashboard, view, partials)
@@ -128,8 +132,8 @@ class HassController {
       }
       this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Finished Update`}, {dryRun, urlPath})
       return config
-    } catch (e) {
-      this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Failed to render latest dashboard with templates and partials`}, {dryRun, urlPath})      
+    } catch {
+      this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Failed to render latest dashboard with templates and partials`}, {dryRun, urlPath})
       return null;
     }
   };

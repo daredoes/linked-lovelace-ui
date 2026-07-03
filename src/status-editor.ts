@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, CSSResultGroup } from 'lit';
-import { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
+import { HomeAssistant, LovelaceCardEditor, fireEvent } from 'custom-card-helpers';
 
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import {  LinkedLovelaceStatusCardConfig } from './types';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { customElement, property, state } from 'lit/decorators';
-import HassController from './controllers/hass';
+ 
+import { customElement, property, state } from 'lit/decorators.js';
 
 @customElement('linked-lovelace-status-editor')
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export class LinkedLovelaceStatusCardEditor extends ScopedRegistryHost(LitElement) implements LovelaceCardEditor {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
@@ -64,8 +63,27 @@ export class LinkedLovelaceStatusCardEditor extends ScopedRegistryHost(LitElemen
 
     return html`
       <div class="linked-lovelace-config">
-        </div>
+        <label>
+          <input
+            type="checkbox"
+            .checked=${!!this._config?.show_key_chips}
+            @change=${this._showKeyChipsChanged}
+          />
+          Show key chips on template definition cards (applied at next sync)
+        </label>
+      </div>
     `;
+  }
+
+  private _showKeyChipsChanged(ev): void {
+    if (!this._config || !this.hass) {
+      return;
+    }
+    this._config = {
+      ...this._config,
+      show_key_chips: ev.target.checked,
+    };
+    fireEvent(this, 'config-changed', { config: this._config });
   }
 
   private _initialize(): void {

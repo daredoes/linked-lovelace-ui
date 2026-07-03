@@ -26,6 +26,14 @@ export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
 
 export interface LinkedLovelaceStatusCardConfig extends LovelaceCardConfig {
   type: string;
+  show_key_chips?: boolean;
+}
+
+export interface LinkedLovelaceKeyChipConfig extends LovelaceCardConfig {
+  type: string;
+  ll_key?: string;
+  ll_priority?: number;
+  card?: DashboardCard;
 }
 
 export interface Dashboard {
@@ -65,7 +73,7 @@ export interface LinkedLovelacePartial {
 }
 
 export interface DashboardPartialsCard extends LovelaceCardConfig {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   partials?: LinkedLovelacePartial[];
 }
 
@@ -74,7 +82,7 @@ export interface DashboardView {
   path?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   badges?: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   cards?: DashboardCard[];
   sections?: DashboardCard[];
   theme?: string;
@@ -88,8 +96,9 @@ export interface DashboardConfig {
   [x: string]: any;
 }
 
-interface LLDashboard extends Dashboard {
+export interface LLDashboard extends Dashboard {
   config?: DashboardConfig
 }
 
 export const LINKED_LOVELACE_PARTIALS = 'linked-lovelace-partials'
+export const LINKED_LOVELACE_KEY_CHIP = 'linked-lovelace-key-chip'

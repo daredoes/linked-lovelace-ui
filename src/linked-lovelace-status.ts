@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LitElement, html, TemplateResult, css, PropertyValues, CSSResultGroup } from 'lit';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { customElement, property, state } from 'lit/decorators';
+ 
+import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-card-helpers'; // This is a community maintained npm module with common helper functions/types. https://github.com/custom-cards/custom-card-helpers
 
 import type { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial, LinkedLovelaceStatusCardConfig } from './types';
@@ -17,10 +17,6 @@ import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 
 const stringify = (text) => {
   return JSON.stringify(text, null, 2)
-}
-
-const getS = (array) => {
-  return array.length !== 1 ? 's' : ''
 }
 
 const createDiff = (obj1 = {}, obj2 = {}) => {
@@ -66,7 +62,7 @@ const TAB_PARTIALS = "partials";
 const TAB_LOGS = "logs";
 
 @customElement('linked-lovelace-status')
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export class LinkedLovelaceStatusCard extends LitElement {
   constructor() {
     super();
@@ -129,7 +125,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
         if (oldDashboardData && dashboardData && hasDiff(oldDashboardData, dashboardData)) {
           this._diffedDashboards[dashboardKey] = makeDiff(oldDashboardData, dashboardData)
         }
-      } catch (e) {
+      } catch {
         console.error(`Failed to make Diff of dashboard '${dashboardKey}'`, oldDashboardData, dashboardData, dashboardKey)
       }
     })
@@ -141,6 +137,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
     const oldForward = this._controller?.forwardLogs || false;
     this._controller = new HassController();
     this._controller.forwardLogs = oldForward;
+    this._controller.showKeyChips = !!this.config.show_key_chips;
     this._controller!.addToLogs({msg: "Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled."})
     const backupDashboardConfigs = {}
     await GlobalLinkedLovelace.instance.api.getDashboards().then(async (dashboards) => {
@@ -203,7 +200,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private overwriteDashboard = async (dashboardKey, skipConfirm = false) => {
     if (skipConfirm || confirm(`This will overwrite the contents of the dashboard located at the url '${window.location.origin}/${dashboardKey}'. Proceed at your own risk. Be sure to back up your system before making changes you are not sure about.`)) {
-      const newDashboard = await this._controller!.update(dashboardKey)
+      await this._controller!.update(dashboardKey)
       this._repaint()
     }
   }
