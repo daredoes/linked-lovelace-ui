@@ -1,8 +1,6 @@
 # Linked Lovelace UI by [@daredoes](https://www.github.com/daredoes)
 
-A pure JS client-side implementation of re-usable cards between Home Assistant Dashboards (excluding Overview).
-
-[In-Progress Documentation Site](https://daredoes.github.io/linked-lovelace-ui/)
+Reusable card templates for Home Assistant dashboards. Mark any card with `ll_key` and it becomes a template you can place on every user-created dashboard (so everything except Overview), then sync them all with one click. It runs entirely in your browser as a client-side script, with no backend integration to configure.
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
@@ -11,81 +9,58 @@ A pure JS client-side implementation of re-usable cards between Home Assistant D
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
+## Try It Without Installing
+
+The [Live Demo](https://daredoes.github.io/linked-lovelace-ui/demo) runs the real template engine in your browser inside a simulated Home Assistant dashboard. Click **Load Data**, then **Update All**, then edit the `room` template and sync again to watch one change reach every card that uses it.
+
+Already have Home Assistant? Add a `custom:linked-lovelace-starter` card and click **Create Demo Dashboard**. It builds the same showcase as a brand-new dashboard in your config and never touches your existing ones. The [Starter Dashboard](https://daredoes.github.io/linked-lovelace-ui/starter-dashboard) page walks through it.
+
+![Linked Lovelace V2 Demo](/docs_site/images/llv2.gif)
+
+## What It Does
+
+- Turn any card into a template by adding `ll_key: my_template` to its config, then use it anywhere with `ll_template: my_template`.
+- Pass variables through `ll_context` and read them in the template as `<%= context.name %>`.
+- Templating is [Eta JS](https://eta.js.org/), so if/else, loops, and partials all work. Partials can be defined inline or fetched from a URL.
+- Sync from the status card: **Load Data** reads your dashboards, **Update All** writes the rendered results back.
+
+## Installation
+
+Install through HACS: it's in the default store, listed under frontend as `Linked Lovelace`. If you don't use HACS, download `linked-lovelace-ui.js` from the [latest release](https://github.com/daredoes/linked-lovelace-ui/releases/latest) and register it as a dashboard resource. Full steps are in [Getting Started](https://daredoes.github.io/linked-lovelace-ui/getting-started).
+
+> [!WARNING]
+> `Linked Lovelace` runs commands on behalf of the user's browser to modify dashboard configurations, not on behalf of the Home Assistant system. A user's access may modify the outcome of the program.
+>
+> __Always back-up your configs if you feel unsure about what you are about to do!__
+
+## Documentation
+
+The [documentation site](https://daredoes.github.io/linked-lovelace-ui/) has the full guides and reference:
+
+- [Getting Started](https://daredoes.github.io/linked-lovelace-ui/getting-started) covers installation and confirming the card loaded.
+- [Create Your First Template](https://daredoes.github.io/linked-lovelace-ui/create-your-first-template) builds a template from scratch.
+- [Template Syntax](https://daredoes.github.io/linked-lovelace-ui/template-syntax) and [Providing Template Context](https://daredoes.github.io/linked-lovelace-ui/providing-template-context) cover Eta JS and `ll_context`.
+- [Creating Partials](https://daredoes.github.io/linked-lovelace-ui/creating-partials) shows reusable snippets, including ones loaded from a URL.
+- [Using the Status Card](https://daredoes.github.io/linked-lovelace-ui/using-the-status-card) explains **Load Data**, **Update All**, and per-dashboard updates.
+- [API Reference](https://daredoes.github.io/linked-lovelace-ui/api-reference) lists every `ll_*` key and card option.
+- [Advanced Features](https://daredoes.github.io/linked-lovelace-ui/advanced-features) covers `ll_keys`, priorities, and nesting.
+- [Troubleshooting](https://daredoes.github.io/linked-lovelace-ui/troubleshooting) is for when a sync doesn't do what you expected.
+
+## Upgrading From V1
+
+Template dashboards are gone: any top-level card with an `ll_key` is a template now. `template_data` (or `ll_data`) became `ll_context`, and `template` became `ll_template`. To convert an old `$example$` variable, swap the first `$` for `<%=` and the second for `%>`, then read it from context: `<%= context.example %>`. The [migration guide](https://daredoes.github.io/linked-lovelace-ui/advanced-features#migration-from-v1) has the details, and if I forgot something, file an issue.
+
 ## Support
 
 Hey you! Help me out for a couple of :beers: or a :coffee:!
 
 [![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://www.buymeacoffee.com/daredoes)
 
----
-
-## Features
-
-* Create cards in the Lovelace UI that can be **linked** to multiple dashboards
-* Provide templating when creating linked cards using [https://eta.js.org/](EtaJS)
-  * Create dynamic partials from local templates, or online templates!
-  * Access Template Data with variable `context` e.g. `<%= context.name %>`
-
----
-
-## Installation
-
-Add through [HACS](https://github.com/custom-components/hacs)
-
----
-
-## Options
-
-| Name              | Type    | Requirement  | Description                                                | Default             |
-| ----------------- | ------- | ------------ | ---------------------------------------------------------- | ------------------- |
-| type              | string  | **Required** | While normally required, this will be replaced             |                     |
-| ll_template       | string  | **Optional** | ll_key name                                                | ``                  |
-| ll_context        | object  | **Optional** | An object that can be accessed inside of EtaJS as `context`| ``                  |
-
-| Name              | Type    | Requirement  | Description                                                                                               | Default             |
-| ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
-| type              | string  | **Required** | A normal Lovelace card type                                                                               |                     |
-| ll_key            | string  | **Required** | The name you want to use for this template                                                                | ``                  |
-| ll_priority       | number  | **Optional** | Used in sorting the order that templates are added to the system for nesting. Lowest number comes first.  | `0`                 |
-
-| Name              | Type    | Requirement  | Description                                                                                               | Default             |
-| ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
-| type              | string  | **Required** | `custom:linked-lovelace-partials`                                                                         |                     |
-| partials          | list    | **Optional** | A list of partials you want to use in Eta JS                                                              | ``                  |
-
-A `partial` object has the following shape
-| Name              | Type    | Requirement  | Description                                                                                               | Default             |
-| ----------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------- | ------------------- |
-| key               | string  | **Required** | The name you want to use for this partial in Eta JS                                                       |                     |
-| priority          | number  | **Optional** | Used in sorting the order that templates are added to the system for nesting. Lowest number comes first.  | `0`                 |
-| url               | string  | **Optional** | A url that will have a GET request made to it, and have its response body used as `template`.             | ``                  |
-| template          | string  | **Required** | The content that will be used as the Eta JS. If `url` is given, it will be downloaded and replace this.   | ``                  |
-
-## _Instructions_ (if you can call them that)
-
-1. Install Linked Lovelace 2.0
-2. Navigate to a user-created dashboard. (pretty much anything but Overview I think)
-3. Put the content from [sample-dashboard.yml](https://github.com/daredoes/linked-lovelace-ui/blob/master/sample-dashboard.yml) into your dashboard using the raw configuration editor. The result should look like ![V2 Before Dashboard](/docs_site/images/v2before.png)
-4. Click "Update All" and it should now look like ![V2 After Dashboard](/docs_site/images/v2after.png)
-Before -> After
-![Linked Lovelace V2 Demo](/docs_site/images/llv2.gif)
-5. Reverse engineer it for your own needs, or file an issue, or [join the discord](https://discord.gg/WbsNtASKau) to chat with me directly about it.
-
-## V1 to V2 conversion (or useful information)
-
-* You no longer need "Template Dashboards". Make any top-level card in a view on any user-created dashboard a template by adding `ll_key: template_name` to the config. 
-
-  * If you need to choose the order these templates are processed for nested templates you can use `ll_priority: 0`. 
-  * The templates are sorted by lowest number first, so if you want to use `templateA` in `templateB`, `templateB` should have `ll_priority: 1` to be rendered after `templateA` has been added to our collection of available templates.
-* `template_data` or `ll_data` must now be set to `ll_context`
-* `template` must now be set to `ll_template`
-* `ll_keys` mostly works still. two tests involving overriding context failed if someone wants to fix them. I'm considering removing this feature entirely.
-* To convert an old template data variable, `$example$`, just swap the first `$` to `<%=` and the second `$` to `%>`, and retrieve the variable from `context`.
-  * example: `<%= context.example %>`
-
-* ### file an issue if I forgot something plz UwU
+Found a bug or got stuck? [File an issue](https://github.com/daredoes/linked-lovelace-ui/issues) or [join the Discord](https://discord.gg/WbsNtASKau) to chat with me directly.
 
 ## Development
+
+The project builds with [bun](https://bun.sh/) and rollup: `bun install`, then `bun run build` (or `bun run start` for a watch build). `bun run test` runs the Jest suite.
 
 The `eta` dependency installs from a vendored tarball (`eta-3.0.3.tgz`) instead of the npm registry. The published package pulls in Node-only modules (`node:path`, `node:fs`) for server-side features this card never uses, and they break the browser bundle. The tarball is the same 3.0.3 release with those imports stripped. If you upgrade eta, rebuild the tarball the same way or confirm upstream no longer needs the patch.
 
@@ -94,6 +69,6 @@ The `eta` dependency installs from a vendored tarball (`eta-3.0.3.tgz`) instead 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/daredoes/linked-lovelace-ui.svg
 [commits]: https://github.com/daredoes/linked-lovelace-ui/commits/master
 [license-shield]: https://img.shields.io/github/license/daredoes/linked-lovelace-ui.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2023
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2026
 [releases-shield]: https://img.shields.io/github/release/daredoes/linked-lovelace-ui.svg
 [releases]: https://github.com/daredoes/linked-lovelace-ui/releases
