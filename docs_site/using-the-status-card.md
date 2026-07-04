@@ -76,6 +76,18 @@ If console logging is activated, a more detailed version of each log should be a
 
 __*This is purely a debugging tool.*__
 
+## Key Chips
+
+The card editor has a single checkbox: **Show key chips on template definition cards (applied at next sync)**.
+
+When it is checked, the next sync wraps every template definition card in a small container that draws a blue pill with the card's `ll_key` in its top right corner. Handy when you are staring at a dashboard trying to remember which card is the actual template.
+
+Untick it and the next sync removes the wrappers again. Either way, nothing happens until you run a sync; the checkbox itself does not touch your dashboards.
+
+::: info
+Chips currently appear on cards placed directly in a view. Template definitions inside sections are left unwrapped.
+:::
+
 ## Demonstration
 
 Given all we've discussed, let's put it into action.

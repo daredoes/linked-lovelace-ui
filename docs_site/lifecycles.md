@@ -180,6 +180,11 @@ memory and diffs them against the backups to build an HTML preview. Only when th
 user confirms `Update All` does it write each changed dashboard back via
 `setDashboardConfig` (`lovelace/config/save`).
 
+During rendering, each view card is first stripped of any
+`custom:linked-lovelace-key-chip` wrapper. If the status card has
+`show_key_chips` enabled, cards carrying an `ll_key` are re-wrapped after their
+template renders, so definition cards stay visibly badged on the dashboard.
+
 ```mermaid
 sequenceDiagram
     actor User

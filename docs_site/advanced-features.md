@@ -228,6 +228,14 @@ Enable Dry Run to preview the diff without making any changes. This is the defau
 | Partials | Lists all registered Eta partials |
 | Logs | Runtime output for debugging |
 
+### Key Chips
+
+Set `show_key_chips: true` on the status card (or tick the checkbox in its editor) and the next sync wraps every template source card in a `custom:linked-lovelace-key-chip`. The wrapper renders the original card untouched and adds a small blue badge with the `ll_key` in the top right corner, so definitions are easy to spot on a busy dashboard.
+
+The wrapper is managed for you. Sync hoists `ll_key` and `ll_priority` onto it, and template discovery unwraps it before reading keys, so a wrapped definition still registers normally. Turn the option off and the next sync unwraps everything, restoring the original YAML.
+
+Chips are applied to cards placed directly in a view; cards inside sections are only ever unwrapped. See the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip) for the wrapper's YAML shape.
+
 ---
 
 ## Migration From V1

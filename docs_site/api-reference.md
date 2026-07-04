@@ -40,9 +40,14 @@ The **control** card. Add this to any dashboard to see which templates are regis
 
 ```yaml
 type: custom:linked-lovelace-status
+show_key_chips: true
 ```
 
-No additional configuration keys are required. The card provides an interactive UI with four tabs. **Dashboards** shows which dashboards will be affected and previews the diff. **Templates** lists all registered `ll_key` cards. **Partials** lists all registered Eta partials. **Logs** shows runtime log output.
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `show_key_chips` | `boolean` | No | When `true`, the next sync wraps every template source card in a [`custom:linked-lovelace-key-chip`](#custom-linked-lovelace-key-chip) so its `ll_key` is visible on the dashboard. When `false` or unset, the next sync removes any existing wrappers. Defaults to `false`. |
+
+The card provides an interactive UI with four tabs. **Dashboards** shows which dashboards will be affected and previews the diff. **Templates** lists all registered `ll_key` cards. **Partials** lists all registered Eta partials. **Logs** shows runtime log output.
 
 ---
 
@@ -75,6 +80,30 @@ partials:
 
 ::: tip
 When both `template` and `url` are supplied, `url` takes precedence. Use `priority` when one partial depends on another.
+:::
+
+---
+
+### `custom:linked-lovelace-key-chip`
+
+The **marker** card. Wraps a template source card and shows its `ll_key` as a small badge in the card's top right corner. The Status card adds and removes these wrappers during sync based on its `show_key_chips` option; you do not need to add one by hand.
+
+```yaml
+type: custom:linked-lovelace-key-chip
+ll_key: my-button
+card:
+  type: button
+  name: My Button
+```
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `card` | `object` | Yes | The wrapped card configuration. Rendered unchanged beneath the badge. |
+| `ll_key` | `string` | No | Template key shown in the badge. Sync hoists it here from the wrapped card. |
+| `ll_priority` | `number` | No | Hoisted alongside `ll_key`. Both are restored to the inner card when the wrapper is removed. |
+
+::: tip
+Template discovery unwraps this card automatically, so a wrapped source card is still registered under its `ll_key`.
 :::
 
 ---
