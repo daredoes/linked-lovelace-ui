@@ -17,12 +17,25 @@ KEEP_UP=1 ./scripts/e2e.sh       # leave HA running for iteration
 cd e2e && npx playwright test    # against already-running HA
 cd e2e && npx playwright test --ui   # interactive debugging
 ./scripts/screenshots.sh         # capture doc screenshots -> docs_site/images/e2e/
+./scripts/video.sh               # record the captioned demo video -> docs_site/images/
 ```
 
 CI runs the suite on PRs to `master` via `.github/workflows/e2e.yml` (calls
-`./scripts/e2e.sh`). The screenshot capture uses a **separate** config
-(`e2e/playwright.screenshots.config.ts`, testDir `e2e/screenshots/`) so docs
-artifacts are never coupled to the CI gate.
+`./scripts/e2e.sh`). The screenshot capture and the video capture each use a
+**separate** config (`e2e/playwright.screenshots.config.ts`, testDir
+`e2e/screenshots/`; `e2e/playwright.video.config.ts`, testDir `e2e/video/`) so
+docs artifacts are never coupled to the CI gate.
+
+Two things the video capture learned the hard way, worth copying into any new
+spec:
+
+- On a **cold module cache** HA can render a view before the bundle registers
+  its elements, leaving a "Custom element doesn't exist" card that never
+  recovers on its own. Retry the whole load (`openCard` in `e2e/video/demo.spec.ts`),
+  do not just wait longer.
+- Playwright has **no default action timeout**, so a `click()` on a locator that
+  will never appear hangs until the test timeout. The video config sets
+  `actionTimeout`; consider it for anything long-running.
 
 First run pulls `ghcr.io/home-assistant/home-assistant:2024.12` and installs
 Chromium for Playwright. Requires Docker + bun + Node.

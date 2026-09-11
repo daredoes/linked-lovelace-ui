@@ -8,6 +8,24 @@ This playground runs the actual Linked Lovelace template engine, the same code t
 
 You don't need Home Assistant and there is nothing to install. Everything stays in your browser tab.
 
+## Watch It Run In Home Assistant
+
+If you would rather see the real card first, this is the same feature set running in an actual Home Assistant instance, recorded by the end-to-end suite. It covers the starter card, a sync, the templates and partials the status card discovers, a template defined inside a sections view, and the key-chip option.
+
+<div class="ll-demo-video">
+  <video controls playsinline preload="metadata" poster="./images/linked-lovelace-demo-poster.jpg" src="./images/linked-lovelace-demo.mp4"></video>
+</div>
+
+<style>
+.ll-demo-video video {
+  width: 100%;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+}
+</style>
+
+The recording has captions rather than narration, so it plays fine with the sound off. To record it yourself against your own build, run `./scripts/video.sh` from the repo.
+
 ## Try it
 
 1. On the **Demo** view, find the **Linked Lovelace Status** card and click **Load Data**. This first pass reads the dashboard's YAML config: the templates, the partials, and the `ll_context` shown on each dashed placeholder card all come from that YAML. Click **Edit YAML** if you want to see the source before you sync.
