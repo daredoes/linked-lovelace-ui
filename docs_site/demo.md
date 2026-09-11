@@ -10,7 +10,7 @@ You don't need Home Assistant and there is nothing to install. Everything stays 
 
 ## Watch It Run In Home Assistant
 
-If you would rather see the real card first, this is the same feature set running in an actual Home Assistant instance, recorded by the end-to-end suite. It covers the starter card, a sync, the templates and partials the status card discovers, a template defined inside a sections view, and the key-chip option.
+If you would rather see the real card first, this is the same feature set running in an actual Home Assistant instance, recorded by the end-to-end suite. The YAML on the left is the config being discussed, so each feature appears next to the card it produces: one source card reused three times, the discovery tabs, the dry-run diff, a sync writing back, editing the source once, partials, `ll_keys`, `ll_priority` with a nested template, a source inside a sections view, and key chips.
 
 <div class="ll-demo-video">
   <video controls playsinline preload="metadata" poster="./images/linked-lovelace-demo-poster.jpg" src="./images/linked-lovelace-demo.mp4"></video>

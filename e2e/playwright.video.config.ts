@@ -20,7 +20,7 @@ export default defineConfig({
     storageState: 'storage-state.json',
     // Captions are drawn into the page, so recording the viewport captures them.
     // Video size must match the viewport or the recording is letterboxed.
-    video: { mode: 'on', size: { width: 1280, height: 800 } },
+    video: { mode: 'on', size: { width: 1600, height: 900 } },
     launchOptions: { slowMo: Number(process.env.SLOWMO) || 150 },
   },
   projects: [
@@ -28,7 +28,7 @@ export default defineConfig({
       name: 'chromium',
       // Viewport goes after the device spread: the preset would otherwise pin
       // it back to 720 and the recording would show a band under the page.
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1600, height: 900 } },
     },
   ],
 });
