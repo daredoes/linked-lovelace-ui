@@ -48,13 +48,15 @@ Once data has been loaded, the card will display the following tabs.
 
 ![Linked Lovelace Status Loaded Card](./images/linked-lovelace-status-loaded.png)
 
-If nothing shows when this is selected, then there is nothing found to update!
+Every dashboard whose rendered output differs from what is currently saved gets a row here, with an **Update** button that writes just that one. If nothing differs, the tab says so and there is nothing to do.
 
-If there are updates that can occur, each dashboard will have the code changes minimized, as well as a button to update that specific dashboard. Expand them to review any changes.
+Expand **Preview Changes** to read the diff for each listed dashboard before writing anything. Removed lines are tinted red, added lines green.
 
 ![Linked Lovelace Status Loaded Card](./images/linked-lovelace-dashboard-diff.png)
 
-There is also a button to update every dashboard in one click. Great for experts, but definitely a risky click after making changes!
+**Update All** writes every listed dashboard in one click. Great for experts, but definitely a risky click after making changes!
+
+**Download Backup** saves the configs as they were read, before any write, as a JSON file. Keep it if you want a way back: paste a dashboard's config from that file into the raw configuration editor to restore it.
 
 ### Templates
 

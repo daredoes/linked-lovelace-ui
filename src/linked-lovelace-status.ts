@@ -73,7 +73,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
   @state() private _dashboards: Record<string,Dashboard> = {};
   @state() private _diffedDashboards: Record<string, string> = {};
   @state() private _backedUpDashboardConfigs: Record<string, DashboardConfig | null | undefined> = {};
-  @state() private _backupString: string = "";
   @state() private _loaded = false;
   @state() private _show_difference = false;
   @state() private _show_logs = false;
@@ -152,7 +151,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
       console.error(`Failed getting all existing dashboards. Contact developer via Github Issues.`, e)
     });
     this._backedUpDashboardConfigs = backupDashboardConfigs;
-    this._backupString = "text/json;charset=utf-8," + encodeURIComponent(stringify(backupDashboardConfigs));
     this._controller!.addToLogs({msg: "Backed up current dashboard data. Download as JSON via button."})
     await this._controller.refresh();
     this._partials = this._controller.linkedLovelaceController.etaController.partials
@@ -197,6 +195,27 @@ export class LinkedLovelaceStatusCard extends LitElement {
     }
     this._repaint()
   }
+
+  // Dashboard titles are nicer than url paths, and the overview dashboard has
+  // no path at all.
+  private dashboardName(dashboardKey: string): string {
+    return this._dashboards[dashboardKey]?.title || dashboardKey || 'Overview';
+  }
+
+  // The configs read before any write, offered as a file so a sync can be
+  // undone by pasting them back into the raw configuration editor. Built as a
+  // Blob: a full set of dashboards is far past what a data: URI can carry.
+  private handleDownloadBackup = () => {
+    const blob = new Blob([stringify(this._backedUpDashboardConfigs)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `linked-lovelace-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
 
   private overwriteDashboard = async (dashboardKey, skipConfirm = false) => {
     if (skipConfirm || confirm(`This will overwrite the contents of the dashboard located at the url '${window.location.origin}/${dashboardKey}'. Proceed at your own risk. Be sure to back up your system before making changes you are not sure about.`)) {
@@ -282,8 +301,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
         })}
         </div>
         <div>
-        <div class="tab-content ${this._tab === TAB_DASHBOARDS ? 'active' : ''}">
-        </div>
         <div class="tab-content ${this._tab === TAB_TEMPLATES ? 'active' : ''}">
           <div class="unsafe-html">
           <div class="accordion expanded">
@@ -353,34 +370,39 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </div>
         `: ''}
         </div>
-        ${diffedDashboardKeys.length && this._difference ? html`
+        ${this._loaded ? html`
         <div class="tab-content ${this._tab === TAB_DASHBOARDS ? 'active' : ''}">
-        <div class="unsafe-html">
-        <div class="accordion expanded">
-        <span class="accordion-bar" @click=${this.toggleShowDryRun}><span class="icon">${this._show_difference ? html`&#9660;` : html`&#9658;`} </span><span class="title">Preview Changes</span></span>
-        </div>
-        ${this._difference && html`
-        ${this._show_difference ? html`<div>
+        ${diffedDashboardKeys.length ? html`
+        <div class="dashboard-list">
         ${diffedDashboardKeys.map((dashboardKey) => {
-          const dashboardData = this._dashboards[dashboardKey]
-          const myDiff = this._diffedDashboards[dashboardKey]
           return html`
           <div class="header">
-            <p>Dashboard: ${dashboardData.title}</p>
+            <p class="dashboard-name">${this.dashboardName(dashboardKey)}</p>
             <ha-progress-button @click=${() => {this.overwriteDashboard(dashboardKey)}}>
                  Update
             </ha-progress-button>
           </div>
-          <pre class="${this._show_difference ? '' : 'hidden'}">
+          `
+        })}
+        </div>
+        <div class="unsafe-html">
+        <div class="accordion expanded">
+        <span class="accordion-bar" @click=${this.toggleShowDryRun}><span class="icon">${this._show_difference ? html`&#9660;` : html`&#9658;`} </span><span class="title">Preview Changes</span></span>
+        </div>
+        ${this._show_difference ? html`<div>
+        ${diffedDashboardKeys.map((dashboardKey) => {
+          return html`
+          <p class="dashboard-name">${this.dashboardName(dashboardKey)}</p>
+          <pre>
           <code>
-          ${unsafeHTML(myDiff)}
+          ${unsafeHTML(this._diffedDashboards[dashboardKey])}
           </code>
           </pre>
           `
         })}
         </div>` : ''}
-        `}
         </div>
+        ` : html`<p class="in-sync">Every dashboard is already up to date. Nothing to update.</p>`}
         </div>
         ` : ''}
         <div class="card-actions">
@@ -398,7 +420,9 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
             Refresh
           </ha-progress-button>
-          
+          <ha-progress-button @click=${this.handleDownloadBackup}>
+            Download Backup
+          </ha-progress-button>
           ${diffedDashboardKeys.length ? html`<ha-progress-button @click=${!editMode ? this.handleRun : undefined}>
             Update All
           </ha-progress-button>` : ''}
@@ -406,13 +430,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </div>
       </ha-card>
     `;
-    /*
-    <a class="download" href="data:${this._backupString}" download="linked-lovelace-dashboards-backup.json">
-          <ha-progress-button>
-          Download Backup
-          </ha-progress-button>
-          </a>
-          */
   }
 
   // https://lit.dev/docs/components/styles/
@@ -487,8 +504,19 @@ export class LinkedLovelaceStatusCard extends LitElement {
         gap: 8px;
         margin-top: 8px;
       }
-      .download {
-        text-decoration: none;
+      .dashboard-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 8px;
+      }
+      .dashboard-name {
+        margin: 0;
+        font-weight: 500;
+      }
+      .in-sync {
+        margin: 0;
+        color: var(--secondary-text-color);
       }
       /* Code blocks follow the theme's own code surface. The previous rules
          painted them with --text-primary-color, which is the color for text
