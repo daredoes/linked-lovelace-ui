@@ -260,6 +260,16 @@ async function connect(page: Page) {
   });
 }
 
+// Dashboards left behind by earlier suite runs would show up in the status
+// card's dashboard list and its Preview Changes diff, putting test scaffolding
+// on screen. Clear them before recording.
+async function removeStaleDashboards(page: Page) {
+  const list = await ws<any[]>(page, { type: 'lovelace/dashboards/list' });
+  for (const d of list) {
+    if (/^ll-(e2e|video|demo|theme)-/.test(d.url_path || '')) await deleteDashboard(page, d.id);
+  }
+}
+
 // A leftover dashboard from an interrupted run would make `create` fail.
 async function removeIfExists(page: Page, urlPath: string) {
   const list = await ws<any[]>(page, { type: 'lovelace/dashboards/list' });
@@ -324,6 +334,7 @@ test('demo walkthrough', async ({ page }) => {
   const created: string[] = [];
 
   await connect(page);
+  await removeStaleDashboards(page);
 
   // ---- Act 1: the duplication problem -------------------------------------
   console.log('ACT 1: duplication');

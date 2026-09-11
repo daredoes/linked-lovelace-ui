@@ -77,22 +77,37 @@ export class LinkedLovelaceKeyChipCard extends LitElement {
 
   static get styles(): CSSResultGroup {
     return css`
+      :host {
+        display: block;
+      }
       .ll-chip-wrapper {
         position: relative;
         display: block;
       }
+      /* Colors come from the active Home Assistant theme. Override
+         --ll-chip-background-color / --ll-chip-text-color in a theme to
+         restyle the chip without touching the card. */
       .ll-chip {
         position: absolute;
-        top: -0.55rem;
-        right: 0.6rem;
-        display: inline-block;
-        padding: 0.1rem 0.6rem;
-        border-radius: 999px;
-        background: #03a9f4;
-        color: #fff;
-        font-size: 0.7rem;
-        font-family: monospace;
+        top: -0.6rem;
+        right: 0.75rem;
         z-index: 1;
+        box-sizing: border-box;
+        max-width: calc(100% - 1.5rem);
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid var(--ha-card-background, var(--card-background-color, transparent));
+        background: var(--ll-chip-background-color, var(--primary-color));
+        color: var(--ll-chip-text-color, var(--text-primary-color));
+        box-shadow: var(--ha-card-box-shadow, 0 1px 3px rgba(0, 0, 0, 0.24));
+        font-family: var(--code-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+        font-size: 0.72rem;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        pointer-events: none;
       }
     `;
   }

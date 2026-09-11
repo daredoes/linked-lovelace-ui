@@ -419,8 +419,9 @@ export class LinkedLovelaceStatusCard extends LitElement {
   static get styles(): CSSResultGroup {
     return css`
       .linked-lovelace-container {
-        background-color: rgba(0, 0, 0, 0);
-        border: 1px solid;
+        background: var(--ha-card-background, var(--card-background-color));
+        border: 1px solid var(--divider-color);
+        border-radius: var(--ha-card-border-radius, 12px);
       }
       .content {
         padding: 0;
@@ -436,58 +437,85 @@ export class LinkedLovelaceStatusCard extends LitElement {
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+        gap: 4px;
+        border-bottom: 1px solid var(--divider-color);
         .tab {
-          padding: 4px 8px;
+          padding: 8px 14px;
           cursor: pointer;
-          border-left: 0.5px solid var(--text-primary-color);
-          border-right: 0.5px solid var(--text-primary-color);
-          border-bottom: 1px solid var(--text-primary-color);
-          &:not(.active):hover {
+          border: 1px solid transparent;
+          border-bottom: none;
+          border-radius: 8px 8px 0 0;
+          color: var(--secondary-text-color);
+          font-weight: 500;
+          transition: background-color 120ms ease, color 120ms ease;
+          &:hover {
             background-color: var(--secondary-background-color);
+            color: var(--primary-text-color);
           }
           &.active {
             background-color: var(--secondary-background-color);
-          }
-          &.active:hover {
-            background-color: var(--fc-button-hover-bg-color);
-            cursor: not-allowed;
-          }
-          &:not(.active):active {
-            background-color: var(--fc-button-hover-bg-color);
+            border-color: var(--divider-color);
+            color: var(--primary-color);
+            box-shadow: inset 0 -2px 0 0 var(--primary-color);
           }
         }
       }
       .accordion.expanded {
         & .accordion-bar {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
           cursor: pointer;
-          font-size: 18px;          
+          padding: 4px 0;
+          font-size: 18px;
+          color: var(--primary-text-color);
+          &:hover {
+            color: var(--primary-color);
+          }
         }
         & .icon {
-          transform: rotate(-90deg);
+          color: var(--secondary-text-color);
+          font-size: 14px;
         }
       }
       .header {
         display: flex;
         flex-direction: row;
-        justify-content: flex-start;
+        flex-wrap: wrap;
+        justify-content: space-between;
         align-items: center;
+        gap: 8px;
+        margin-top: 8px;
       }
       .download {
         text-decoration: none;
       }
+      /* Code blocks follow the theme's own code surface. The previous rules
+         painted them with --text-primary-color, which is the color for text
+         *on* a primary-colored background (white in most themes), so the
+         blocks stayed light no matter which theme was active. */
       .unsafe-html {
+        a {
+          color: var(--primary-color);
+        }
         pre {
           overflow: auto;
           max-height: 400px;
-          background-color: var(--text-primary-color);
+          margin: 4px 0 12px;
+          padding: 10px 12px;
+          border: 1px solid var(--divider-color);
+          border-radius: 8px;
+          background-color: var(--markdown-code-background-color, var(--secondary-background-color));
           &.hidden {
             display: none;
           }
         }
         code {
           max-width: 100%;
-          background-color: var(--text-primary-color);
-          color: var(--card-background-color);
+          background-color: transparent;
+          color: var(--primary-text-color);
+          font-family: var(--code-font-family, ui-monospace, SFMono-Regular, Menlo, monospace);
+          font-size: 0.85em;
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
@@ -496,11 +524,33 @@ export class LinkedLovelaceStatusCard extends LitElement {
             margin: 0;
           }
         }
+        del,
+        ins {
+          border-radius: 3px;
+          padding: 0 2px;
+          color: var(--text-primary-color);
+        }
         del {
           background-color: var(--error-color);
         }
         ins {
           background-color: var(--success-color);
+          text-decoration: none;
+        }
+        /* Where color-mix is available, tint the theme's error and success
+           colors instead of filling with them, so a long changed block stays
+           readable rather than turning into a solid slab. */
+        @supports (background-color: color-mix(in srgb, red 20%, transparent)) {
+          del,
+          ins {
+            color: var(--primary-text-color);
+          }
+          del {
+            background-color: color-mix(in srgb, var(--error-color) 22%, transparent);
+          }
+          ins {
+            background-color: color-mix(in srgb, var(--success-color) 24%, transparent);
+          }
         }
       }
     `;

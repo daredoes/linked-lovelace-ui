@@ -106,6 +106,20 @@ card:
 Template discovery unwraps this card automatically, so a wrapped source card is still registered under its `ll_key`.
 :::
 
+The badge takes its colors from the active Home Assistant theme: `--primary-color` for the pill and `--text-primary-color` for the text. To restyle it, set either of these in your theme.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--ll-chip-background-color` | `--primary-color` | Pill background. |
+| `--ll-chip-text-color` | `--text-primary-color` | Key text color. |
+
+```yaml
+# themes.yaml
+my_theme:
+  ll-chip-background-color: "#7e57c2"
+  ll-chip-text-color: "#ffffff"
+```
+
 ---
 
 ## Source Card Keys

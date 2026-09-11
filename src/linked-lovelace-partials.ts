@@ -97,8 +97,9 @@ export class LinkedLovelaceTemplatesCard extends LitElement {
   static get styles(): CSSResultGroup {
     return css`
       .linked-lovelace-container {
-        background-color: rgba(0, 0, 0, 0);
-        border: 1px solid;
+        background: var(--ha-card-background, var(--card-background-color));
+        border: 1px solid var(--divider-color);
+        border-radius: var(--ha-card-border-radius, 12px);
       }
     `;
   }

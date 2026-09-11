@@ -80,7 +80,7 @@ __*This is purely a debugging tool.*__
 
 The card editor has a single checkbox: **Show key chips on template definition cards (applied at next sync)**.
 
-When it is checked, the next sync wraps every template definition card in a small container that draws a blue pill with the card's `ll_key` in its top right corner. Handy when you are staring at a dashboard trying to remember which card is the actual template.
+When it is checked, the next sync wraps every template definition card in a small container that draws a pill with the card's `ll_key` in its top right corner. The pill uses your theme's primary color, and you can override it with `--ll-chip-background-color` and `--ll-chip-text-color` (see the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip)). Handy when you are staring at a dashboard trying to remember which card is the actual template.
 
 Untick it and the next sync removes the wrappers again. Either way, nothing happens until you run a sync; the checkbox itself does not touch your dashboards.
 
