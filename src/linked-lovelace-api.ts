@@ -47,11 +47,11 @@ class LinkedLovelaceApi {
     if (Debug.instance.debug) {
       log(`Getting Lovelace User-Created Dashboard: ${urlPath}`);
     }
+    // Returned as-is: a strategy dashboard has no `views`, and callers use that
+    // absence to skip it instead of writing an empty `views: []` over its config.
     return this.hass.callWS<DashboardConfig>({
       type: 'lovelace/config',
       url_path: urlPath ? urlPath : null,
-    }).then((data) => {
-      return {...data, views: data.views || []}
     });
   };
 
