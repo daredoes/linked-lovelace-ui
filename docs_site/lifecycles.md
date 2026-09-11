@@ -88,7 +88,7 @@ flowchart LR
 ## 4. Partials: discovery & loading
 
 Partials live on `custom:linked-lovelace-partials` cards. During discovery each
-partial is resolved: a `url` partial is fetched with axios (its text becomes
+partial is resolved: a `url` partial is fetched with `fetch` (its text becomes
 `template`), while an inline partial is used directly. `loadPartials` then registers
 every partial that has template text into the Eta engine, sorted by priority
 with the lowest first, so they can be pulled in with `<%~ include('key') %>`.
@@ -101,7 +101,7 @@ flowchart TD
     C -- yes --> D["for each partial with a key"]
     D --> E["getCardTemplate(partial)"]
     E --> F{"partial.url set?"}
-    F -- yes --> G["axios.get(url) → text"]
+    F -- yes --> G["fetch(url) → text"]
     F -- no --> H["use partial.template inline"]
     G & H --> I["EtaTemplateController.partials[key] = resolved"]
     I --> J["loadPartials()"]
@@ -114,7 +114,8 @@ flowchart TD
 
 `HassController.refresh()` rebuilds a fresh `LinkedLovelaceController`, lists all
 dashboards (prepending `overview`), fetches every config in parallel, then walks
-each view's cards collecting templates (`ll_key`) and partials. Finally it loads
+every card in each view, both the cards placed directly in the view and the cards
+inside `sections`, collecting templates (`ll_key`) and partials. Finally it loads
 partials and registers templates into the engine.
 
 ```mermaid
@@ -134,9 +135,9 @@ sequenceDiagram
         HC->>API: getDashboardConfig(url_path)
         API-->>HC: DashboardConfig (views)
     end
-    loop each view → each card
+    loop each view → each card (view.cards + sections[].cards)
         alt card.ll_key present
-            HC->>HC: store template (keep lowest ll_priority)
+            HC->>HC: store template (keep lowest ll_priority, warn on collision)
         end
         HC->>LLC: registerPartials(card)
         LLC->>ETA: addPartialsFromCard(card)
