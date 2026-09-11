@@ -1,13 +1,17 @@
-import { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial } from 'src/types';
+import { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial } from '../types';
 import { GlobalLinkedLovelace } from '../instance';
 import LinkedLovelaceController from '../v2/linkedLovelace';
-import { TemplateEngine } from 'src/v2/template-engine';
-import { toConsole } from 'src/helpers/log';
-import { unwrapKeyChipCard } from 'src/helpers/keyChip';
+import { TemplateEngine } from '../v2/template-engine';
+import { toConsole } from '../helpers/log';
+import { unwrapKeyChipCard } from '../helpers/keyChip';
+import { cardsInView } from '../helpers/views';
 
 const getS = (array) => {
   return array?.length !== 1 ? 's' : ''
 }
+
+// Logs are built outside the browser in unit tests, where `window` is absent.
+const origin = () => (typeof window !== 'undefined' ? window.location.origin : '')
 
 interface View {
   id: string
@@ -49,12 +53,12 @@ class HassController {
     const dashboardConfigs = await Promise.all(
       dashboards.map(async (db) => {
         try {
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieving details for dashboard`}, db)
+          this.addToLogs({msg: `[url:"${origin()}/${db.url_path}"] Retrieving details for dashboard`}, db)
           const config = await GlobalLinkedLovelace.instance.api.getDashboardConfig(db.url_path);
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Retrieved ${config.views?.length} View${getS(config.views)} for dashboard`}, db, config)
+          this.addToLogs({msg: `[url:"${origin()}/${db.url_path}"] Retrieved ${config.views?.length} View${getS(config.views)} for dashboard`}, db, config)
           return [config, db]
         } catch (e) {
-          this.addToLogs({msg: `[url:"${window.location.origin}/${db.url_path}"] Failed to retrieve details for dashboard`, level: 'ERROR'}, db, e)
+          this.addToLogs({msg: `[url:"${origin()}/${db.url_path}"] Failed to retrieve details for dashboard`, level: 'ERROR'}, db, e)
         }
         return [undefined, undefined]
       }),
@@ -79,14 +83,18 @@ class HassController {
               partials: {}
             }
           }
-          this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`}, dashboard, view)
-          return await Promise.all((view.cards || []).map(async (card) => {
+          this.addToLogs({msg: `[url:"${origin()}/${dashboard.url_path}"] [view:${view.title}] Discovering Templates and Partials`}, dashboard, view)
+          return await Promise.all(cardsInView(view).map(async (card) => {
             const definition = unwrapKeyChipCard(card);
             if (definition.ll_key) {
-              this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] [template:${definition.ll_key}] [priority:${definition.ll_priority || 0}] Discovered Template`}, dashboard, view, definition)
-              if (templates[definition.ll_key] && (templates[definition.ll_key].ll_priority || 0) < (definition.ll_priority || 0)) {
-                this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Template already exists with tag ${definition.ll_key}`, level: "WARN"}, dashboard, view, definition)
-              } else {
+              this.addToLogs({msg: `[url:"${origin()}/${dashboard.url_path}"] [view:${view.title}] [template:${definition.ll_key}] [priority:${definition.ll_priority || 0}] Discovered Template`}, dashboard, view, definition)
+              const existing = templates[definition.ll_key]
+              if (existing) {
+                this.addToLogs({msg: `[url:"${origin()}/${dashboard.url_path}"] [view:${view.title}] Template already exists with tag ${definition.ll_key}`, level: "WARN"}, dashboard, view, definition)
+              }
+              // Lowest ll_priority wins a key collision, so the surviving template is
+              // still registered before anything that might reference it.
+              if (!existing || (definition.ll_priority || 0) < (existing.ll_priority || 0)) {
                 templates[definition.ll_key] = definition
               }
               this.dashboardsToViews[dashboardPath][viewKey].templates = {...this.dashboardsToViews[dashboardPath][viewKey].templates, ...{[definition.ll_key]: definition}}
@@ -95,9 +103,9 @@ class HassController {
             const partials = await this.linkedLovelaceController.registerPartials(definition)
             const partialKeys = Object.keys(partials);
             if (partialKeys.length) {
-              this.addToLogs({msg: `[url:"${window.location.origin}/${dashboard.url_path}"] [view:${view.title}] Discovered ${partialKeys.length} Partial${getS(partialKeys)}`}, dashboard, view, partials)
+              this.addToLogs({msg: `[url:"${origin()}/${dashboard.url_path}"] [view:${view.title}] Discovered ${partialKeys.length} Partial${getS(partialKeys)}`}, dashboard, view, partials)
             }
-            this.dashboardsToViews[dashboardPath][viewKey].partials = partials;
+            this.dashboardsToViews[dashboardPath][viewKey].partials = {...this.dashboardsToViews[dashboardPath][viewKey].partials, ...partials};
           }))
         }))
       }

@@ -14,13 +14,13 @@ module.exports = {
     "!src/version.ts",
   ],
   coverageThreshold: {
-    // Modest floor just under today's numbers (23/19/18/23); raise as the
-    // untested areas (hass controller, Lit card classes) gain tests.
+    // Modest floor just under today's numbers (35/32/27/36); raise as the
+    // untested areas (Lit card classes, localize) gain tests.
     global: {
-      statements: 22,
-      branches: 18,
-      functions: 17,
-      lines: 22,
+      statements: 34,
+      branches: 30,
+      functions: 26,
+      lines: 34,
     },
   },
 };
