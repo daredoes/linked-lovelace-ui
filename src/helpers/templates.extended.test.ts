@@ -592,3 +592,38 @@ describe('[TemplateEngine] singleton', () => {
     expect(engine.eta).not.toBe(originalEta);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Fallback when a rendered template is not valid JSON
+// ---------------------------------------------------------------------------
+describe('[updateCardTemplate] unparseable render fallback', () => {
+  // A context value containing a double quote breaks the JSON round-trip the
+  // renderer relies on, so the card falls back to the raw template.
+  const makeTemplates = () => ({
+    quoted: { type: 'markdown', content: '<%= context.text %>' } as DashboardCard,
+  });
+  const card: DashboardCard = {
+    type: 'custom:linked-lovelace-template',
+    ll_template: 'quoted',
+    ll_context: { text: 'he said "hi"' },
+  };
+
+  test('falls back to the template body', () => {
+    const templates = makeTemplates();
+    const result = updateCardTemplate({ ...card }, templates);
+    expect(result.content).toBe('<%= context.text %>');
+  });
+
+  test('does not hand out the registered template by reference', () => {
+    const templates = {
+      quoted: {
+        type: 'markdown',
+        content: '<%= context.text %>',
+        tap_action: { action: 'call-service' },
+      } as DashboardCard,
+    };
+    const result = updateCardTemplate({ ...card }, templates);
+    result.tap_action.action = 'mutated by the caller';
+    expect(templates.quoted.tap_action.action).toBe('call-service');
+  });
+});

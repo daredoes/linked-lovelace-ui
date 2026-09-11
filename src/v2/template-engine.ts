@@ -1,7 +1,7 @@
 
 import { Eta } from 'eta';
 
-export const engine = new Eta({ varName: 'context', autoEscape: false, rmWhitespace: true });
+export const engine = new Eta({ varName: 'context', autoEscape: false });
 
 export class TemplateEngine {
   static self?: TemplateEngine

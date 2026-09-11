@@ -43,8 +43,10 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         data = JSON.parse(template);
       } catch (e) {
         console.error(e);
-        // Return original value if parse fails
-        data = templateData[templateKey];
+        // Return a copy of the original value if parse fails. A copy, because
+        // handing out the registered template itself lets one card's edits
+        // leak into every other card that uses the same ll_template.
+        data = structuredClone(templateData[templateKey]);
       }
       Object.keys(originalCardData.ll_keys || {}).forEach((ll_key) => {
         const key = (originalCardData.ll_keys || {})[ll_key]
@@ -89,8 +91,8 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         delete data.ll_context
       }
     } else {
-      // Put template value as new value
-      data = templateData[templateKey];
+      // Put a copy of the template value in as the new value
+      data = structuredClone(templateData[templateKey]);
     }
     // Put template key back in card
     data = { ...{ ll_template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, ll_template: templateKey, ll_keys: originalCardData.ll_keys };
