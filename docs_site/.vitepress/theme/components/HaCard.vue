@@ -111,6 +111,13 @@ export default defineComponent({
     </div>
   </div>
 
+  <!-- Key chip wrapper: draw the inner card with its ll_key as a chip, the
+       same shape the status card writes when show_key_chips is on -->
+  <div v-else-if="cardType === 'custom:linked-lovelace-key-chip'" class="ll-key-chip-wrapper">
+    <span v-if="card.ll_key" class="ll-chip ll-chip-template">ll_key: {{ card.ll_key }}</span>
+    <HaCard v-if="card.card" :card="card.card" :nested="nested" />
+  </div>
+
   <!-- Anything else: generic card showing its config -->
   <div v-else class="ha-card">
     <span v-if="card.ll_key" class="ll-chip ll-chip-template">ll_key: {{ card.ll_key }}</span>

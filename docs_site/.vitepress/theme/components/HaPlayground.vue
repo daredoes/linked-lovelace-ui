@@ -2,6 +2,7 @@
 import { computed, provide, ref } from 'vue'
 import HaCard from './HaCard.vue'
 import {
+  cardsInView,
   defaultDashboardYaml,
   demoDashboardTitle,
   parseDashboardYaml,
@@ -31,6 +32,8 @@ const parsed = computed<{ config: DashboardConfig | null; error: string | null }
 
 const views = computed(() => parsed.value.config?.views || [])
 const currentView = computed(() => views.value[activeView.value] || views.value[0])
+// The same walk the engine uses, so a sections layout draws its cards too.
+const currentCards = computed(() => (currentView.value ? cardsInView(currentView.value) : []))
 
 const showToast = (message: string) => {
   toast.value = message
@@ -145,7 +148,7 @@ provide('ll-status-bridge', {
         </div>
         <div class="ll-ha-body">
           <template v-if="currentView">
-            <HaCard v-for="(card, i) in currentView.cards || []" :key="i" :card="card" />
+            <HaCard v-for="(card, i) in currentCards" :key="i" :card="card" />
           </template>
           <p v-else-if="parsed.error" class="ll-muted">
             The YAML has an error. Click <strong>✏️ Edit YAML</strong> to fix it.
@@ -431,6 +434,7 @@ provide('ll-status-bridge', {
   font-size: 0.7rem;
   font-family: var(--vp-font-family-mono);
 }
+.ll-key-chip-wrapper { position: relative; }
 .ll-chip-template {
   position: absolute;
   top: -0.55rem;

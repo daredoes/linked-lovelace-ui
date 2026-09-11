@@ -24,8 +24,10 @@ You don't need Home Assistant and there is nothing to install. Everything stays 
 | Piece | Real or simulated? |
 |-------|--------------------|
 | Template rendering (`ll_key`, `ll_template`, `ll_context`, priorities) | Real. Imported from the library source. |
+| Template discovery (view cards, cards inside `sections`, key-chip wrappers, duplicate `ll_key`) | Real. The same walk and the same collision rule the status card uses. |
 | Eta partials (`include(...)`) | Real. Same Eta engine and options as in HA. |
 | The YAML written back after a sync | Real. Identical pipeline to a dashboard update. |
+| Partials loaded from a `url:` | Not fetched. The playground logs a warning and skips them, so use an inline `template:` here. |
 | The dashboard window, cards, and status card UI | Simulated. A lightweight look-alike so you can see results. |
 | Dashboards / websockets / saving to storage | Not used. Everything stays in your browser tab. |
 

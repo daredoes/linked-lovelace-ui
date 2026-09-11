@@ -5,6 +5,8 @@
 import { Eta } from 'eta'
 import YAML from 'yaml'
 import { updateCardTemplate } from '../../../../src/helpers/templates'
+import { unwrapKeyChipCard } from '../../../../src/helpers/keyChip'
+import { cardsInView } from '../../../../src/helpers/views'
 import { TemplateEngine } from '../../../../src/v2/template-engine'
 import type { DashboardCard, DashboardConfig } from '../../../../src/types'
 import {
@@ -13,6 +15,8 @@ import {
 } from '../../../../src/demoDashboard'
 
 export type { DashboardCard, DashboardConfig }
+// Re-exported so the playground draws exactly the cards the engine walks.
+export { cardsInView }
 
 export interface SyncOutcome {
   config: DashboardConfig
@@ -47,8 +51,9 @@ export const stringifyDashboard = (config: DashboardConfig): string =>
   YAML.stringify(config)
 
 // Mirrors HassController.refresh() + LinkedLovelaceController, minus the
-// websocket calls: discover partials and templates from top-level view
-// cards, register them in priority order, then re-render every view.
+// websocket calls: discover partials and templates with the card's own
+// cardsInView helper, register them in priority order, then re-render
+// every view.
 export const syncDashboardConfig = (input: DashboardConfig): SyncOutcome => {
   const logs: string[] = []
   const config = clone(input)
@@ -62,13 +67,18 @@ export const syncDashboardConfig = (input: DashboardConfig): SyncOutcome => {
   const templates: Record<string, DashboardCard> = {}
 
   config.views?.forEach((view) => {
-    view.cards?.forEach((card) => {
-      if (card.type === 'custom:linked-lovelace-partials') {
-        ;((card.partials as PlaygroundPartial[]) || []).forEach((partial) => {
+    // cardsInView is the card's own helper: view cards plus every section's
+    // cards, so a definition inside a sections layout is found here too.
+    cardsInView(view).forEach((card) => {
+      // A definition may arrive wrapped in a key-chip card, exactly as the
+      // status card's sync writes it back.
+      const definition = unwrapKeyChipCard(card)
+      if (definition.type === 'custom:linked-lovelace-partials') {
+        ;((definition.partials as PlaygroundPartial[]) || []).forEach((partial) => {
           if (!partial.key) return
           if (partial.url && !partial.template) {
             logs.push(
-              `[WARN] Partial '${partial.key}' uses url: – not fetched in the playground. Use template: instead.`,
+              `[WARN] Partial '${partial.key}' uses url: not fetched in the playground. Use template: instead.`,
             )
             return
           }
@@ -76,11 +86,19 @@ export const syncDashboardConfig = (input: DashboardConfig): SyncOutcome => {
           logs.push(`[INFO] Discovered partial '${partial.key}'`)
         })
       }
-      if (card.ll_key) {
-        templates[card.ll_key] = card
+      if (definition.ll_key) {
         logs.push(
-          `[INFO] Discovered template '${card.ll_key}' (priority ${card.ll_priority || 0})`,
+          `[INFO] Discovered template '${definition.ll_key}' (priority ${definition.ll_priority || 0})`,
         )
+        const existing = templates[definition.ll_key]
+        if (existing) {
+          logs.push(`[WARN] Template already exists with tag ${definition.ll_key}`)
+        }
+        // Same collision rule as HassController: the lowest ll_priority wins,
+        // so the survivor still registers before anything referencing it.
+        if (!existing || (definition.ll_priority || 0) < (existing.ll_priority || 0)) {
+          templates[definition.ll_key] = definition
+        }
       }
     })
   })
@@ -109,16 +127,20 @@ export const syncDashboardConfig = (input: DashboardConfig): SyncOutcome => {
     })
 
   // -- Re-render every view (LinkedLovelaceController.getUpdatedDashboardConfig)
+  // Every card is unwrapped before rendering, as the controller does. The
+  // playground leaves chips off afterwards, which is the default (show_key_chips
+  // disabled) behavior of the status card.
+  const render = (card: DashboardCard) =>
+    updateCardTemplate(unwrapKeyChipCard(clone(card)), registry)
+
   config.views?.forEach((view) => {
     if (view.cards) {
-      view.cards = view.cards.map((card) => updateCardTemplate(clone(card), registry))
+      view.cards = view.cards.map(render)
     }
     if (Array.isArray(view.sections)) {
       view.sections.forEach((section) => {
         if (Array.isArray(section.cards)) {
-          section.cards = section.cards.map((card) =>
-            updateCardTemplate(clone(card), registry),
-          )
+          section.cards = section.cards.map(render)
         }
       })
     }
