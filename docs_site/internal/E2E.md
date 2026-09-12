@@ -1,4 +1,4 @@
-# Linked Lovelace — E2E Demo Environment
+# Linked Lovelace E2E Demo Environment
 
 End-to-end suite that runs the **built card inside a real Home Assistant**
 (Docker) and drives it with Playwright. This validates the layer the Jest unit
@@ -22,7 +22,7 @@ the card actually wires that engine to Home Assistant and renders.
 
 `e2e/tests/features.spec.ts` drives each Linked Lovelace feature through the real
 card UI against **writable storage dashboards** (so `Update All` can save the
-rendered config back — the round-trip unit tests can't exercise):
+rendered config back, which the round-trip unit tests can't exercise):
 
 | # | Feature                          | What the test does                                              |
 | - | -------------------------------- | -------------------------------------------------------------- |
@@ -83,24 +83,24 @@ These screenshots are generated straight from the running suite via
 `./scripts/screenshots.sh` (see "Regenerating screenshots" below), so they
 always reflect the real card in a real Home Assistant.
 
-**1. The demo dashboard** — the self-contained `ui-lovelace.yaml`: the status
+**1. The demo dashboard**, built from the self-contained `ui-lovelace.yaml`: the status
 card, the Eta partials card (`stateToIcon`), a raw `ll_key: text` template
 definition, and the template-usage card with its migration notice.
 
 ![Demo dashboard](../images/e2e/01-demo-dashboard.png)
 
-**2. After clicking _Load Data_** — the status card drives the live Lovelace
+**2. After clicking _Load Data_**: the status card drives the live Lovelace
 websocket API, then reveals the Dashboards/Templates/Partials/Logs tabs and the
 `Refresh` / `Update All` controls.
 
 ![Status card after Load Data](../images/e2e/03-status-card-loaded.png)
 
-**3. Templates tab** — the `text` template was **discovered from the live
+**3. Templates tab**: the `text` template was **discovered from the live
 dashboard config** (not a mock) and is listed for inspection.
 
 ![Templates tab](../images/e2e/04-templates-tab.png)
 
-**4. Partials tab** — the `stateToIcon` Eta partial, likewise discovered live.
+**4. Partials tab**: the `stateToIcon` Eta partial, likewise discovered live.
 
 ![Partials tab](../images/e2e/05-partials-tab.png)
 

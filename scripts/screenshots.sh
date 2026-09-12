@@ -9,7 +9,7 @@ E2E="$ROOT/e2e"
 HA_URL="${HA_URL:-http://localhost:8123}"
 
 echo "==> Building card bundle"
-( cd "$ROOT" && yarn build >/dev/null )
+( cd "$ROOT" && bun run build >/dev/null )
 
 echo "==> Ensuring HA is running"
 mkdir -p "$E2E/ha-config/www"
@@ -24,7 +24,7 @@ for i in $(seq 1 60); do
 done
 
 echo "==> Capturing screenshots"
-( cd "$E2E" && yarn install --silent && npx playwright install chromium >/dev/null 2>&1 || true )
+( cd "$E2E" && bun install >/dev/null && npx playwright install chromium >/dev/null 2>&1 || true )
 ( cd "$E2E" && HA_URL="$HA_URL" npx playwright test -c playwright.screenshots.config.ts )
 
 echo "==> Screenshots written to docs_site/images/e2e/"

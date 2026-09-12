@@ -21,6 +21,7 @@ class TemplateController {
     const data = {...template}
     delete data.ll_key
     delete data.ll_priority
+    delete data.show_key_chips
     const renderedTemplate = updateCardTemplate(data, this.templates);
     return this.addTemplate(key, renderedTemplate, true);
   }

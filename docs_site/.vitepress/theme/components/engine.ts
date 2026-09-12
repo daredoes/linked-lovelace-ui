@@ -5,7 +5,7 @@
 import { Eta } from 'eta'
 import YAML from 'yaml'
 import { updateCardTemplate } from '../../../../src/helpers/templates'
-import { unwrapKeyChipCard } from '../../../../src/helpers/keyChip'
+import { unwrapKeyChipCard, wrapKeyChipCard } from '../../../../src/helpers/keyChip'
 import { cardsInView } from '../../../../src/helpers/views'
 import { TemplateEngine } from '../../../../src/v2/template-engine'
 import type { DashboardCard, DashboardConfig } from '../../../../src/types'
@@ -122,16 +122,19 @@ export const syncDashboardConfig = (input: DashboardConfig): SyncOutcome => {
       const data = { ...templates[key] }
       delete data.ll_key
       delete data.ll_priority
+      delete data.show_key_chips
       registry[key] = updateCardTemplate(clone(data), registry)
       logs.push(`[INFO] Registered template '${key}'`)
     })
 
   // -- Re-render every view (LinkedLovelaceController.getUpdatedDashboardConfig)
-  // Every card is unwrapped before rendering, as the controller does. The
-  // playground leaves chips off afterwards, which is the default (show_key_chips
-  // disabled) behavior of the status card.
-  const render = (card: DashboardCard) =>
-    updateCardTemplate(unwrapKeyChipCard(clone(card)), registry)
+  // Every card is unwrapped before rendering, as the controller does, and a
+  // definition that set show_key_chips next to its ll_key is wrapped again
+  // afterwards, so the YAML written here matches what a real sync writes.
+  const render = (card: DashboardCard) => {
+    const rendered = updateCardTemplate(unwrapKeyChipCard(clone(card)), registry)
+    return rendered.show_key_chips && rendered.ll_key ? wrapKeyChipCard(rendered) : rendered
+  }
 
   config.views?.forEach((view) => {
     if (view.cards) {

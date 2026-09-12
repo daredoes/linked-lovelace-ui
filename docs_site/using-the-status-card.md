@@ -60,9 +60,9 @@ Expand **Preview Changes** to read the diff for each listed dashboard before wri
 
 ### Templates
 
-This tab contains a list of hyperlinks to the templates that are found by Linked Lovelace.
+Every template Linked Lovelace found gets a row here: the `ll_key` as a link to the view that defines it, and the dashboard it came from beside it. Click the key to jump straight to the card you would edit.
 
-It also has an expansion arrow to quickly check the code for each template.
+Expand **Templates** to read each registered body. It is printed the same way as the dashboard diffs above, so a template and a preview look alike.
 
 ![Linked Lovelace Status Templates Card](./images/linked-lovelace-status-templates.png)
 
@@ -80,14 +80,21 @@ __*This is purely a debugging tool.*__
 
 ## Key Chips
 
-The card editor has a single checkbox: **Show key chips on template definition cards (applied at next sync)**.
+The status card itself has no options. Key chips are asked for by the definition card, next to the `ll_key` it already carries:
 
-When it is checked, the next sync wraps every template definition card in a small container that draws a pill with the card's `ll_key` in its top right corner. The pill uses your theme's primary color, and you can override it with `--ll-chip-background-color` and `--ll-chip-text-color` (see the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip)). Handy when you are staring at a dashboard trying to remember which card is the actual template.
+```yaml
+type: markdown
+ll_key: room
+show_key_chips: true
+content: "## <%= context.name %>"
+```
 
-Untick it and the next sync removes the wrappers again. Either way, nothing happens until you run a sync; the checkbox itself does not touch your dashboards.
+The next sync wraps that card in a small container that draws a pill with its `ll_key` in the top right corner. The pill uses your theme's primary color, and you can override it with `--ll-chip-background-color` and `--ll-chip-text-color` (see the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip)). Handy when you are staring at a dashboard trying to remember which card is the actual template.
+
+Set it to `false` and the next sync removes the wrapper again. Either way nothing happens until you run a sync; the key on its own does not touch your dashboards.
 
 ::: info
-Chips currently appear on cards placed directly in a view. Template definitions inside sections are left unwrapped.
+Because each card asks for its own chip, you can badge the two definitions you keep losing track of and leave the rest alone. It works on cards in a view and on cards inside a section.
 :::
 
 ## Demonstration
@@ -102,4 +109,4 @@ At this point you should be capable of creating a template from a new or existin
 
 With that, you've accomplished everything featured in `Linked Lovelace 1.0`.
 
-In `Linked Lovelace 2.0` the library [Eta JS](https://eta.js.org/) was introduced to provide powerful templating logic. Learn how to make use of this by [providing Template Context.](./providing-template-context)
+In `Linked Lovelace 2.0` the library [Eta JS](https://eta.js.org/) took over the templating logic. Learn how to use it by [providing Template Context.](./providing-template-context)

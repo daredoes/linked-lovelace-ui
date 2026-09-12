@@ -230,11 +230,22 @@ Enable Dry Run to preview the diff without making any changes. This is the defau
 
 ### Key Chips
 
-Set `show_key_chips: true` on the status card (or tick the checkbox in its editor) and the next sync wraps every template source card in a `custom:linked-lovelace-key-chip`. The wrapper renders the original card untouched and adds a small blue badge with the `ll_key` in the top right corner, so definitions are easy to spot on a busy dashboard.
+Add `show_key_chips: true` next to the `ll_key` on a source card and the next sync wraps that card in a `custom:linked-lovelace-key-chip`. The wrapper renders the original card untouched and adds a small badge with the `ll_key` in the top right corner, so a definition is easy to spot on a busy dashboard.
 
-The wrapper is managed for you. Sync hoists `ll_key` and `ll_priority` onto it, and template discovery unwraps it before reading keys, so a wrapped definition still registers normally. Turn the option off and the next sync unwraps everything, restoring the original YAML.
+```yaml
+type: markdown
+ll_key: room
+show_key_chips: true
+content: "## <%= context.name %>"
+```
 
-Chips are applied to cards placed directly in a view; cards inside sections are only ever unwrapped. See the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip) for the wrapper's YAML shape.
+The wrapper is managed for you. Sync hoists `ll_key`, `ll_priority`, and `show_key_chips` onto it, and template discovery unwraps it before reading keys, so a wrapped definition still registers normally. Set the key to `false` and the next sync unwraps it, restoring the original YAML.
+
+Since the flag lives on the card, chips are per definition rather than all or nothing, and they work the same whether the card sits in a view or inside a section. Cards rendered from the template never inherit the flag. See the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip) for the wrapper's YAML shape.
+
+::: info Moved from the status card
+`show_key_chips` used to be an option on `custom:linked-lovelace-status` and applied to every definition at once. On the status card it is now ignored, and the next sync unwraps any chips it had added. Move the key onto the definitions you want badged.
+:::
 
 ---
 

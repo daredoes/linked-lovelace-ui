@@ -21,22 +21,23 @@ The cast of characters referenced throughout:
 | `EtaTemplateController` | `src/controllers/eta.ts` | Registry of Eta partials |
 | `TemplateEngine` | `src/v2/template-engine.ts` | Eta.js engine singleton |
 
-## 1. Bundle load & initialization
+## 1. Bundle Load and Initialization
 
-The entry module imports all four cards (each self-registers in
-`window.customCards`) and calls `initialize()`, which simply waits until Home
+The entry module imports all five cards (each self-registers in
+`window.customCards`) and calls `initialize()`, which waits until Home
 Assistant's `home-assistant` element exists before logging the version. The
 `GlobalLinkedLovelace` singleton is created lazily the first time any card needs
 the API.
 
 ```mermaid
 flowchart TD
-    A["linked-lovelace-ui.ts loads"] --> B["import 4 card modules"]
+    A["linked-lovelace-ui.ts loads"] --> B["import 5 card modules"]
     B --> B1["linked-lovelace-template"]
     B --> B2["linked-lovelace-status"]
     B --> B3["linked-lovelace-partials"]
     B --> B4["linked-lovelace-starter"]
-    B1 & B2 & B3 & B4 --> C["each pushes to window.customCards[]"]
+    B --> B5["linked-lovelace-key-chip"]
+    B1 & B2 & B3 & B4 & B5 --> C["each pushes to window.customCards[]"]
     B --> D["initialize(onFinish)"]
     D --> E{"customElements.get('home-assistant')<br/>defined?"}
     E -- no --> F["wait 100ms"] --> E
@@ -45,7 +46,7 @@ flowchart TD
     I["First API use"] -.-> J["GlobalLinkedLovelace.instance<br/>getHass() + new LinkedLovelaceApi(hass)"]
 ```
 
-## 2. Shared Lit card lifecycle
+## 2. Shared Lit Card Lifecycle
 
 Every card is a `LitElement` and follows the same reactive cycle. `setConfig`
 validates and stores config; `firstUpdated` yields a frame then forces a repaint;
@@ -67,7 +68,7 @@ flowchart TD
     K -.->|"hass / state changes"| H
 ```
 
-## 3. Template engine rendering
+## 3. Template Engine Rendering
 
 `TemplateEngine` wraps a single Eta instance configured with
 `varName: 'context'` and `autoEscape: false`. Rendering takes a card serialized
@@ -85,7 +86,7 @@ flowchart LR
     F -- no --> H["console.error + fall back to raw template"]
 ```
 
-## 4. Partials: discovery & loading
+## 4. Partials: Discovery and Loading
 
 Partials live on `custom:linked-lovelace-partials` cards. During discovery each
 partial is resolved: a `url` partial is fetched with `fetch` (its text becomes
@@ -110,7 +111,7 @@ flowchart TD
     L --> M["available to &lt;%~ include('key') %&gt;"]
 ```
 
-## 5. Discovery / refresh
+## 5. Discovery and Refresh
 
 `HassController.refresh()` rebuilds a fresh `LinkedLovelaceController`, lists all
 dashboards (prepending `overview`), fetches every config in parallel, then walks
@@ -148,7 +149,7 @@ sequenceDiagram
     LLC->>TC: renderAndAddTemplate(key, template) (priority asc)
 ```
 
-## 6. Context resolution (`updateCardTemplate`)
+## 6. Context Resolution (`updateCardTemplate`)
 
 `updateCardTemplate` is the recursive heart of rendering. When a card has `ll_template`, context is
 merged from three layers, the template is rendered through Eta, `ll_keys` remap
@@ -173,7 +174,7 @@ flowchart TD
     H & M --> N["return resolved card"]
 ```
 
-## 7. Full dashboard sync (main user flow)
+## 7. Full Dashboard Sync (Main User Flow)
 
 Triggered from the **Status card**. `Load Data` backs up every current config,
 runs `refresh()`, then a **dry-run** (`updateAll(true)`) that renders configs in
@@ -182,9 +183,9 @@ user confirms `Update All` does it write each changed dashboard back via
 `setDashboardConfig` (`lovelace/config/save`).
 
 During rendering, each view card is first stripped of any
-`custom:linked-lovelace-key-chip` wrapper. If the status card has
-`show_key_chips` enabled, cards carrying an `ll_key` are re-wrapped after their
-template renders, so definition cards stay visibly badged on the dashboard.
+`custom:linked-lovelace-key-chip` wrapper. A card that carries both an `ll_key`
+and `show_key_chips: true` is re-wrapped after its template renders, so that
+definition stays visibly badged on the dashboard.
 
 ```mermaid
 sequenceDiagram
@@ -224,7 +225,7 @@ The same flow powers the per-dashboard **Update** button. It calls
 dashboard instead of looping over all changed ones.
 :::
 
-## 8. Starter / demo install
+## 8. Starter and Demo Install
 
 The Starter card's `Create Demo Dashboard` button calls `_install()`, which
 tries to create the dashboard (ignoring "already exists" errors), then saves a
@@ -245,13 +246,13 @@ flowchart TD
     J -- no --> L["status = error · show message"]
 ```
 
-## 9. Editor flows
+## 9. Editor Flows
 
 **Template editor** (`linked-lovelace-template-editor`): after `firstUpdated`
 runs a `refresh()` to discover templates, it renders one button per template.
 Clicking a button copies the template's body into the card config and fires a
-`config-changed` event so Lovelace persists it. The **Status editor** is
-minimal; it just loads card helpers and renders.
+`config-changed` event so Lovelace persists it. The Status card has no visual
+editor, because it takes no options; Lovelace shows its YAML editor instead.
 
 ```mermaid
 flowchart TD
@@ -267,7 +268,7 @@ flowchart TD
     J -.->|"next Status-card Update"| K["card rendered against template (Flow 7)"]
 ```
 
-## API surface
+## API Surface
 
 The diagrams above bottom out in these Home Assistant WebSocket calls, all
 wrapped by `LinkedLovelaceApi` (`src/linked-lovelace-api.ts`):

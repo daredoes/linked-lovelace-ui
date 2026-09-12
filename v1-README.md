@@ -1,8 +1,8 @@
 # Linked Lovelace by [@daredoes](https://www.github.com/daredoes)
 
 > This page documents the retired V1 cards. For current docs see the
-> [documentation site](https://daredoes.github.io/linked-lovelace-ui/), and for
-> upgrading read [Migration From V1](https://daredoes.github.io/linked-lovelace-ui/advanced-features#migration-from-v1).
+> [documentation site](https://daredoes.work/linked-lovelace-ui/), and for
+> upgrading read [Migration From V1](https://daredoes.work/linked-lovelace-ui/advanced-features#migration-from-v1).
 
 ![Linked Lovelace Demo](/docs_site/images/LinkedLoveLace.gif)
 

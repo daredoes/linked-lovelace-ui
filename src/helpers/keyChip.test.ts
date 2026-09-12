@@ -19,6 +19,16 @@ describe('[function] wrapKeyChipCard', () => {
     expect('ll_priority' in wrapped).toBe(false);
   });
 
+  test('hoists show_key_chips onto the wrapper', () => {
+    const card: DashboardCard = { type: 'markdown', content: 'hi', ll_key: 'room', show_key_chips: true };
+    expect(wrapKeyChipCard(card)).toStrictEqual({
+      type: KEY_CHIP_CARD_TYPE,
+      ll_key: 'room',
+      show_key_chips: true,
+      card: { type: 'markdown', content: 'hi' },
+    });
+  });
+
   test('does not double-wrap an already wrapped card', () => {
     const wrapped = wrapKeyChipCard({ type: 'markdown', content: 'hi', ll_key: 'room' });
     expect(wrapKeyChipCard(wrapped)).toStrictEqual(wrapped);
@@ -33,6 +43,11 @@ describe('[function] wrapKeyChipCard', () => {
 describe('[function] unwrapKeyChipCard', () => {
   test('round-trips wrap then unwrap', () => {
     const card: DashboardCard = { ll_key: 'room', type: 'markdown', content: 'hi', ll_priority: 2 };
+    expect(unwrapKeyChipCard(wrapKeyChipCard(card))).toStrictEqual(card);
+  });
+
+  test('round-trips a card carrying show_key_chips', () => {
+    const card: DashboardCard = { ll_key: 'room', show_key_chips: true, type: 'markdown', content: 'hi' };
     expect(unwrapKeyChipCard(wrapKeyChipCard(card))).toStrictEqual(card);
   });
 
@@ -53,6 +68,16 @@ describe('[function] unwrapKeyChipCard', () => {
       card: { type: 'markdown', content: 'hi', ll_key: 'inner' },
     };
     expect(unwrapKeyChipCard(card)).toStrictEqual({ ll_key: 'outer', type: 'markdown', content: 'hi' });
+  });
+
+  test('keeps an explicit show_key_chips: false from the wrapper', () => {
+    const card: DashboardCard = {
+      type: KEY_CHIP_CARD_TYPE,
+      ll_key: 'room',
+      show_key_chips: false,
+      card: { type: 'markdown', content: 'hi' },
+    };
+    expect(unwrapKeyChipCard(card).show_key_chips).toBe(false);
   });
 
   test('falls back to the inner key when the wrapper has none', () => {

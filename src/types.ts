@@ -26,13 +26,13 @@ export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
 
 export interface LinkedLovelaceStatusCardConfig extends LovelaceCardConfig {
   type: string;
-  show_key_chips?: boolean;
 }
 
 export interface LinkedLovelaceKeyChipConfig extends LovelaceCardConfig {
   type: string;
   ll_key?: string;
   ll_priority?: number;
+  show_key_chips?: boolean;
   card?: DashboardCard;
 }
 
@@ -57,6 +57,9 @@ export interface LLCard extends LovelaceCardConfig {
 export interface LLTemplateCard extends LovelaceCardConfig {
   ll_key?: string
   ll_priority?: number
+  // Set on a definition card to have each sync wrap it in a key chip, so the
+  // card that owns the ll_key is labelled on the dashboard.
+  show_key_chips?: boolean
   [x: string]: any;
 }
 

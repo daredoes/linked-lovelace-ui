@@ -7,7 +7,6 @@ import { HomeAssistant, hasConfigOrEntityChanged, getLovelace } from 'custom-car
 import type { Dashboard, DashboardCard, DashboardConfig, LinkedLovelacePartial, LinkedLovelaceStatusCardConfig } from './types';
 import './types';
 import { localize } from './localize/localize';
-import { LinkedLovelaceTemplateCardEditor } from './template-editor';
 import { log } from './helpers';
 import HassController from './controllers/hass';
 import { GlobalLinkedLovelace } from './instance';
@@ -30,6 +29,10 @@ const createDiff = (obj1 = {}, obj2 = {}) => {
     return []
   }
 }
+
+// Templates and partials are not diffs, but running them through the same
+// pretty-printer keeps their formatting identical to the dashboard previews.
+const prettyPrint = (obj = {}) => makeDiff(obj, obj)
 
 const hasDiff = (obj1 = {}, obj2 = {}) => {
   const di = createDiff(obj1, obj2)
@@ -136,7 +139,6 @@ export class LinkedLovelaceStatusCard extends LitElement {
     const oldForward = this._controller?.forwardLogs || false;
     this._controller = new HassController();
     this._controller.forwardLogs = oldForward;
-    this._controller.showKeyChips = !!this.config.show_key_chips;
     this._controller!.addToLogs({msg: "Backing up current dashboard data. Ignore 'Update' Messages. Dry-Run is enabled."})
     const backupDashboardConfigs = {}
     await GlobalLinkedLovelace.instance.api.getDashboards().then(async (dashboards) => {
@@ -234,11 +236,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
     }
   }
 
-  public static async getConfigElement(): Promise<LinkedLovelaceTemplateCardEditor> {
-    await import('./status-editor');
-    return document.createElement('linked-lovelace-status-editor') as unknown as LinkedLovelaceTemplateCardEditor;
-  }
-
+  // The card takes no options, so Home Assistant falls back to its YAML editor.
   public static getStubConfig(): Record<string, unknown> {
     return {};
   }
@@ -314,12 +312,13 @@ export class LinkedLovelaceStatusCard extends LitElement {
               return Object.keys(templates || {}).map((templateKey) => {
                 const templateData = templates![templateKey]
               return html`
-              <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${templateKey}</a>
-              <pre class="${this._show_templates ? '' : 'hidden'}">
-              <code>
-              ${unsafeHTML(makeDiff(templateData, templateData))}
-              </code>
-              </pre>
+              <div class="entry">
+                <div class="header">
+                  <a class="entry-name" href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${templateKey}</a>
+                  <span class="entry-source">${this.dashboardName(dashboardUrl)}</span>
+                </div>
+                <pre class="${this._show_templates ? '' : 'hidden'}"><code>${unsafeHTML(prettyPrint(templateData))}</code></pre>
+              </div>
                 `
               })
             })
@@ -340,12 +339,13 @@ export class LinkedLovelaceStatusCard extends LitElement {
             return Object.keys(partials || {}).map((partialKey) => {
               const partialData = partials![partialKey]
             return html`
-            <a href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${partialKey}</a>
-            <pre class="${this._show_partials ? '' : 'hidden'}">
-            <code>
-            ${unsafeHTML(makeDiff(partialData, partialData))}
-            </code>
-            </pre>
+            <div class="entry">
+              <div class="header">
+                <a class="entry-name" href="/${dashboardUrl ? dashboardUrl : 'lovelace'}/${view.id}">${partialKey}</a>
+                <span class="entry-source">${this.dashboardName(dashboardUrl)}</span>
+              </div>
+              <pre class="${this._show_partials ? '' : 'hidden'}"><code>${unsafeHTML(prettyPrint(partialData))}</code></pre>
+            </div>
               `
             })
             })
@@ -358,13 +358,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
           <div class="accordion expanded">
           <span class="accordion-bar" @click=${this.toggleShowLogs}><span class="icon">${this._show_logs ? html`&#9660;` : html`&#9658;`} </span><span class="title">Logs</span></span>
           </div>
-          <pre class="${this._show_logs ? '' : 'hidden'}">
-          <code>
-          ${this._controller?.logs.map((logText) => {
-            return html`<p>${logText}</p>`
-          })}
-          </code>
-          </pre>
+          <pre class="${this._show_logs ? '' : 'hidden'}"><code>${this._controller?.logs.map((logText) => html`<p>${logText}</p>`)}</code></pre>
           </div>
         </div>
         </div>
@@ -392,12 +386,10 @@ export class LinkedLovelaceStatusCard extends LitElement {
         ${this._show_difference ? html`<div>
         ${diffedDashboardKeys.map((dashboardKey) => {
           return html`
-          <p class="dashboard-name">${this.dashboardName(dashboardKey)}</p>
-          <pre>
-          <code>
-          ${unsafeHTML(this._diffedDashboards[dashboardKey])}
-          </code>
-          </pre>
+          <div class="entry">
+            <p class="entry-name">${this.dashboardName(dashboardKey)}</p>
+            <pre><code>${unsafeHTML(this._diffedDashboards[dashboardKey])}</code></pre>
+          </div>
           `
         })}
         </div>` : ''}
@@ -513,6 +505,32 @@ export class LinkedLovelaceStatusCard extends LitElement {
       .dashboard-name {
         margin: 0;
         font-weight: 500;
+      }
+      /* One rendered block per template, partial, or dashboard preview: a name
+         row above a code surface. The three tabs share it so a template reads
+         the same way as a dashboard diff. */
+      .entry {
+        margin-top: 12px;
+      }
+      .entry .header {
+        margin: 0 0 2px;
+      }
+      .entry-name {
+        margin: 0;
+        font-weight: 500;
+        font-size: 15px;
+        color: var(--primary-text-color);
+        text-decoration: none;
+      }
+      a.entry-name {
+        color: var(--primary-color);
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      .entry-source {
+        color: var(--secondary-text-color);
+        font-size: 12px;
       }
       .in-sync {
         margin: 0;

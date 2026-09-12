@@ -11,9 +11,9 @@ Reusable card templates for Home Assistant dashboards. Mark any card with `ll_ke
 
 ## Try It Without Installing
 
-The [Live Demo](https://daredoes.github.io/linked-lovelace-ui/demo) runs the real template engine in your browser inside a simulated Home Assistant dashboard. Click **Load Data**, then **Update All**, then edit the `room` template and sync again to watch one change reach every card that uses it.
+The [Live Demo](https://daredoes.work/linked-lovelace-ui/demo) runs the real template engine in your browser inside a simulated Home Assistant dashboard. Click **Load Data**, then **Update All**, then edit the `room` template and sync again to watch one change reach every card that uses it.
 
-Already have Home Assistant? Add a `custom:linked-lovelace-starter` card and click **Create Demo Dashboard**. It builds the same showcase as a brand-new dashboard in your config and never touches your existing ones. The [Starter Dashboard](https://daredoes.github.io/linked-lovelace-ui/starter-dashboard) page walks through it.
+Already have Home Assistant? Add a `custom:linked-lovelace-starter` card and click **Create Demo Dashboard**. It builds the same showcase as a brand-new dashboard in your config and never touches your existing ones. The [Starter Dashboard](https://daredoes.work/linked-lovelace-ui/starter-dashboard) page walks through it.
 
 ![Linked Lovelace V2 Demo](/docs_site/images/llv2.gif)
 
@@ -26,7 +26,7 @@ Already have Home Assistant? Add a `custom:linked-lovelace-starter` card and cli
 
 ## Installation
 
-Install through HACS: it's in the default store, listed under frontend as `Linked Lovelace`. If you don't use HACS, download `linked-lovelace-ui.js` from the [latest release](https://github.com/daredoes/linked-lovelace-ui/releases/latest) and register it as a dashboard resource. Full steps are in [Getting Started](https://daredoes.github.io/linked-lovelace-ui/getting-started).
+Install through HACS: it's in the default store, listed under frontend as `Linked Lovelace`. If you don't use HACS, download `linked-lovelace-ui.js` from the [latest release](https://github.com/daredoes/linked-lovelace-ui/releases/latest) and register it as a dashboard resource. Full steps are in [Getting Started](https://daredoes.work/linked-lovelace-ui/getting-started).
 
 > [!WARNING]
 > `Linked Lovelace` runs commands on behalf of the user's browser to modify dashboard configurations, not on behalf of the Home Assistant system. A user's access may modify the outcome of the program.
@@ -35,20 +35,20 @@ Install through HACS: it's in the default store, listed under frontend as `Linke
 
 ## Documentation
 
-The [documentation site](https://daredoes.github.io/linked-lovelace-ui/) has the full guides and reference:
+The [documentation site](https://daredoes.work/linked-lovelace-ui/) has the full guides and reference:
 
-- [Getting Started](https://daredoes.github.io/linked-lovelace-ui/getting-started) covers installation and confirming the card loaded.
-- [Create Your First Template](https://daredoes.github.io/linked-lovelace-ui/create-your-first-template) builds a template from scratch.
-- [Template Syntax](https://daredoes.github.io/linked-lovelace-ui/template-syntax) and [Providing Template Context](https://daredoes.github.io/linked-lovelace-ui/providing-template-context) cover Eta JS and `ll_context`.
-- [Creating Partials](https://daredoes.github.io/linked-lovelace-ui/creating-partials) shows reusable snippets, including ones loaded from a URL.
-- [Using the Status Card](https://daredoes.github.io/linked-lovelace-ui/using-the-status-card) explains **Load Data**, **Update All**, and per-dashboard updates.
-- [API Reference](https://daredoes.github.io/linked-lovelace-ui/api-reference) lists every `ll_*` key and card option.
-- [Advanced Features](https://daredoes.github.io/linked-lovelace-ui/advanced-features) covers `ll_keys`, priorities, and nesting.
-- [Troubleshooting](https://daredoes.github.io/linked-lovelace-ui/troubleshooting) is for when a sync doesn't do what you expected.
+- [Getting Started](https://daredoes.work/linked-lovelace-ui/getting-started) covers installation and confirming the card loaded.
+- [Create Your First Template](https://daredoes.work/linked-lovelace-ui/create-your-first-template) builds a template from scratch.
+- [Template Syntax](https://daredoes.work/linked-lovelace-ui/template-syntax) and [Providing Template Context](https://daredoes.work/linked-lovelace-ui/providing-template-context) cover Eta JS and `ll_context`.
+- [Creating Partials](https://daredoes.work/linked-lovelace-ui/creating-partials) shows reusable snippets, including ones loaded from a URL.
+- [Using the Status Card](https://daredoes.work/linked-lovelace-ui/using-the-status-card) explains **Load Data**, **Update All**, and per-dashboard updates.
+- [API Reference](https://daredoes.work/linked-lovelace-ui/api-reference) lists every `ll_*` key and card option.
+- [Advanced Features](https://daredoes.work/linked-lovelace-ui/advanced-features) covers `ll_keys`, priorities, and nesting.
+- [Troubleshooting](https://daredoes.work/linked-lovelace-ui/troubleshooting) is for when a sync doesn't do what you expected.
 
 ## Upgrading From V1
 
-Template dashboards are gone: any top-level card with an `ll_key` is a template now. `template_data` (or `ll_data`) became `ll_context`, and `template` became `ll_template`. To convert an old `$example$` variable, swap the first `$` for `<%=` and the second for `%>`, then read it from context: `<%= context.example %>`. The [migration guide](https://daredoes.github.io/linked-lovelace-ui/advanced-features#migration-from-v1) has the details, and if I forgot something, file an issue.
+Template dashboards are gone: any top-level card with an `ll_key` is a template now. `template_data` (or `ll_data`) became `ll_context`, and `template` became `ll_template`. To convert an old `$example$` variable, swap the first `$` for `<%=` and the second for `%>`, then read it from context: `<%= context.example %>`. The [migration guide](https://daredoes.work/linked-lovelace-ui/advanced-features#migration-from-v1) has the details, and if I forgot something, file an issue.
 
 ## Support
 

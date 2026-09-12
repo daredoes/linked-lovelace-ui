@@ -99,7 +99,7 @@ The following demonstration will update our template to use context, and create 
 
 ## What's Next?
 
-It's time for you to create your own powerful cards.
+Now go build your own cards.
 
 - Share Eta logic between templates by [creating partials](./creating-partials).
 - Keep the [Template Syntax reference](./template-syntax) handy while you write.

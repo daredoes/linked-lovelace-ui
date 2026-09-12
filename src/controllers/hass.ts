@@ -29,7 +29,6 @@ class HassController {
   dashboardsToViews: Record<string, Record<string, View>> = {}
   logs: string[] = [];
   forwardLogs = false;
-  showKeyChips = false;
 
   addToLogs = ({msg, level = 'INFO'}: AddToLog, ...values: any[]) => {
     const timestamp = new Date().toISOString()
@@ -44,7 +43,6 @@ class HassController {
   refresh = async (): Promise<void> => {
     this.addToLogs({msg: `Beginning Refresh`})
     this.linkedLovelaceController = new LinkedLovelaceController();
-    this.linkedLovelaceController.showKeyChips = this.showKeyChips;
     this.dashboardsToViews = {}
     this.addToLogs({msg: `Discovering Dashboards`})
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();

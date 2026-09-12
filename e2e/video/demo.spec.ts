@@ -1,13 +1,27 @@
 import { test, expect, Page, Locator } from '@playwright/test';
 import YAML from 'yaml';
 import { ws, deleteDashboard, saveConfig, Card } from '../tests/helpers';
-import { installOverlay, say, clearCaption, showCode, hideCode } from './overlay';
+import { installOverlay, say, clearCaption, chapter, showCode, hideCode, SayOptions } from './overlay';
 
 // Records the captioned Linked Lovelace walkthrough against a real Home
 // Assistant. Every YAML string below is the config actually pushed over
 // `lovelace/config/save`, and the code panel shows that same text, so the
 // viewer sees the config and the card it produces at the same time.
 // Run via scripts/video.sh; not part of the CI e2e gate.
+//
+// Captions sit over the frame rather than in a bar under it, and each one is
+// placed against whatever the screen is doing at that moment. Three layouts
+// come up, and BAND / BESIDE / UNDER below name them:
+//   panel open      Home Assistant is scaled into the right of the frame, so
+//                   the band underneath it is free. Caption goes there.
+//   status expanded the status card grows into a tall left column, so the
+//                   right half is free. Caption goes there.
+//   cards only      the dashboard is a strip of cards across the top, so the
+//                   middle of the frame is free and sits right under them.
+const BAND: SayOptions = { zone: 'below', at: 'left' };
+const BESIDE: SayOptions = { at: 'right' };
+const UNDER: SayOptions = { at: 'center' };
+const TITLE: SayOptions = { zone: 'screen', at: 'center' };
 
 const BASICS = 'll-demo-basics';
 const ADVANCED = 'll-demo-advanced';
@@ -238,9 +252,9 @@ views:
     path: sources
     cards:
       - type: custom:linked-lovelace-status
-        show_key_chips: true
       - type: markdown
         ll_key: chipRoom
+        show_key_chips: true
         content: |
           ## <%= context.name %>
       - type: custom:linked-lovelace-template
@@ -340,110 +354,122 @@ test('demo walkthrough', async ({ page }) => {
   console.log('ACT 1: duplication');
   created.push(await createDashboard(page, BASICS, DUPLICATED));
   await open(page, BASICS, 'hui-view');
-  await say(page, 'Linked Lovelace: write a Lovelace card once, reuse it everywhere, sync on demand.');
-  await say(page, 'Start with the problem. Three cards here, and three copies of the same YAML.');
+  await chapter(page, 1, 8, 'The problem');
+  await say(page, 'Linked Lovelace lets you write one Lovelace card and reuse it across your dashboards.', TITLE);
+  await say(page, 'Three cards on this dashboard, and three copies of the same YAML behind them.', UNDER);
   await showCode(page, `${BASICS} config`, DUPLICATED, ['markdown']);
-  await say(page, 'Change the layout and you edit it three times, in every dashboard that uses it.');
+  await say(page, 'Change the layout and that is three edits here, plus every other dashboard using it.', BAND);
   await hideCode(page);
 
   // ---- Act 2: one source, three usages ------------------------------------
   console.log('ACT 2: source + usages');
   await saveConfig(page, BASICS, YAML.parse(templated(ROOM_V1)));
   const basics = await open(page, BASICS);
+  await chapter(page, 2, 8, 'One source');
   await showCode(page, 'The source card', SOURCE_CARD, ['ll_key: room', 'context.name', 'context.state']);
-  await say(page, 'This is the source card. ll_key names it, and the placeholders are Eta syntax.');
+  await say(page, 'One source card instead. ll_key gives it a name, and the placeholders are Eta.', BAND);
   await showCode(page, 'The cards that use it', USAGE_CARDS, ['ll_template: room', 'll_context']);
-  await say(page, 'Each usage names the template with ll_template and passes its own ll_context.');
+  await say(page, 'Each card that wants it names the template in ll_template and passes its own ll_context.', BAND);
   await hideCode(page);
-  await say(page, 'Until a sync runs, the usages are just placeholders holding their context.');
+  await say(page, 'Until a sync runs they stay placeholders, each holding its own context.', UNDER);
 
   // ---- Act 3: discovery ----------------------------------------------------
   console.log('ACT 3: Load Data');
-  await say(page, 'Load Data reads every dashboard over the websocket API and collects the sources.');
+  await chapter(page, 3, 8, 'Discovery');
+  await say(page, 'Load Data reads every dashboard over the websocket API and collects the source cards.', UNDER);
   await loadData(basics);
   await basics.locator('.tab', { hasText: 'Templates' }).click();
   await basics.locator('.accordion-bar', { hasText: 'Templates' }).click();
-  await say(page, 'The Templates tab lists what it found, and expands to show each body.');
+  await say(page, 'The Templates tab lists what it found. Expand one to read its body.', BESIDE);
   await basics.locator('.tab', { hasText: 'Logs' }).click();
   await basics.locator('.accordion-bar', { hasText: 'Logs' }).click();
-  await say(page, 'The Logs tab records every step, which is where to look when something is missing.');
+  await say(page, 'The Logs tab records every step, so this is where to look when a template goes missing.', BESIDE);
 
   // ---- Act 4: preview, then write -----------------------------------------
   console.log('ACT 4: preview + Update All');
+  await chapter(page, 4, 8, 'Preview and sync');
   await basics.locator('.tab', { hasText: 'Dashboards' }).click();
   await basics.locator('.accordion-bar', { hasText: 'Preview Changes' }).click();
-  await say(page, 'Preview Changes diffs what a sync would write, before anything is saved.');
-  await say(page, 'Update All then writes the rendered cards back to the dashboard.');
+  await say(page, 'Preview Changes shows the diff a sync would write, before anything is saved.', BESIDE);
+  await say(page, 'Update All writes the rendered cards back to the dashboard.', BESIDE);
   await updateAll(page, basics);
   await open(page, BASICS);
-  await say(page, 'Three real cards now, each rendered from the same source with its own context.');
+  await say(page, 'Three real cards, all rendered from the one source with their own context.', UNDER);
   await showCode(
     page,
     'What the sync wrote back',
     await configAsYaml(page, BASICS, (c: any) => ({ cards: c.views[0].cards.slice(1, 2) })),
     ['ll_template: room', 'll_context'],
   );
-  await say(page, 'The written card keeps ll_template and ll_context, so the next sync can render it again.');
+  await say(page, 'The saved card keeps ll_template and ll_context, so the next sync can render it again.', BAND);
+  // Grab the poster for the docs page here: the YAML panel, the rendered cards
+  // and a caption are all on screen, so the still says what the video is about.
+  // scripts/video.sh copies it next to the mp4.
+  await page.screenshot({ path: 'test-results/poster.jpg', type: 'jpeg', quality: 85 });
   await hideCode(page);
 
   // ---- Act 5: edit once ----------------------------------------------------
   console.log('ACT 5: edit once');
+  await chapter(page, 5, 8, 'Edit once');
   await saveConfig(page, BASICS, YAML.parse(templated(ROOM_V2)));
   await showCode(page, 'Edit the source, once', `- type: markdown\n  ll_key: room\n  content: |\n${ROOM_V2}`, [
     '_One template, every room._',
   ]);
-  await say(page, 'Add a line to the source card and sync again.');
+  await say(page, 'Add a line to the source card, then sync again.', BAND);
   const basics2 = await open(page, BASICS);
   await loadData(basics2);
   await updateAll(page, basics2);
   await open(page, BASICS);
   await hideCode(page);
-  await say(page, 'One edit, and every room card carries it. That is the whole point.');
+  await say(page, 'One edit, and every room card picks it up.', UNDER);
 
   // ---- Act 6: partials, ll_keys, nesting ----------------------------------
   console.log('ACT 6: advanced');
+  await chapter(page, 6, 8, 'Partials and nesting');
   created.push(await createDashboard(page, ADVANCED, ADVANCED_CONFIG));
   const advanced = await open(page, ADVANCED);
   await loadData(advanced);
   await advanced.locator('.tab', { hasText: 'Partials' }).click();
   await advanced.locator('.accordion-bar', { hasText: 'Partials' }).click();
   await showCode(page, 'A partial, and a template that includes it', PARTIAL_YAML, ['key: stateIcon', "include('stateIcon', context)"]);
-  await say(page, 'Partials are Eta snippets. Templates pull them in with include, so logic is shared.');
+  await say(page, 'Partials are Eta snippets. Templates pull them in with include and share the logic.', BAND);
   await showCode(page, 'll_keys injects whole cards', LL_KEYS_YAML, ['ll_keys:', 'cards: cards']);
-  await say(page, 'll_keys maps a card key to a context key, so a list of cards can be passed in.');
+  await say(page, 'll_keys maps a key on the card to a key in the context, which is how you pass in a list of cards.', BAND);
   await showCode(page, 'll_priority orders registration', NESTING_YAML, ['ll_priority: 10', 'll_template: badge']);
-  await say(page, 'A template can use another. Higher ll_priority registers later, once its parts exist.');
+  await say(page, 'Templates can use other templates. A higher ll_priority registers later, once its parts exist.', BAND);
   await advanced.locator('.tab', { hasText: 'Dashboards' }).click();
   await updateAll(page, advanced);
   await open(page, ADVANCED);
   await hideCode(page);
-  await say(page, 'One sync: the partial, the injected card list, and the nested panel all resolve.');
+  await say(page, 'After one sync the partial, the injected card list and the nested panel have all resolved.', UNDER);
 
   // ---- Act 7: sections layout ---------------------------------------------
   console.log('ACT 7: sections');
+  await chapter(page, 7, 8, 'Sections layout');
   created.push(await createDashboard(page, SECTIONS, SECTIONS_CONFIG));
   const sections = await open(page, SECTIONS);
   await showCode(page, 'A source inside a section', SECTIONS_CONFIG, ['type: sections', 'sections:', 'll_key: sectionRoom']);
-  await say(page, 'Sources can live in a sections view, the default dashboard layout since 2024.3.');
+  await say(page, 'A source can live in a sections view, which has been the default layout since 2024.3.', BAND);
   await loadData(sections);
   await updateAll(page, sections);
   await open(page, SECTIONS);
   await hideCode(page);
-  await say(page, 'Discovery walks section cards too, so the Garage card renders from it.');
+  await say(page, 'Discovery walks section cards too, so the Garage card renders from it.', UNDER);
 
   // ---- Act 8: key chips ----------------------------------------------------
   console.log('ACT 8: chips');
+  await chapter(page, 8, 8, 'Key chips');
   created.push(await createDashboard(page, CHIPS, CHIPS_CONFIG));
   const chips = await open(page, CHIPS);
-  await showCode(page, 'Label the definitions', CHIPS_CONFIG, ['show_key_chips: true']);
-  await say(page, 'Turn on key chips and a sync labels every source card with its ll_key.');
+  await showCode(page, 'Label a definition', CHIPS_CONFIG, ['ll_key: chipRoom', 'show_key_chips: true']);
+  await say(page, 'Add show_key_chips next to ll_key and the next sync labels that card with its key.', BAND);
   await loadData(chips);
   await updateAll(page, chips);
   await open(page, CHIPS);
   await hideCode(page);
   await expect(page.locator('linked-lovelace-key-chip').first()).toBeVisible();
-  await say(page, 'The chip marks the card you edit, so a source is never mistaken for a copy.');
-  await say(page, 'Docs, and the same demo in your browser: daredoes.github.io/linked-lovelace-ui');
+  await say(page, 'The chip marks the card you edit, so you never mistake a copy for the source.', UNDER);
+  await say(page, 'Docs and the same demo in your browser: daredoes.work/linked-lovelace-ui', TITLE);
 
   // ---- Cleanup -------------------------------------------------------------
   await clearCaption(page);

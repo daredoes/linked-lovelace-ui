@@ -1,0 +1,260 @@
+/*
+ * Linked Lovelace docs theme.
+ *
+ * The palette is built from Home Assistant's own blue so the docs sit next to
+ * a screenshot of a dashboard without clashing. Everything here is a VitePress
+ * variable override plus a handful of component rules; no markup is replaced.
+ */
+
+:root {
+  --ll-blue-300: #4fc3f7;
+  --ll-blue-400: #29b6f6;
+  --ll-blue-500: #03a9f4;
+  --ll-blue-600: #0288d1;
+  --ll-blue-700: #0277bd;
+  --ll-blue-800: #01579b;
+
+  --vp-c-brand-1: var(--ll-blue-700);
+  --vp-c-brand-2: var(--ll-blue-600);
+  --vp-c-brand-3: var(--ll-blue-500);
+  --vp-c-brand-soft: rgba(3, 169, 244, 0.14);
+
+  --vp-button-brand-bg: var(--ll-blue-600);
+  --vp-button-brand-hover-bg: var(--ll-blue-700);
+  --vp-button-brand-active-bg: var(--ll-blue-800);
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-hover-border: transparent;
+
+  --vp-custom-block-tip-border: rgba(3, 169, 244, 0.3);
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    100deg,
+    var(--ll-blue-600) 10%,
+    #7e57c2 90%
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    rgba(3, 169, 244, 0.5),
+    rgba(126, 87, 194, 0.5)
+  );
+  --vp-home-hero-image-filter: blur(48px);
+}
+
+.dark {
+  --vp-c-brand-1: var(--ll-blue-300);
+  --vp-c-brand-2: var(--ll-blue-400);
+  --vp-c-brand-3: var(--ll-blue-500);
+  --vp-button-brand-bg: var(--ll-blue-600);
+  --vp-button-brand-hover-bg: var(--ll-blue-500);
+  --vp-button-brand-text: #04121c;
+}
+
+/* ---------------------------------------------------------------- typography */
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+  letter-spacing: -0.015em;
+}
+
+.vp-doc h2 {
+  margin-top: 44px;
+  padding-top: 26px;
+}
+
+/* The lead paragraph of a page carries the "what is this" sentence, so give it
+   a little more room than body copy. */
+.vp-doc > div > h1 + p {
+  font-size: 17px;
+  line-height: 1.72;
+  color: var(--vp-c-text-2);
+}
+
+/* ll_key, ll_context and friends appear constantly in running text. Tinting
+   inline code makes a sentence full of them scannable. */
+.vp-doc :not(pre) > code {
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  border-radius: 5px;
+  font-size: 0.86em;
+}
+
+.vp-doc a > code {
+  color: var(--vp-c-brand-1);
+}
+
+/* Most H3s in the reference are a card type set entirely in code. Tinting
+   those too turns the whole heading into a blue slab, so headings keep the
+   plain treatment. */
+.vp-doc h1 > code,
+.vp-doc h2 > code,
+.vp-doc h3 > code,
+.vp-doc h4 > code {
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-size: 0.92em;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------- tables */
+
+/* Keep VitePress's block display: it is what lets a wide reference table
+   scroll sideways on a phone instead of squashing the page. */
+.vp-doc table {
+  display: block;
+  overflow-x: auto;
+  width: fit-content;
+  min-width: 100%;
+  margin: 22px 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+}
+
+.vp-doc th {
+  background-color: var(--vp-c-bg-soft);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc th,
+.vp-doc td {
+  border: none;
+  border-bottom: 1px solid var(--vp-c-divider);
+  padding: 11px 16px;
+  vertical-align: top;
+}
+
+.vp-doc tr:last-child td {
+  border-bottom: none;
+}
+
+/* The tinted header row is enough separation; zebra stripes on top of it make
+   a reference table busy. */
+.vp-doc tr:nth-child(even) td {
+  background-color: transparent;
+}
+
+/* --------------------------------------------------------------- code blocks */
+
+.vp-doc div[class*='language-'] {
+  border-radius: 10px;
+  border: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc div[class*='language-'] span.lang {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------- custom blocks */
+
+.vp-doc .custom-block {
+  border-radius: 10px;
+  border-width: 1px;
+  border-left-width: 4px;
+}
+
+/* Block titles here are whole sentences ("Not installed yet? Try it first."),
+   so they stay in sentence case. */
+.vp-doc .custom-block-title {
+  letter-spacing: 0.01em;
+}
+
+/* --------------------------------------------------------------- home page */
+
+.VPHero .name {
+  letter-spacing: -0.03em;
+}
+
+.VPHero .tagline {
+  max-width: 34em;
+}
+
+.VPFeature {
+  border-radius: 12px;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand-2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(2, 30, 48, 0.12);
+}
+
+.dark .VPFeature:hover {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+.VPFeature .title {
+  letter-spacing: -0.01em;
+}
+
+/* ------------------------------------------------------------------ sidebar */
+
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-3);
+}
+
+/* ------------------------------------------------------- demo page furniture */
+
+/* The recorded walkthrough on /demo. Framed and shadowed so it reads as a
+   screen rather than a floating rectangle of dashboard. */
+.ll-demo-video {
+  margin: 26px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: 0 18px 40px rgba(2, 30, 48, 0.14);
+  background: #0b0f18;
+  line-height: 0;
+}
+
+.dark .ll-demo-video {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+.ll-demo-video video {
+  display: block;
+  width: 100%;
+}
+
+/* A short line under a figure, set smaller than body copy. */
+.ll-caption {
+  margin-top: -12px;
+  font-size: 14px;
+  color: var(--vp-c-text-3);
+}
+
+/* ------------------------------------------------------------------ images */
+
+.vp-doc img {
+  border-radius: 8px;
+}
+
+/* ----------------------------------------------------------------- mermaid */
+
+.vp-doc .mermaid {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+/* Diagrams draw at natural size (see the mermaid config), so centre the
+   narrow ones instead of leaving them pinned to the left edge. */
+.vp-doc .mermaid svg {
+  display: block;
+  margin: 0 auto;
+}

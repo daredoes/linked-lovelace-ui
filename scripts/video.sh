@@ -3,7 +3,8 @@
 #   build card -> copy bundle into HA www -> start HA -> record -> mp4
 # Usage: ./scripts/video.sh
 #   KEEP_UP=1 ./scripts/video.sh   # leave HA running afterwards
-# Output: docs_site/images/linked-lovelace-demo.mp4 (plus the raw .webm next to it)
+# Output: docs_site/images/linked-lovelace-demo.mp4 (plus the raw .webm and the
+#         poster still the recording captures for the docs page)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -49,6 +50,12 @@ if command -v ffmpeg >/dev/null 2>&1; then
   echo "    $OUT_DIR/linked-lovelace-demo.mp4"
 else
   echo "    ffmpeg not found; keeping webm only"
+fi
+
+poster="$E2E/test-results/poster.jpg"
+if [ -f "$poster" ]; then
+  cp "$poster" "$OUT_DIR/linked-lovelace-demo-poster.jpg"
+  echo "    $OUT_DIR/linked-lovelace-demo-poster.jpg"
 fi
 
 if [ "${KEEP_UP:-0}" != "1" ]; then

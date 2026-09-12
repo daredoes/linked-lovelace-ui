@@ -11,7 +11,7 @@ Linked Lovelace runs commands on behalf of the user's browser to modify dashboar
 __Always back-up your configs if you feel unsure about what you are about to do!__
 :::
 
-## What is a partial?
+## What Is a Partial?
 
 A partial is a snippet of Eta JS Templating code that can be reused. By setting some context unique to the partial, we can create helper partials that do some basic logic for us.
 
@@ -42,7 +42,7 @@ This card creates a partial with the name `modeToIcon`. This partial uses Eta JS
 
 What follows is known as a Switch case, using `if-else`. This checks if the `mode` is a certain value, and renders the text inside the conditonal block. It includes an `else` block to provide a default answer if none of the conditions are met.
 
-## Using a partial
+## Using a Partial
 
 To use this partial, we are going to create a template button card that uses `mode` to set its values for `name` and `icon`. We will then implement that template using `ll_context` to set the `mode`.
 

@@ -32,7 +32,7 @@ title: My LL Demo                   # default: Linked Lovelace Demo
 ```
 :::
 
-## 2. Create the demo dashboard
+## 2. Create the Demo Dashboard
 
 Click **Create Demo Dashboard**. Linked Lovelace creates a new dashboard (`linked-lovelace-demo` by default) and fills it with the showcase config. When it finishes, a link appears on the card. You can open the demo from there or from the sidebar.
 
@@ -40,7 +40,7 @@ Click **Create Demo Dashboard**. Linked Lovelace creates a new dashboard (`linke
 Like everything in Linked Lovelace, this runs on behalf of your browser and writes a real storage-mode dashboard to your config. It only creates a new dashboard; it never touches your existing ones.
 :::
 
-## 3. Bring it to life
+## 3. Bring It to Life
 
 The demo opens on two views:
 
@@ -53,11 +53,11 @@ On the **Demo** view's status card, click **Load Data**, then **Update All**. Th
 
 The three room cards (Living Room, Bedroom, Kitchen) all come from the same `room` template, each with its own context. The 🟢 / ⚪ / ❔ icons come from the `stateToIcon` partial, and the Welcome panel is a nested template (`panel` includes `badge`).
 
-## 4. Make a change and sync it
+## 4. Make a Change and Sync It
 
 Open the **Templates** view and change the `room` template. Adding a line to its `content` works well. Go back to the **Demo** view and click **Update All** again. Every room card updates at once, which is the reason Linked Lovelace exists: you write a card once and sync it wherever it's used.
 
-## Where to next?
+## Where to Next?
 
 - [Live Demo](./demo) runs the same showcase in your browser, fully editable.
 - [Creating Your First Template](./create-your-first-template) walks through building your own.

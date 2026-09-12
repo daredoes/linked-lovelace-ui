@@ -10,34 +10,28 @@ You don't need Home Assistant and there is nothing to install. Everything stays 
 
 ## Watch It Run In Home Assistant
 
-If you would rather see the real card first, this is the same feature set running in an actual Home Assistant instance, recorded by the end-to-end suite. The YAML on the left is the config being discussed, so each feature appears next to the card it produces: one source card reused three times, the discovery tabs, the dry-run diff, a sync writing back, editing the source once, partials, `ll_keys`, `ll_priority` with a nested template, a source inside a sections view, and key chips.
+If you would rather watch the real card first, here is the same feature set running in an actual Home Assistant, recorded by the end-to-end suite. The panel on the left holds the YAML under discussion, so each feature appears beside the card it produces.
+
+It runs about two and a half minutes, in eight chapters: three duplicated cards, one source card that replaces them, discovery, the dry-run diff and the sync that follows it, editing the source once, partials with `ll_keys` and `ll_priority`, a source inside a sections view, and key chips.
 
 <div class="ll-demo-video">
   <video controls playsinline preload="metadata" poster="./images/linked-lovelace-demo-poster.jpg" src="./images/linked-lovelace-demo.mp4"></video>
 </div>
 
-<style>
-.ll-demo-video video {
-  width: 100%;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 8px;
-}
-</style>
+<p class="ll-caption">Captions rather than narration, so it plays fine with the sound off. To record it against your own build, run <code>./scripts/video.sh</code> from the repo.</p>
 
-The recording has captions rather than narration, so it plays fine with the sound off. To record it yourself against your own build, run `./scripts/video.sh` from the repo.
-
-## Try it
+## Try It
 
 1. On the **Demo** view, find the **Linked Lovelace Status** card and click **Load Data**. This first pass reads the dashboard's YAML config: the templates, the partials, and the `ll_context` shown on each dashed placeholder card all come from that YAML. Click **Edit YAML** if you want to see the source before you sync.
 2. Click **Update All**. The dashed template placeholders become fully rendered cards, each filled in with its `ll_context` from the YAML, and the config updates to exactly what a real sync would write back to Home Assistant (open **Edit YAML** to inspect it).
 3. Open **Edit YAML** and find the `room` template (it lives on the **Templates** view). Change its `content`, add an emoji, anything, then click **Done**.
-4. Click **Update All** again. Every room card updates at once. That single edit rippling out to every card is what Linked Lovelace is for.
+4. Click **Update All** again. Every room card updates at once, which is the job Linked Lovelace does.
 
 <ClientOnly>
   <HaPlayground />
 </ClientOnly>
 
-## What's real and what's simulated
+## What's Real and What's Simulated
 
 | Piece | Real or simulated? |
 |-------|--------------------|
@@ -49,16 +43,16 @@ The recording has captions rather than narration, so it plays fine with the soun
 | The dashboard window, cards, and status card UI | Simulated. A lightweight look-alike so you can see results. |
 | Dashboards / websockets / saving to storage | Not used. Everything stays in your browser tab. |
 
-The default content is the same showcase the [Starter Dashboard](./starter-dashboard) card creates in a real Home Assistant, so what you learn here transfers one-to-one.
+The default content is the same showcase the [Starter Dashboard](./starter-dashboard) card creates in a real Home Assistant, so anything you work out here applies there unchanged.
 
-## Things to experiment with
+## Things to Experiment With
 
 - In **Edit YAML**, change `state: 'on'` to `state: 'off'` in a room card's `ll_context` and re-sync. The `stateToIcon` partial picks a different icon.
 - Add a fourth room by copying one of the `custom:linked-lovelace-template` cards in the `Demo` view's YAML and giving its `ll_context` a new `name`.
 - Break it on purpose: misspell an `ll_template` value and sync. The card passes through unrendered, which is exactly what happens in HA (see [Troubleshooting](./troubleshooting#template-not-found)).
 - Edit the `stateToIcon` partial on the Templates view to return different emoji, then re-sync.
 
-## Ready for the real thing?
+## Ready for the Real Thing?
 
 - [Getting Started](./getting-started) covers installing the card in Home Assistant.
 - [Starter Dashboard](./starter-dashboard) drops this exact demo into your HA.

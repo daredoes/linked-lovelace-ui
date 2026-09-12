@@ -3,9 +3,10 @@ import * as path from 'path';
 import YAML from 'yaml';
 import { ws, saveConfig, deleteDashboard } from '../tests/helpers';
 
-// Captures the two Dashboards-tab screenshots used by
-// docs_site/using-the-status-card.md: the tab as it looks after Load Data, and
-// the same card with Preview Changes expanded. Run via ./scripts/screenshots.sh.
+// Captures the status card screenshots used by
+// docs_site/using-the-status-card.md: the Dashboards tab after Load Data, the
+// same card with Preview Changes expanded, and the Templates tab with a
+// template body open. Run via ./scripts/screenshots.sh.
 const OUT = path.resolve('..', 'docs_site', 'images');
 
 test('capture status card dashboards tab', async ({ page }) => {
@@ -64,5 +65,12 @@ views:
   await page.mouse.move(0, 0);
   await page.waitForTimeout(800);
   await card!.screenshot({ path: `${OUT}/linked-lovelace-dashboard-diff.png` });
+
+  await card!.locator('.tab', { hasText: 'Templates' }).click();
+  await card!.locator('.accordion-bar', { hasText: 'Templates' }).click();
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(800);
+  await card!.screenshot({ path: `${OUT}/linked-lovelace-status-templates.png` });
+
   await deleteDashboard(page, created.id);
 });

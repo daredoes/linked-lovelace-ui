@@ -91,6 +91,9 @@ export default withMermaid(defineConfig({
   },
 
   mermaid: {
-    // mermaid options — inherit theme from the page, leave defaults otherwise
+    // Light and dark themes come from the plugin, which re-renders on a theme
+    // switch. Diagrams fit the content column; the theme frames them so they
+    // read as figures rather than loose line art.
+    flowchart: { curve: 'basis' },
   }
 }))

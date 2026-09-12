@@ -29,7 +29,7 @@ ll_priority: 0
 |-----|------|----------|-------------|
 | `ll_template` | `string` | Yes | Key of the template to use (must match an `ll_key` on a source card). |
 | `ll_context` | `object` | No | Variables passed to the Eta template engine. Accessible as `context.variableName`. |
-| `ll_keys` | `object` | No | Maps a template property to a context value, enabling dynamic injection of rendered sub-cards. See [ll_keys](#ll-keys). |
+| `ll_keys` | `object` | No | Maps a template property to a context value so rendered sub-cards can be injected into it. See [ll_keys](#ll-keys). |
 | `ll_priority` | `number` | No | Load order for this template reference. Lower numbers run first. Defaults to `0`. |
 
 ---
@@ -40,12 +40,9 @@ The **control** card. Add this to any dashboard to see which templates are regis
 
 ```yaml
 type: custom:linked-lovelace-status
-show_key_chips: true
 ```
 
-| Key | Type | Required | Description |
-|-----|------|----------|-------------|
-| `show_key_chips` | `boolean` | No | When `true`, the next sync wraps every template source card in a [`custom:linked-lovelace-key-chip`](#custom-linked-lovelace-key-chip) so its `ll_key` is visible on the dashboard. When `false` or unset, the next sync removes any existing wrappers. Defaults to `false`. |
+The card takes no configuration keys. Anything a sync does is decided by the cards it finds, so key chips are switched on per source card with [`show_key_chips`](#show-key-chips) rather than here.
 
 The card provides an interactive UI with four tabs. **Dashboards** shows which dashboards will be affected and previews the diff. **Templates** lists all registered `ll_key` cards. **Partials** lists all registered Eta partials. **Logs** shows runtime log output.
 
@@ -86,7 +83,7 @@ When both `template` and `url` are supplied, `url` takes precedence. Use `priori
 
 ### `custom:linked-lovelace-key-chip`
 
-The **marker** card. Wraps a template source card and shows its `ll_key` as a small badge in the card's top right corner. The Status card adds and removes these wrappers during sync based on its `show_key_chips` option; you do not need to add one by hand.
+The **marker** card. Wraps a template source card and shows its `ll_key` as a small badge in the card's top right corner. Sync adds and removes these wrappers based on the [`show_key_chips`](#show-key-chips) key on the source card; you do not need to add one by hand.
 
 ```yaml
 type: custom:linked-lovelace-key-chip
@@ -100,7 +97,8 @@ card:
 |-----|------|----------|-------------|
 | `card` | `object` | Yes | The wrapped card configuration. Rendered unchanged beneath the badge. |
 | `ll_key` | `string` | No | Template key shown in the badge. Sync hoists it here from the wrapped card. |
-| `ll_priority` | `number` | No | Hoisted alongside `ll_key`. Both are restored to the inner card when the wrapper is removed. |
+| `ll_priority` | `number` | No | Hoisted alongside `ll_key`. Restored to the inner card when the wrapper is removed. |
+| `show_key_chips` | `boolean` | No | Hoisted alongside `ll_key`. Set it to `false` here to have the next sync remove the wrapper. |
 
 ::: tip
 Template discovery unwraps this card automatically, so a wrapped source card is still registered under its `ll_key`.
@@ -149,6 +147,20 @@ type: custom:...
 
 - **Type:** `number` (default `0`)
 - Controls the order in which templates are registered. A template with `ll_priority: 10` is registered after one with `ll_priority: 0`. This lets higher-priority templates reference lower-priority ones.
+
+### `show_key_chips`
+
+```yaml
+ll_key: thermostat-row
+show_key_chips: true
+type: markdown
+content: "<%= context.room %>"
+```
+
+- **Type:** `boolean` (default `false`)
+- When `true`, the next sync wraps this card in a [`custom:linked-lovelace-key-chip`](#custom-linked-lovelace-key-chip) so its `ll_key` shows as a badge on the dashboard. Set it back to `false` and the next sync removes the wrapper.
+- It applies to the one card that carries it, in a view or inside a section, so you can label the two definitions you keep forgetting and leave the rest plain.
+- Cards rendered from this template do not inherit the key, so only the source is ever badged.
 
 ### `ll_context`
 
@@ -215,7 +227,7 @@ See the full [Template Syntax Guide](./template-syntax) for examples.
 
 ---
 
-## Key Interactions & Rendering Order
+## Key Interactions and Rendering Order
 
 1. The Status card collects all partials (`custom:linked-lovelace-partials`) from all dashboards and registers them with Eta.
 2. It collects all source cards (`ll_key`) and registers them as templates, sorted by `ll_priority` (ascending).

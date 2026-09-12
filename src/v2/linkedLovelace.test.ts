@@ -1,7 +1,7 @@
 import LinkedLovelaceController from './linkedLovelace';
 import { GlobalLinkedLovelace } from '../instance';
 import { KEY_CHIP_CARD_TYPE } from '../helpers/keyChip';
-import { DashboardConfig } from '../types';
+import { DashboardCard, DashboardConfig } from '../types';
 
 const mockDashboardConfig = (config: DashboardConfig) => {
   // The instance getter returns the stubbed self without needing a real hass connection
@@ -28,59 +28,81 @@ describe('[class] LinkedLovelaceController', () => {
 });
 
 describe('[class] LinkedLovelaceController key chips', () => {
-  const definition = { type: 'markdown', content: 'hi', ll_key: 'room' };
+  const plainDefinition = { type: 'markdown', content: 'hi', ll_key: 'room' };
+  const chippedDefinition = { ...plainDefinition, show_key_chips: true };
   const instance = { type: 'markdown', content: 'hi', ll_template: 'room' };
   const plain = { type: 'markdown', content: 'plain' };
-  const baseConfig: DashboardConfig = {
-    views: [{ title: 'Test', cards: [definition, instance, plain] }],
-  };
 
-  const makeController = (showKeyChips: boolean) => {
+  const configWith = (definition: DashboardCard): DashboardConfig => ({
+    views: [{ title: 'Test', cards: [definition, instance, plain] }],
+  });
+
+  const makeController = () => {
     const controller = new LinkedLovelaceController();
-    controller.showKeyChips = showKeyChips;
-    controller.registerTemplates({ room: { ...definition } });
+    controller.registerTemplates({ room: { ...plainDefinition } });
     return controller;
   };
 
-  test('wraps only definition cards when enabled', async () => {
-    mockDashboardConfig(baseConfig);
-    const controller = makeController(true);
-    const config = await controller.getUpdatedDashboardConfig(null);
+  test('wraps only the definition that asked for a chip', async () => {
+    mockDashboardConfig(configWith(chippedDefinition));
+    const config = await makeController().getUpdatedDashboardConfig(null);
     const cards = config.views![0].cards!;
     expect(cards[0]).toStrictEqual({
       type: KEY_CHIP_CARD_TYPE,
       ll_key: 'room',
+      show_key_chips: true,
       card: { type: 'markdown', content: 'hi' },
     });
     expect(cards[1].type).toBe('markdown');
     expect(cards[2]).toStrictEqual(plain);
   });
 
-  test('is idempotent across repeated syncs when enabled', async () => {
-    mockDashboardConfig(baseConfig);
-    const controller = makeController(true);
+  test('leaves a definition alone when it does not ask for a chip', async () => {
+    mockDashboardConfig(configWith(plainDefinition));
+    const config = await makeController().getUpdatedDashboardConfig(null);
+    expect(config.views![0].cards![0]).toStrictEqual(plainDefinition);
+  });
+
+  test('does not leak the flag into cards rendered from the definition', async () => {
+    mockDashboardConfig(configWith(chippedDefinition));
+    const controller = new LinkedLovelaceController();
+    controller.registerTemplates({ room: { ...chippedDefinition } });
+    const config = await controller.getUpdatedDashboardConfig(null);
+    expect(config.views![0].cards![1].show_key_chips).toBeUndefined();
+  });
+
+  test('chips a definition living inside a section', async () => {
+    mockDashboardConfig({
+      views: [{ title: 'Test', sections: [{ type: 'grid', cards: [chippedDefinition] }] }],
+    });
+    const config = await makeController().getUpdatedDashboardConfig(null);
+    expect(config.views![0].sections![0].cards![0].type).toBe(KEY_CHIP_CARD_TYPE);
+  });
+
+  test('is idempotent across repeated syncs', async () => {
+    mockDashboardConfig(configWith(chippedDefinition));
+    const controller = makeController();
     const first = await controller.getUpdatedDashboardConfig(null);
     mockDashboardConfig(first);
     const second = await controller.getUpdatedDashboardConfig(null);
     expect(second).toStrictEqual(first);
   });
 
-  test('unwraps previously wrapped definitions when disabled', async () => {
-    mockDashboardConfig(baseConfig);
-    const enabled = makeController(true);
-    const wrappedConfig = await enabled.getUpdatedDashboardConfig(null);
+  test('unwraps a wrapped definition once the flag is turned off', async () => {
+    mockDashboardConfig(configWith(chippedDefinition));
+    const wrappedConfig = await makeController().getUpdatedDashboardConfig(null);
+    const wrapped = wrappedConfig.views![0].cards![0];
+    wrapped.show_key_chips = false;
     mockDashboardConfig(wrappedConfig);
-    const disabled = makeController(false);
-    const config = await disabled.getUpdatedDashboardConfig(null);
-    expect(config.views![0].cards![0]).toStrictEqual(definition);
+    const config = await makeController().getUpdatedDashboardConfig(null);
+    expect(config.views![0].cards![0]).toStrictEqual({ ...plainDefinition, show_key_chips: false });
   });
 
   test('renders instances from a wrapped definition identically to an unwrapped one', async () => {
-    mockDashboardConfig(baseConfig);
-    const unwrappedRun = makeController(false);
-    const expected = await unwrappedRun.getUpdatedDashboardConfig(null);
+    mockDashboardConfig(configWith(plainDefinition));
+    const expected = await makeController().getUpdatedDashboardConfig(null);
 
-    const wrappedDefinitionConfig: DashboardConfig = {
+    mockDashboardConfig({
       views: [{
         title: 'Test',
         cards: [
@@ -89,10 +111,8 @@ describe('[class] LinkedLovelaceController key chips', () => {
           plain,
         ],
       }],
-    };
-    mockDashboardConfig(wrappedDefinitionConfig);
-    const controller = makeController(false);
-    const config = await controller.getUpdatedDashboardConfig(null);
+    });
+    const config = await makeController().getUpdatedDashboardConfig(null);
     expect(config.views![0].cards![1]).toStrictEqual(expected.views![0].cards![1]);
   });
 });

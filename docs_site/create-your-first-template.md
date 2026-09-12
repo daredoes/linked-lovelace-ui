@@ -11,7 +11,7 @@ Linked Lovelace runs commands on behalf of the user's browser to modify dashboar
 __Always back-up your configs if you feel unsure about what you are about to do!__
 :::
 
-## What defines a card as reusable?
+## What Defines a Card as Reusable?
 
 In our case, it would be a card that we want to use multiple times.
 
@@ -22,7 +22,7 @@ Without Linked Lovelace, the only way to synchronize a card made in the UI is to
 
 For our example, we'll be creating a button card that creates a persistent notification to help demonstrate synchronization.
 
-## Making a card into a template
+## Making a Card Into a Template
 
 To mark a card as a template for Linked Lovelace to consume, we need to add the key `ll_key` to the top-level of the card's YAML. This will break the UI editor.
 
@@ -66,7 +66,7 @@ By adding this single line Linked Lovelace becomes able to identify `help-button
 *Converting a card into a template*
 ![Converting a card into a template](./images/convert-to-template.gif)
 
-## Use the template
+## Use the Template
 
 Now that we've created our first template, we'll use the Template card to help us place it on a new Dashboard/View. We can do this in one of two ways.
 
@@ -78,7 +78,7 @@ Now that we've created our first template, we'll use the Template card to help u
 *Using a template, both ways*
 ![Using a template, both ways](./images/using-a-template.gif)
 
-## Synchronize the template
+## Synchronize the Template
 
 While we've created our template and placed it on a dashboard, we haven't actually done anything with it yet. To see the power of Linked Lovelace, we'll want to make a change to our original card and synchronize that to where we used the template.
 
