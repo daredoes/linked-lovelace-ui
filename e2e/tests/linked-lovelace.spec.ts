@@ -1,17 +1,14 @@
 import { test, expect, Page } from '@playwright/test';
+import { openCard } from './helpers';
 
 // End-to-end checks that exercise Linked Lovelace inside a REAL Home Assistant
-// frontend + websocket API — the layer the Jest unit tests mock out. These
+// frontend + websocket API, the layer the Jest unit tests mock out. These
 // confirm the cards register, render, and read the live lovelace config.
 const DASHBOARD = '/lovelace/demo';
 
 // HA renders cards inside open shadow DOM; Playwright locators pierce it.
 async function openDashboard(page: Page) {
-  await page.goto(DASHBOARD);
-  // Wait for the custom element to be defined and upgraded by the browser.
-  await page.waitForFunction(() => !!customElements.get('linked-lovelace-status'), null, {
-    timeout: 30_000,
-  });
+  await openCard(page, DASHBOARD);
 }
 
 test('status + template cards register as custom elements', async ({ page }) => {

@@ -74,14 +74,30 @@ export async function deleteDashboard(page: Page, id: string): Promise<void> {
 }
 
 // Open a dashboard and return the (upgraded) status card element.
+// Home Assistant builds a view's cards as soon as its config arrives. On a cold
+// module cache the bundle registers its elements a moment later, and the view
+// then shows "Custom element doesn't exist" instead of the card. Reloading once
+// the element is registered renders it properly, so retry rather than fail.
+export async function openCard(page: Page, url: string, tag = 'linked-lovelace-status'): Promise<Locator> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    const registered = await page
+      .waitForFunction((t) => !!customElements.get(t), tag, { timeout: 10_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!registered) continue;
+    const card = page.locator(tag).first();
+    const visible = await card
+      .waitFor({ state: 'visible', timeout: 5_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (visible) return card;
+  }
+  throw new Error(`${tag} never rendered on ${url}`);
+}
+
 export async function openStatusCard(page: Page, urlPath: string): Promise<Locator> {
-  await page.goto(`/${urlPath}`, { waitUntil: 'domcontentloaded' });
-  await page.waitForFunction(() => !!customElements.get('linked-lovelace-status'), null, {
-    timeout: 30_000,
-  });
-  const card = page.locator('linked-lovelace-status').first();
-  await expect(card).toBeVisible();
-  return card;
+  return openCard(page, `/${urlPath}`);
 }
 
 // Click "Load Data" and wait for the controller to finish scanning live config.
