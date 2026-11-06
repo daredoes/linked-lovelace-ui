@@ -1,0 +1,28 @@
+{
+  "title": "Linked Lovelace",
+  "commands": [
+    {
+      "title": "Open Coverage Report",
+      "subtitle": "Shows the last generated report",
+      "script": ".raycast/run.sh",
+      "args": ["open", "coverage/lcov-report/index.html"]
+    },
+    {
+      "title": "Regenerate Coverage and Open",
+      "subtitle": "Opens the report even if the coverage gate fails",
+      "script": ".raycast/run.sh",
+      "args": ["sh", "-c", "bun run test:coverage; code=$?; open coverage/lcov-report/index.html; exit $code"]
+    },
+    {
+      "title": "Test",
+      "script": ".raycast/run.sh",
+      "args": ["bun", "run", "test"]
+    },
+    {
+      "title": "Lint",
+      "subtitle": "Reports only, changes no files",
+      "script": ".raycast/run.sh",
+      "args": ["bun", "run", "lint"]
+    }
+  ]
+}
