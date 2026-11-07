@@ -398,28 +398,6 @@ provide('ll-status-bridge', {
 .ll-button-icon { font-size: 1.8rem; }
 .ll-button-name { font-weight: 600; margin-top: 0.25rem; }
 
-.ll-placeholder-card {
-  border: 2px dashed #03a9f4;
-  box-shadow: none;
-  background: rgba(3, 169, 244, 0.06);
-}
-.ll-placeholder-title { font-weight: 700; }
-.ll-placeholder-card code {
-  display: inline-block;
-  margin: 0.25rem 0;
-  background: var(--vp-c-bg-soft);
-  padding: 0.1em 0.4em;
-  border-radius: 4px;
-}
-.ll-context-dump {
-  margin: 0.25rem 0;
-  padding: 0.4rem 0.6rem;
-  background: var(--vp-c-bg-soft);
-  border-radius: 6px;
-  font-size: 0.7rem;
-  line-height: 1.45;
-  overflow-x: auto;
-}
 
 .ll-status-card { border-left: 4px solid #03a9f4; }
 .ll-status-actions { margin-top: 0.5rem; }

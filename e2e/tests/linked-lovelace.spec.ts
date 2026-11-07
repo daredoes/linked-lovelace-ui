@@ -11,26 +11,19 @@ async function openDashboard(page: Page) {
   await openCard(page, DASHBOARD);
 }
 
-test('status + template cards register as custom elements', async ({ page }) => {
+test('status + partials cards register as custom elements', async ({ page }) => {
   await openDashboard(page);
   const defined = await page.evaluate(() => ({
     status: !!customElements.get('linked-lovelace-status'),
-    template: !!customElements.get('linked-lovelace-template'),
     partials: !!customElements.get('linked-lovelace-partials'),
   }));
-  expect(defined).toEqual({ status: true, template: true, partials: true });
+  expect(defined).toEqual({ status: true, partials: true });
 });
 
 test('status card renders with header and Load Data action', async ({ page }) => {
   await openDashboard(page);
   await expect(page.getByText('Linked Lovelace Status', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('Load Data', { exact: true })).toBeVisible();
-});
-
-test('template-usage card renders its migration notice', async ({ page }) => {
-  await openDashboard(page);
-  await expect(page.getByText('Linked Lovelace Template', { exact: true }).first()).toBeVisible();
-  await expect(page.getByText(/no longer runs updates for Linked Lovelace/)).toBeVisible();
 });
 
 test('Load Data reads live HA config and discovers the "text" template + partial', async ({ page }) => {
@@ -42,7 +35,7 @@ test('Load Data reads live HA config and discovers the "text" template + partial
   // is exactly the integration the Jest unit tests mock.
   await card.getByText('Load Data', { exact: true }).click();
 
-  // Once loaded, the card flips to the "Refresh" action and shows the tab strip.
+  // Once loaded, the card shows the tab strip.
   // Assert against the card's own state to avoid coupling to HA chrome.
   await expect
     .poll(async () => card.evaluate((el: any) => el._loaded === true), { timeout: 20_000 })
@@ -55,9 +48,9 @@ test('Load Data reads live HA config and discovers the "text" template + partial
     text: el.shadowRoot.textContent.replace(/\s+/g, ' '),
   }));
 
-  // Tabs + the live "Refresh"/"Update All" controls are present.
+  // Tabs + the live "Load Data"/"Update All" controls are present.
   expect(rendered.tabs).toEqual(['Dashboards', 'Templates', 'Partials', 'Logs']);
-  expect(rendered.buttons).toContain('Refresh');
+  expect(rendered.buttons).toContain('Load Data');
   expect(rendered.buttons).toContain('Update All');
 
   // The dashboard's `ll_key: text` template and `stateToIcon` partial were

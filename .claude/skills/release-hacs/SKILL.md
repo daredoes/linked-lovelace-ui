@@ -15,7 +15,7 @@ flowchart TD
     B --> C["CI: lint, test:coverage, build, e2e"]
     C --> D["publish a GitHub release (tag = version)"]
     D --> E[".github/workflows/release.yml"]
-    E --> F["bun install --frozen-lockfile; bun run build"]
+    E --> F["bun install --frozen-lockfile; lint; test:coverage; build"]
     F --> G["upload dist/linked-lovelace-ui.js as a release asset"]
     G --> H["hacs/action validates the plugin"]
     H --> I["HACS offers the update to users"]

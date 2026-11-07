@@ -8,14 +8,26 @@ Complete reference for all Linked Lovelace card types and their configuration ke
 
 ---
 
-## Card Types
+## Terms
 
-### `custom:linked-lovelace-template`
+| Term | Meaning |
+|------|---------|
+| Template | A card with `ll_key`. Its content is what gets copied. |
+| Instance | A card with `ll_template`. A sync overwrites it with a rendered copy of the template. |
+| Context | The variables in `ll_context`, read in a template as `context.name`. |
+| Partial | A reusable Eta snippet, defined in a `custom:linked-lovelace-partials` card. |
+| Sync | Writing rendered cards to your dashboards with **Update** or **Update All**. |
+| **Load Data** | Reads every dashboard again and previews what a sync would change. It writes nothing. |
 
-The **consumer** card. Place this wherever you want a template to appear. It is replaced at sync-time with the rendered output of the referenced template.
+---
+
+## Instance Keys
+
+Any card becomes an instance by adding `ll_template` to its YAML. The card's `type` and other keys are replaced at sync-time with the rendered template, so pick a type that looks fine until the first sync.
 
 ```yaml
-type: custom:linked-lovelace-template
+type: markdown
+content: Run a sync to render this card.
 ll_template: my-template-key
 ll_context:
   variable1: value1
@@ -27,12 +39,18 @@ ll_priority: 0
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `ll_template` | `string` | Yes | Key of the template to use (must match an `ll_key` on a source card). |
+| `ll_template` | `string` | Yes | Key of the template to use (must match an `ll_key` on a template). |
 | `ll_context` | `object` | No | Variables passed to the Eta template engine. Accessible as `context.variableName`. |
 | `ll_keys` | `object` | No | Maps a template property to a context value so rendered sub-cards can be injected into it. See [ll_keys](#ll-keys). |
 | `ll_priority` | `number` | No | Load order for this template reference. Lower numbers run first. Defaults to `0`. |
 
+::: info Replacing custom:linked-lovelace-template
+This card type no longer exists, and any instance can use a normal card type instead. A sync replaces cards still using it: see [Troubleshooting](./troubleshooting#custom-element-doesn-t-exist-linked-lovelace-template).
+:::
+
 ---
+
+## Card Types
 
 ### `custom:linked-lovelace-status`
 
@@ -42,7 +60,7 @@ The **control** card. Add this to any dashboard to see which templates are regis
 type: custom:linked-lovelace-status
 ```
 
-The card takes no configuration keys. Anything a sync does is decided by the cards it finds, so key chips are switched on per source card with [`show_key_chips`](#show-key-chips) rather than here.
+The card takes no configuration keys. Anything a sync does is decided by the cards it finds, so key chips are switched on per template with [`show_key_chips`](#show-key-chips) rather than here.
 
 The card provides an interactive UI with four tabs. **Dashboards** shows which dashboards will be affected and previews the diff. **Templates** lists all registered `ll_key` cards. **Partials** lists all registered Eta partials. **Logs** shows runtime log output.
 
@@ -83,7 +101,7 @@ When both `template` and `url` are supplied, `url` takes precedence. Use `priori
 
 ### `custom:linked-lovelace-key-chip`
 
-The **marker** card. Wraps a template source card and shows its `ll_key` as a small badge in the card's top right corner. Sync adds and removes these wrappers based on the [`show_key_chips`](#show-key-chips) key on the source card; you do not need to add one by hand.
+The **marker** card. Wraps a template and shows its `ll_key` as a small badge in the card's top right corner. Sync adds and removes these wrappers based on the [`show_key_chips`](#show-key-chips) key on the template; you do not need to add one by hand.
 
 ```yaml
 type: custom:linked-lovelace-key-chip
@@ -101,7 +119,7 @@ card:
 | `show_key_chips` | `boolean` | No | Hoisted alongside `ll_key`. Set it to `false` here to have the next sync remove the wrapper. |
 
 ::: tip
-Template discovery unwraps this card automatically, so a wrapped source card is still registered under its `ll_key`.
+Template discovery unwraps this card automatically, so a wrapped template is still registered under its `ll_key`.
 :::
 
 The badge takes its colors from the active Home Assistant theme: `--primary-color` for the pill and `--text-primary-color` for the text. To restyle it, set either of these in your theme.
@@ -120,9 +138,9 @@ my_theme:
 
 ---
 
-## Source Card Keys
+## Template Keys
 
-Any existing card can become a template source by adding `ll_key` to its YAML. These keys do not affect how the card looks or behaves in the UI.
+Any existing card can become a template by adding `ll_key` to its YAML. These keys do not affect how the card looks or behaves in the UI.
 
 ### `ll_key`
 
@@ -133,7 +151,7 @@ name: My Button
 ```
 
 - **Type:** `string`
-- Marks the card as a reusable template. The value becomes the identifier used by `ll_template` on consumer cards.
+- Marks the card as a reusable template. The value becomes the identifier used by `ll_template` on instances.
 - Must be unique across all dashboards.
 - Breaks the visual card editor (expected behaviour).
 
@@ -159,8 +177,8 @@ content: "<%= context.room %>"
 
 - **Type:** `boolean` (default `false`)
 - When `true`, the next sync wraps this card in a [`custom:linked-lovelace-key-chip`](#custom-linked-lovelace-key-chip) so its `ll_key` shows as a badge on the dashboard. Set it back to `false` and the next sync removes the wrapper.
-- It applies to the one card that carries it, in a view or inside a section, so you can label the two definitions you keep forgetting and leave the rest plain.
-- Cards rendered from this template do not inherit the key, so only the source is ever badged.
+- It applies to the one card that carries it, in a view or inside a section, so you can label the two templates you keep forgetting and leave the rest plain.
+- Cards rendered from this template do not inherit the key, so only the template is ever badged.
 
 ### `ll_context`
 
@@ -174,8 +192,8 @@ name: "<%= context.title %>"
 ```
 
 - **Type:** `object`
-- When placed on a **source** card, provides default variable values shown in the card editor.
-- When placed on a **consumer** card (`ll_template`), provides the variable values used during rendering.
+- When placed on a template, provides default variable values. A value on the instance wins.
+- When placed on an instance (`ll_template`), provides the variable values used during rendering.
 - Child cards inherit the context accumulated so far as `parentContext`.
 
 ### `ll_keys`
@@ -230,6 +248,6 @@ See the full [Template Syntax Guide](./template-syntax) for examples.
 ## Key Interactions and Rendering Order
 
 1. The Status card collects all partials (`custom:linked-lovelace-partials`) from all dashboards and registers them with Eta.
-2. It collects all source cards (`ll_key`) and registers them as templates, sorted by `ll_priority` (ascending).
+2. It collects all templates (`ll_key`) and registers them as templates, sorted by `ll_priority` (ascending).
 3. When syncing a dashboard, each card is recursively traversed. Cards with `ll_template` are replaced with the rendered template output.
-4. Context flows downward: a `ll_context` on a consumer card is merged with any `parentContext` inherited from containing non-template cards.
+4. Context flows downward: a `ll_context` on an instance is merged with any `parentContext` inherited from containing non-template cards.

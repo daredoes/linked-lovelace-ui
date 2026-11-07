@@ -14,13 +14,19 @@ module.exports = {
     "!src/version.ts",
   ],
   coverageThreshold: {
-    // Modest floor just under today's numbers (35/32/27/36); raise as the
-    // untested areas (Lit card classes, localize) gain tests.
+    // Jest subtracts files with their own threshold from `global`, so this floor
+    // only measures the rest of src/. It sits just under today's numbers
+    // (29/20/24/28); raise it as the Lit card classes and localize gain tests.
     global: {
-      statements: 34,
-      branches: 30,
-      functions: 26,
-      lines: 34,
+      statements: 28,
+      branches: 19,
+      functions: 23,
+      lines: 27,
     },
+    // Code that decides what gets written over a user's dashboards.
+    "./src/linked-lovelace-api.ts": { statements: 95, branches: 95, functions: 95, lines: 95 },
+    "./src/controllers/hass.ts": { statements: 95, branches: 95, functions: 95, lines: 95 },
+    "./src/v2/linkedLovelace.ts": { statements: 95, branches: 95, functions: 95, lines: 95 },
+    "./src/helpers/templates.ts": { statements: 95, branches: 90, functions: 95, lines: 95 },
   },
 };

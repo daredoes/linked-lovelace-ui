@@ -42,10 +42,11 @@ suite is for.
   (`origin()` in `hass.ts`). Reaching for `testEnvironment: jsdom` instead means
   adding a dependency.
 - **Adding a test file to `src/` changes coverage numbers.** The thresholds in
-  `jest.config.cjs` (statements 22, branches 18, functions 17, lines 22) sit just
-  under the current values and `collectCoverageFrom` counts every source file,
-  including untested Lit cards. Raise the floor when you add real coverage;
-  never lower it to make a run pass.
+  `jest.config.cjs` sit just under the current values and `collectCoverageFrom`
+  counts every source file, including untested Lit cards. The modules that decide
+  what gets written to a dashboard have their own 95% floors, and Jest leaves them
+  out of `global`. Raise a floor when you add real coverage; never lower it to make
+  a run pass.
 
 ## Mocking patterns
 

@@ -5,6 +5,7 @@ import { TemplateEngine } from '../v2/template-engine';
 import { toConsole } from '../helpers/log';
 import { unwrapKeyChipCard } from '../helpers/keyChip';
 import { cardsInView } from '../helpers/views';
+import { getMissingTemplates } from '../helpers/templates';
 
 const getS = (array) => {
   return array?.length !== 1 ? 's' : ''
@@ -27,6 +28,7 @@ interface AddToLog {
 class HassController {
   linkedLovelaceController: LinkedLovelaceController = new LinkedLovelaceController();
   dashboardsToViews: Record<string, Record<string, View>> = {}
+  missingTemplates: Record<string, string[]> = {}
   logs: string[] = [];
   forwardLogs = false;
 
@@ -44,6 +46,7 @@ class HassController {
     this.addToLogs({msg: `Beginning Refresh`})
     this.linkedLovelaceController = new LinkedLovelaceController();
     this.dashboardsToViews = {}
+    this.missingTemplates = {}
     this.addToLogs({msg: `Discovering Dashboards`})
     const dashboards = await GlobalLinkedLovelace.instance.api.getDashboards();
     this.addToLogs({msg: `Discovered ${dashboards.length} Dashboard${getS(dashboards)}`}, dashboards)
@@ -115,6 +118,18 @@ class HassController {
     TemplateEngine.instance.eta = this.linkedLovelaceController.eta
     this.addToLogs({msg: "Registering Templates"})
     this.linkedLovelaceController.registerTemplates(templates)
+    this.addToLogs({msg: "Checking for missing templates"})
+    dashboardConfigs.forEach((dbcs) => {
+      const config = dbcs[0] as DashboardConfig
+      const dashboard = dbcs[1] as Dashboard
+      if (config?.views) {
+        const missing = getMissingTemplates(config.views, this.linkedLovelaceController.templateController.templates)
+        if (missing.length) {
+          this.missingTemplates[dashboard.url_path ? dashboard.url_path : ''] = missing
+          this.addToLogs({msg: `[url:"${origin()}/${dashboard.url_path}"] Cards use missing template${getS(missing)}: ${missing.join(', ')}`, level: 'WARN'}, dashboard, missing)
+        }
+      }
+    })
   };
 
   update = async (urlPath: string | null, dryRun = false): Promise<DashboardConfig | null | undefined> => {
@@ -132,6 +147,7 @@ class HassController {
         } catch (e) {
           this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Failed to update ${e}`, level: 'ERROR'}, {dryRun, urlPath, config})
           console.error(`Failed to update DB`, validatedUrlPath, config, e)
+          return null;
         }
       } else {
         this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Would save latest rendered dashboard`}, {dryRun, urlPath, config})
@@ -139,7 +155,7 @@ class HassController {
       this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Finished Update`}, {dryRun, urlPath})
       return config
     } catch {
-      this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Failed to render latest dashboard with templates and partials`}, {dryRun, urlPath})
+      this.addToLogs({msg: `${dryRunStatus} ${urlStatus} Failed to render latest dashboard with templates and partials`, level: 'ERROR'}, {dryRun, urlPath})
       return null;
     }
   };

@@ -10,7 +10,7 @@
  */
 
 import { DashboardCard, DashboardView } from '../types';
-import { updateCardTemplate } from './templates';
+import { getMissingTemplates, updateCardTemplate } from './templates';
 
 // ---------------------------------------------------------------------------
 // Context variable substitution
@@ -625,5 +625,155 @@ describe('[updateCardTemplate] unparseable render fallback', () => {
     const result = updateCardTemplate({ ...card }, templates);
     result.tap_action.action = 'mutated by the caller';
     expect(templates.quoted.tap_action.action).toBe('call-service');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ll_keys holding a single card
+// ---------------------------------------------------------------------------
+describe('[updateCardTemplate] ll_keys with an object value', () => {
+  test('renders the card through its own template, passing the outer context down', () => {
+    const templates = {
+      wrapper: { type: 'custom:wrapper', card: { type: 'placeholder' } } as DashboardCard,
+      inner: { type: 'markdown', content: 'Hi <%= context.name %>' } as DashboardCard,
+    };
+    const result = updateCardTemplate(
+      {
+        type: 'custom:linked-lovelace-template',
+        ll_template: 'wrapper',
+        ll_keys: { card: 'card' },
+        ll_context: { name: 'Kitchen', card: { ll_template: 'inner' } },
+      },
+      templates,
+    );
+    expect(result.type).toBe('custom:wrapper');
+    expect(result.card?.type).toBe('markdown');
+    expect(result.card?.content).toBe('Hi Kitchen');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Retired custom:linked-lovelace-template cards
+// ---------------------------------------------------------------------------
+describe('[updateCardTemplate] retired template card type', () => {
+  const type = 'custom:linked-lovelace-template';
+
+  test('renders over the retired type when the template exists', () => {
+    const templates = { room: { type: 'markdown', content: 'rendered' } as DashboardCard };
+    const result = updateCardTemplate({ type, ll_template: 'room' }, templates);
+    expect(result.type).toBe('markdown');
+    expect(result.content).toBe('rendered');
+  });
+
+  test('becomes a visible note, keeping its keys, when the template is missing', () => {
+    const result = updateCardTemplate({ type, ll_template: 'rom', ll_context: { name: 'Kitchen' } }, {});
+    expect(result.type).toBe('markdown');
+    expect(result.content).toContain('`rom`');
+    expect(result.ll_template).toBe('rom');
+    expect(result.ll_context).toStrictEqual({ name: 'Kitchen' });
+  });
+
+  test('the note is replaced once the template exists', () => {
+    const note = updateCardTemplate({ type, ll_template: 'room' }, {});
+    const templates = { room: { type: 'button', name: 'Room' } as DashboardCard };
+    const result = updateCardTemplate(note, templates);
+    expect(result.type).toBe('button');
+    expect(result.name).toBe('Room');
+  });
+
+  test('becomes the status card when it names no template', () => {
+    expect(updateCardTemplate({ type, name: 'Old' }, {})).toStrictEqual({ type: 'custom:linked-lovelace-status' });
+  });
+
+  test('migrates a card nested inside a stack', () => {
+    const result = updateCardTemplate({ type: 'vertical-stack', cards: [{ type, ll_template: 'rom' }] }, {});
+    expect(result.cards?.[0].type).toBe('markdown');
+  });
+
+  test('leaves a template that uses the retired type alone', () => {
+    const card = { type, ll_key: 'room' };
+    expect(updateCardTemplate({ ...card }, {})).toStrictEqual(card);
+  });
+});
+
+describe('[getMissingTemplates]', () => {
+  const templates = { room: { type: 'markdown' } as DashboardCard };
+  const missing = (cards: DashboardCard[]) => getMissingTemplates([{ title: 'V', cards }], templates);
+
+  test('ignores keys that have a template', () => {
+    expect(missing([{ type: 'markdown', ll_template: 'room' }])).toStrictEqual([]);
+  });
+
+  test('finds keys in sections, nested cards, and ll_context, without repeats', () => {
+    const views: DashboardView[] = [
+      {
+        title: 'V',
+        sections: [{ type: 'grid', cards: [{ type: 'markdown', ll_template: 'in_section' }] }],
+        cards: [
+          { type: 'vertical-stack', cards: [{ type: 'markdown', ll_template: 'nested' }] },
+          { type: 'markdown', ll_template: 'room', ll_context: { cards: [{ ll_template: 'in_context' }] } },
+          { type: 'markdown', ll_template: 'nested' },
+        ],
+      },
+    ];
+    expect(getMissingTemplates(views, templates).sort()).toStrictEqual(['in_context', 'in_section', 'nested']);
+  });
+
+  test('skips a key chosen by Eta at render time', () => {
+    expect(missing([{ type: 'markdown', ll_template: '<%= context.kind %>' }])).toStrictEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ll_context on a template holds defaults
+// ---------------------------------------------------------------------------
+describe('[updateCardTemplate] template ll_context defaults', () => {
+  const templateWith = (title: string): Record<string, DashboardCard> => ({
+    room: { type: 'markdown', content: '<%= context.title %>', ll_context: { title } } as DashboardCard,
+  });
+
+  test('uses the default when the instance has no value', () => {
+    const result = updateCardTemplate({ type: 'markdown', ll_template: 'room' }, templateWith('Default'));
+    expect(result.content).toBe('Default');
+  });
+
+  test('the instance value wins over the default', () => {
+    const result = updateCardTemplate(
+      { type: 'markdown', ll_template: 'room', ll_context: { title: 'Mine' } },
+      templateWith('Default'),
+    );
+    expect(result.content).toBe('Mine');
+    expect(result.ll_context).toStrictEqual({ title: 'Mine' });
+  });
+
+  test('a parent context value wins over the default', () => {
+    const result = updateCardTemplate({ type: 'markdown', ll_template: 'room' }, templateWith('Default'), {
+      title: 'Parent',
+    });
+    expect(result.content).toBe('Parent');
+  });
+
+  test('does not save the default onto the instance', () => {
+    const result = updateCardTemplate({ type: 'markdown', ll_template: 'room' }, templateWith('Default'));
+    expect(result).not.toHaveProperty('ll_context');
+  });
+
+  test('a changed default reaches an instance on the next sync', () => {
+    const first = updateCardTemplate({ type: 'markdown', ll_template: 'room' }, templateWith('Old'));
+    const second = updateCardTemplate(first, templateWith('New'));
+    expect(second.content).toBe('New');
+  });
+
+  test('a value already saved from an earlier sync stops overriding once it matches the default', () => {
+    const saved = { type: 'markdown', ll_template: 'room', ll_context: { title: 'Old' } };
+    const first = updateCardTemplate(saved, templateWith('Old'));
+    expect(first).not.toHaveProperty('ll_context');
+    expect(updateCardTemplate(first, templateWith('New')).content).toBe('New');
+  });
+
+  test('two syncs produce identical output', () => {
+    const card = { type: 'markdown', ll_template: 'room', ll_context: { other: 1 } };
+    const first = updateCardTemplate(card, templateWith('Default'));
+    expect(updateCardTemplate(structuredClone(first), templateWith('Default'))).toStrictEqual(first);
   });
 });

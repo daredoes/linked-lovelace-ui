@@ -21,13 +21,13 @@ outline: deep
 
 ## Template Not Found
 
-**Symptom:** A consumer card renders as an error card with "Template not found" or the card appears empty.
+**Symptom:** The Dashboards tab lists a missing template, and the card doesn't change after a sync.
 
 **Check list:**
 
-1. Confirm the `ll_key` value on the source card matches the `ll_template` value on the consumer card exactly (case-sensitive).
-2. Ensure the source card (`ll_key`) is on a dashboard that was loaded before the Status card ran. All dashboards are scanned, but if the source card's dashboard hasn't been saved yet the template won't be found.
-3. Open the Status card → Templates tab and verify the template key appears in the list.
+1. Confirm the `ll_template` value matches an `ll_key` exactly (case-sensitive). The Templates tab on the status card lists every key it found.
+2. Make sure the template sits directly in a view or a section, not inside a stack or another container card.
+3. Save the dashboard that holds the template, then click **Load Data** again.
 
 ---
 
@@ -38,7 +38,7 @@ outline: deep
 **Causes:**
 
 - The context key does not match between `ll_context` and the `<%= context.key %>` expression (typo, case mismatch).
-- The context key is missing on the consumer card and no default is provided.
+- The context key is missing on the instance and no default is provided.
 
 **Fix:** Add a default value:
 
@@ -77,12 +77,13 @@ ll_context:
 
 **Causes:**
 
-- A previous sync added `ll_context` or `ll_template` metadata to cards that were not originally marked as consumers. This can happen if `ll_context` was accidentally left on a template source card.
+- A previous sync added `ll_context` or `ll_template` metadata to cards that were not originally marked as instances. This can happen if `ll_context` was accidentally left on a template.
+- A sync removes `ll_context` keys on an instance that match the template's default, because the template already provides them. If you change that default later, those instances follow it.
 - The Eta engine renders template syntax found in non-linked cards (e.g. a card that happens to contain `<%= ... %>` in a string value).
 
 **Fix:**
 
-- On source cards (`ll_key`), remove `ll_context` if you do not want default context written back to the source card. Default context is informational only and is not required for rendering.
+- On templates (`ll_key`), only keep `ll_context` for defaults you want instances to use.
 - Escape angle brackets in non-template strings if they accidentally match Eta syntax.
 
 ---
@@ -139,6 +140,28 @@ ll_context:
 
 ---
 
+## Custom Element Doesn't Exist: linked-lovelace-template
+
+**Symptom:** A card shows this error after you update Linked Lovelace.
+
+**Fix:** `custom:linked-lovelace-template` no longer exists, and a sync replaces any that are left. Click **Load Data**, then **Update All**. A card whose template exists renders as normal. One with a missing template becomes a markdown note naming that key, and a sync renders over it once the template exists. A card with no `ll_template` becomes `custom:linked-lovelace-status`, so delete it if that dashboard doesn't need one.
+
+---
+
+## Known Limitations
+
+- A sync only runs when you start it from the status card. Saving a change to a template does not update the cards that use it.
+- Each card with `ll_template` gets replaced by a fresh render on every sync, so hand edits to it are lost. Change the template or the card's `ll_context` instead.
+- A template must sit directly in a view or a section. A template nested inside a stack or another container card is not discovered, though cards using `ll_template` can be nested.
+- `ll_key` values are shared across all dashboards. When two templates use the same key, the lowest `ll_priority` wins, a tie keeps the first one discovered, and the Logs tab shows a warning.
+- Dashboards managed in YAML can't be written to.
+- Strategy dashboards, which have no `views`, are not rendered.
+- Writes use the permissions of the user in the browser, so a user without access to a dashboard can't sync it.
+- If a template renders to invalid JSON, the card gets the unrendered template body and the error only appears in the browser console.
+- The only undo is **Download Backup** on the status card, so download it before you write anything.
+
+---
+
 ## Debugging Tips
 
 ### Browser Console
@@ -157,7 +180,7 @@ Before applying changes to all dashboards, use Dry Run mode to preview the diff 
 
 Create a dedicated dashboard with only:
 1. The `custom:linked-lovelace-status` card
-2. Your template source cards
-3. One or two consumer cards
+2. Your templates
+3. One or two instances
 
 This makes it easy to iterate quickly without affecting your production dashboards.

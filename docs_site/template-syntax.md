@@ -19,7 +19,7 @@ Linked Lovelace templates use [Eta JS](https://eta.js.org/), a small JavaScript 
 Use `<%= %>` to output the value of a context variable.
 
 ```yaml
-# Template source card (ll_key: room-button)
+# Template (ll_key: room-button)
 ll_key: room-button
 ll_context:
   room: Kitchen
@@ -29,10 +29,11 @@ entity: "<%= context.entity %>"
 name: "<%= context.room %>"
 ```
 
-Consumer card:
+Instance:
 
 ```yaml
-type: custom:linked-lovelace-template
+type: markdown
+content: Run a sync to render this card.
 ll_template: room-button
 ll_context:
   room: Living Room
@@ -86,10 +87,11 @@ icon: |-
   <% } %>
 ```
 
-Consumer:
+Instance:
 
 ```yaml
-type: custom:linked-lovelace-template
+type: markdown
+content: Run a sync to render this card.
 ll_template: status-icon
 ll_context:
   state: "on"
@@ -157,10 +159,11 @@ icon: "<%~ include('modeToIcon', { ...context }) %>"
 name: "<%= context.mode %>"
 ```
 
-Consumer:
+Instance:
 
 ```yaml
-type: custom:linked-lovelace-template
+type: markdown
+content: Run a sync to render this card.
 ll_template: mode-button
 ll_context:
   mode: Party
@@ -227,10 +230,11 @@ chips:
     icon_color: "<%~ include('chipColor', context) %>"
 ```
 
-Consumer:
+Instance:
 
 ```yaml
-type: custom:linked-lovelace-template
+type: markdown
+content: Run a sync to render this card.
 ll_template: room-chip
 ll_context:
   entity: light.kitchen

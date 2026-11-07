@@ -8,7 +8,6 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@lit-labs/scoped-registry-mixin": "^1.0.4",
     "custom-card-helpers": "^1.9.0",
     "eta": "./eta-3.0.3.tgz",
     "home-assistant-js-websocket": "^8.0.1",

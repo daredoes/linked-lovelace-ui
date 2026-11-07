@@ -68,19 +68,18 @@ By adding this single line Linked Lovelace becomes able to identify `help-button
 
 ## Use the Template
 
-Now that we've created our first template, we'll use the Template card to help us place it on a new Dashboard/View. We can do this in one of two ways.
+Now that we've created our first template, we'll use it on a new Dashboard/View. Add a card, then add the top level key `ll_template` with a value that matches the `ll_key` we created earlier:
 
-1. Use the UI Selector to choose the Linked Lovelace Template card `type: custom:linked-lovelace-template`. This card will look up our available templates, and swap the code needed for the Status card to work properly into place with just a button click.
-![Linked Lovelace Template Card](./images/linked-lovelace-template-card.png)
-2. Modify any new or existing card yaml to have the top level key `ll_template` with a value that matches the `ll_key` value we created earlier. In our example, this would be `help-button`.
-![Linked Lovelace Template Card Code](./images/linked-lovelace-template-card-code.png)
+```yaml
+type: button
+ll_template: help-button
+```
 
-*Using a template, both ways*
-![Using a template, both ways](./images/using-a-template.gif)
+This card is now an instance of the template. It looks like a blank button until the first sync.
 
 ## Synchronize the Template
 
-While we've created our template and placed it on a dashboard, we haven't actually done anything with it yet. To see the power of Linked Lovelace, we'll want to make a change to our original card and synchronize that to where we used the template.
+While we've created our template and placed it on a dashboard, the instance doesn't know anything about it yet. To see a sync work, we'll change the template and send that change to the instance.
 
 Before moving onto the next step, update your original card, the one with `ll_key` to have some difference. Any at all! It can be purely in the code editor, but it's much more satisfying to see some visual change get synchronized.
 
@@ -122,4 +121,14 @@ icon: mdi:help
 name: Request Help
 ```
 
-Once that's done, move ahead to get started [using the Status card](./using-the-status-card)
+Now run the sync:
+
+1. Add a `custom:linked-lovelace-status` card to any dashboard, if you don't have one yet.
+2. Click **Load Data**.
+3. Expand **Preview Changes** on the **Dashboards** tab. You should see the instance gaining the template's content, with the new message.
+4. Click **Update All** and accept the prompt.
+5. Home Assistant shows a toast saying the dashboard is out of date. Refresh the page.
+
+The instance is now a real button, and tapping it creates a notification saying "A user clicked help". Change the template again and it stays the same until your next sync.
+
+[Using the Status card](./using-the-status-card) covers everything else on that card.

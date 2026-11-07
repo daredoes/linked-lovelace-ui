@@ -10,6 +10,16 @@ You can play with Linked Lovelace right now without a Home Assistant install. Th
 simulated dashboard.
 :::
 
+## How It Works
+
+A template and the cards that use it aren't linked live. A sync copies the template into each of those cards:
+
+1. Add `ll_key` to a card, and that card is now a template.
+2. Add `ll_template` with the same value to any other card, and that card is now an instance of the template.
+3. Run a sync from the status card. Each instance is overwritten with a rendered copy of its template, saved in your dashboard.
+
+Editing a template changes nothing else until the next sync. The [API Reference](./api-reference#terms) has the rest of the terms.
+
 ## Installation
 
 ### Prerequisites
@@ -39,8 +49,8 @@ If you don't use HACS:
 4. Hard-reload your browser (`Ctrl+Shift+R` / `Cmd+Shift+R`).
 
 ::: info Upgrading from v1?
-`ll_v1_key` cards still work, but the key scheme and template syntax changed in
-v2. See the [migration guide](./advanced-features#migration-from-v1).
+The key scheme and template syntax changed in v2, so v1 cards need migrating. See
+the [migration guide](./advanced-features#migration-from-v1).
 :::
 
 ## Up and Running
@@ -54,6 +64,18 @@ Once injected, the custom card type `type: custom:linked-lovelace-status` should
 If it loads successfully, then we are up and running!
 
 ![Linked Lovelace Add Cards](./images/linked-lovelace-add-cards.png)
+
+## Removing Linked Lovelace
+
+Linked Lovelace has no backend, so the only thing it leaves behind is what's in your dashboard configs. Do these in order, since step 2 needs the plugin still installed:
+
+1. On the status card, click **Load Data**, then **Download Backup**.
+2. Set `show_key_chips` to `false` on any template that has it, then run a sync. Otherwise those cards stay wrapped in `custom:linked-lovelace-key-chip`, which can't render without the plugin.
+3. Delete every remaining card whose type starts with `custom:linked-lovelace`. You can search for them in each dashboard's raw configuration editor.
+4. Remove the plugin. In HACS, open Linked Lovelace and remove it, then check that the resource is gone from **Settings → Dashboards → ⋮ → Resources**. If you installed by hand, delete the resource there and delete `linked-lovelace-ui.js` from `config/www/`.
+5. Hard-reload your browser (`Ctrl+Shift+R` / `Cmd+Shift+R`).
+
+Cards that were already rendered keep working, they just stop updating since nothing syncs them anymore. Their `ll_template`, `ll_context`, and `ll_keys` keys stay in the config until you delete them. Templates still have raw `<%= %>` text in them, so you probably want to delete those too.
 
 ## What's Next?
 

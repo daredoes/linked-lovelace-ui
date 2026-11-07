@@ -4,6 +4,9 @@ import { DashboardConfig } from './types';
 export const DEMO_DASHBOARD_URL_PATH = 'linked-lovelace-demo';
 export const DEMO_DASHBOARD_TITLE = 'Linked Lovelace Demo';
 
+// What an instance shows until the first sync replaces it with its template.
+const UNSYNCED_CARD = { type: 'markdown', content: 'Run a sync to render this card.' };
+
 // A self-contained, network-free showcase dashboard. It demonstrates the core
 // powers of Linked Lovelace in one place:
 //   - the status (controller) card to run "Update All"
@@ -41,12 +44,12 @@ export const buildDemoDashboardConfig = (): DashboardConfig => ({
         { type: 'custom:linked-lovelace-status' },
 
         // --- Reuse the SAME `room` template three times with different context
-        { type: 'custom:linked-lovelace-template', ll_template: 'room', ll_context: { name: 'Living Room', state: 'on' } },
-        { type: 'custom:linked-lovelace-template', ll_template: 'room', ll_context: { name: 'Bedroom', state: 'off' } },
-        { type: 'custom:linked-lovelace-template', ll_template: 'room', ll_context: { name: 'Kitchen', state: 'unknown' } },
+        { ...UNSYNCED_CARD, ll_template: 'room', ll_context: { name: 'Living Room', state: 'on' } },
+        { ...UNSYNCED_CARD, ll_template: 'room', ll_context: { name: 'Bedroom', state: 'off' } },
+        { ...UNSYNCED_CARD, ll_template: 'room', ll_context: { name: 'Kitchen', state: 'unknown' } },
 
         // --- Use the nested `panel` template (which embeds `badge`) ----------
-        { type: 'custom:linked-lovelace-template', ll_template: 'panel', ll_context: { title: 'Welcome' } },
+        { ...UNSYNCED_CARD, ll_template: 'panel', ll_context: { title: 'Welcome' } },
       ],
     },
 
@@ -102,7 +105,7 @@ export const buildDemoDashboardConfig = (): DashboardConfig => ({
           cards: [
             { type: 'markdown', content: '## <%= context.title %>' },
             {
-              type: 'custom:linked-lovelace-template',
+              ...UNSYNCED_CARD,
               ll_template: 'badge',
               ll_context: { label: '<%= context.title %> ready' },
             },

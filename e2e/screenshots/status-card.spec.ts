@@ -27,7 +27,8 @@ views:
     path: home
     cards:
       - type: custom:linked-lovelace-status
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: room
         ll_context:
           name: Living Room

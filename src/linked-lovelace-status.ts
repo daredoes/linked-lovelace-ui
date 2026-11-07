@@ -75,6 +75,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
   @state() private _templates: Record<string, DashboardCard> = {};
   @state() private _dashboards: Record<string,Dashboard> = {};
   @state() private _diffedDashboards: Record<string, string> = {};
+  @state() private _failedDashboards: Record<string, boolean> = {};
   @state() private _backedUpDashboardConfigs: Record<string, DashboardConfig | null | undefined> = {};
   @state() private _loaded = false;
   @state() private _show_difference = false;
@@ -136,6 +137,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private handleClick = async () => {
     this._difference = "";
+    this._failedDashboards = {};
     const oldForward = this._controller?.forwardLogs || false;
     this._controller = new HassController();
     this._controller.forwardLogs = oldForward;
@@ -221,7 +223,8 @@ export class LinkedLovelaceStatusCard extends LitElement {
 
   private overwriteDashboard = async (dashboardKey, skipConfirm = false) => {
     if (skipConfirm || confirm(`This will overwrite the contents of the dashboard located at the url '${window.location.origin}/${dashboardKey}'. Proceed at your own risk. Be sure to back up your system before making changes you are not sure about.`)) {
-      await this._controller!.update(dashboardKey)
+      const saved = await this._controller!.update(dashboardKey)
+      this._failedDashboards[dashboardKey] = !saved
       this._repaint()
     }
   }
@@ -284,6 +287,8 @@ export class LinkedLovelaceStatusCard extends LitElement {
     //  Finish edit mode
     const editMode = false;
     const diffedDashboardKeys = Object.keys(this._diffedDashboards);
+    const missingTemplates = this._controller?.missingTemplates || {};
+    const missingDashboardKeys = Object.keys(missingTemplates);
     return html`
       <ha-card .header=${this.config.name} tabindex="0" .label=${`Linked Lovelace Template`}
         class="linked-lovelace-container">
@@ -366,6 +371,16 @@ export class LinkedLovelaceStatusCard extends LitElement {
         </div>
         ${this._loaded ? html`
         <div class="tab-content ${this._tab === TAB_DASHBOARDS ? 'active' : ''}">
+        ${missingDashboardKeys.length ? html`
+        <div class="missing-templates" role="alert">
+          <p>These cards use a template that doesn't exist. Check the spelling against the Templates tab.</p>
+          <ul>
+          ${missingDashboardKeys.flatMap((dashboardKey) => missingTemplates[dashboardKey].map((templateKey) => html`
+            <li><code>${templateKey}</code> on ${this.dashboardName(dashboardKey)}</li>
+          `))}
+          </ul>
+        </div>
+        ` : ''}
         ${diffedDashboardKeys.length ? html`
         <div class="dashboard-list">
         ${diffedDashboardKeys.map((dashboardKey) => {
@@ -376,6 +391,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
                  Update
             </ha-progress-button>
           </div>
+          ${this._failedDashboards[dashboardKey] ? html`<p class="save-failed" role="alert">Couldn't update this dashboard. The Logs tab has the error.</p>` : ''}
           `
         })}
         </div>
@@ -410,7 +426,7 @@ export class LinkedLovelaceStatusCard extends LitElement {
             ${this._controller?.forwardLogs ? 'Silence Console Logging' : 'Activate Console Logging'}
           </ha-progress-button>
           <ha-progress-button @click=${!editMode ? this.handleClick : undefined}>
-            Refresh
+            Load Data
           </ha-progress-button>
           <ha-progress-button @click=${this.handleDownloadBackup}>
             Download Backup
@@ -569,6 +585,17 @@ export class LinkedLovelaceStatusCard extends LitElement {
           p {
             margin: 0;
           }
+        }
+        .missing-templates {
+          color: var(--error-color);
+          margin-bottom: 8px;
+          p, ul {
+            margin: 0;
+          }
+        }
+        .save-failed {
+          color: var(--error-color);
+          margin: 0 0 8px;
         }
         del,
         ins {

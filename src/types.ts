@@ -1,8 +1,7 @@
-import { LovelaceCard, LovelaceCardConfig, LovelaceCardEditor } from 'custom-card-helpers';
+import { LovelaceCard, LovelaceCardConfig } from 'custom-card-helpers';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'linked-lovelace-template-editor': LovelaceCardEditor;
     'hui-error-card': LovelaceCard;
   }
 }
@@ -14,14 +13,6 @@ export interface LinkedLovelaceCardConfig extends LovelaceCardConfig {
   debugText?: string;
   dryRun: boolean;
   debug: boolean;
-}
-
-export interface LinkedLovelaceTemplateCardConfig extends LovelaceCardConfig {
-  type: string;
-  ll_template?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ll_context?: Record<string, any>
-  [x: string]: any
 }
 
 export interface LinkedLovelaceStatusCardConfig extends LovelaceCardConfig {

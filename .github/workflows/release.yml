@@ -17,6 +17,8 @@ jobs:
         with:
           bun-version: '1.2.21'
       - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run test:coverage
       - run: bun run build
 
       # Upload build file to the releas as an asset.

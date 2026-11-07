@@ -55,10 +55,8 @@ Chromium for Playwright. Requires Docker + bun + Node.
 Registered custom elements are:
 - `linked-lovelace-status` — overview/control card. Header "Linked Lovelace
   Status". Shows "Load Data" → after loading, tabs (Dashboards/Templates/
-  Partials/Logs) + "Refresh"/"Update All". `Load Data` drives the live websocket
+  Partials/Logs) + "Load Data"/"Update All". `Load Data` drives the live websocket
   lovelace API to discover templates (`ll_key`) and partials.
-- `linked-lovelace-template` — renders a static migration notice; real
-  templating happens via the status card's `Update All`.
 - `linked-lovelace-partials` — registers Eta partials.
 
 `custom:linked-lovelace-ui` (used in `.devcontainer/ui-lovelace.yaml`) is a
@@ -102,7 +100,7 @@ Registered custom elements are:
 - Template syntax: `<%= context.x %>` for variables (filled from `ll_context`);
   partials are `custom:linked-lovelace-partials` `partials:[{key,template}]` used
   as `<%~ include('key', {...context}) %>`; nested templates = an `ll_key`
-  template whose child is a `linked-lovelace-template` referencing another
+  template whose child is a card with `ll_template` referencing another
   template (order them with `ll_priority`, lowest first).
 - `Update All` triggers a `confirm()` — accept it: `page.on('dialog', d => d.accept())`.
 - After sync, assert by reading the saved config back (`lovelace/config`); a

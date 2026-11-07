@@ -5,6 +5,7 @@ import {
   createDashboard,
   saveConfig,
   deleteDashboard,
+  readConfig,
   readMainCards,
   openStatusCard,
   loadData,
@@ -56,7 +57,7 @@ test('add a template (ll_key) and have it discovered', async ({ page }) => {
 test('use a template and sync it into a rendered card', async ({ page }) => {
   const urlPath = await newDashboard(page, [
     { type: 'markdown', ll_key: 'greeting', content: 'Hello there' },
-    { type: 'custom:linked-lovelace-template', ll_template: 'greeting' },
+    { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'greeting' },
   ]);
   const card = await openStatusCard(page, urlPath);
   await loadData(card);
@@ -69,9 +70,52 @@ test('use a template and sync it into a rendered card', async ({ page }) => {
   expect(rendered?.type).toBe('markdown');
 });
 
+test('lists a card whose template does not exist', async ({ page }) => {
+  const urlPath = await newDashboard(page, [
+    { type: 'markdown', content: 'typo', ll_template: 'no-such-template' },
+  ]);
+  const card = await openStatusCard(page, urlPath);
+  await loadData(card);
+  await expect(card.locator('.missing-templates')).toContainText('no-such-template');
+});
+
+test('a sync migrates leftover custom:linked-lovelace-template cards', async ({ page }) => {
+  const urlPath = await newDashboard(page, [
+    { type: 'custom:linked-lovelace-template', ll_template: 'no-such-template' },
+    { type: 'custom:linked-lovelace-template' },
+  ]);
+  const card = await openStatusCard(page, urlPath);
+  await loadData(card);
+  await updateAll(page, card);
+
+  await expect
+    .poll(async () => (await readMainCards(page, urlPath)).some((c) => c.type === 'custom:linked-lovelace-template'), {
+      timeout: 15_000,
+    })
+    .toBe(false);
+  const cards = await readMainCards(page, urlPath);
+  expect(usageOf(cards, 'no-such-template')?.type).toBe('markdown');
+  const allCards: Card[] = (await readConfig(page, urlPath)).views[0].cards;
+  expect(allCards.filter((c) => c.type === 'custom:linked-lovelace-status')).toHaveLength(2);
+});
+
+test('shows an error on the dashboard row when an update fails', async ({ page }) => {
+  const urlPath = await newDashboard(page, [
+    { type: 'markdown', ll_key: 'greeting', content: 'Hello there' },
+    { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'greeting' },
+  ]);
+  const card = await openStatusCard(page, urlPath);
+  await loadData(card);
+  await card.evaluate((el: any) => {
+    el._controller.update = async () => null;
+  });
+  await updateAll(page, card);
+  await expect(card.locator('.save-failed').first()).toBeVisible();
+});
+
 // --- 4. modifying and syncing a template ------------------------------------
 test('modify a template and re-sync to propagate the change', async ({ page }) => {
-  const usage: Card = { type: 'custom:linked-lovelace-template', ll_template: 'greeting' };
+  const usage: Card = { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'greeting' };
   const urlPath = await newDashboard(page, [
     { type: 'markdown', ll_key: 'greeting', content: 'Hello v1' },
     usage,
@@ -112,7 +156,7 @@ test('modify a template and re-sync to propagate the change', async ({ page }) =
 test('use context variables in a template', async ({ page }) => {
   const urlPath = await newDashboard(page, [
     { type: 'markdown', ll_key: 'counter', content: 'Count: <%= context.count %>' },
-    { type: 'custom:linked-lovelace-template', ll_template: 'counter', ll_context: { count: 42 } },
+    { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'counter', ll_context: { count: 42 } },
   ]);
   const card = await openStatusCard(page, urlPath);
   await loadData(card);
@@ -139,7 +183,7 @@ test('use a local partial inside a template via include()', async ({ page }) => 
   const urlPath = await newDashboard(page, [
     { type: 'custom:linked-lovelace-partials', partials: [{ key: 'iconPartial', template: 'mdi:lightbulb' }] },
     { type: 'button', ll_key: 'iconcard', icon: "<%~ include('iconPartial') %>" },
-    { type: 'custom:linked-lovelace-template', ll_template: 'iconcard' },
+    { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'iconcard' },
   ]);
   const card = await openStatusCard(page, urlPath);
   await loadData(card);
@@ -161,11 +205,11 @@ test('use a nested template (template referencing another template)', async ({ p
       ll_key: 'outer',
       ll_priority: 1,
       cards: [
-        { type: 'custom:linked-lovelace-template', ll_template: 'inner', ll_context: { who: '<%= context.name %>' } },
+        { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'inner', ll_context: { who: '<%= context.name %>' } },
       ],
     },
     // usage of the outer (nested) template
-    { type: 'custom:linked-lovelace-template', ll_template: 'outer', ll_context: { name: 'Nested' } },
+    { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'outer', ll_context: { name: 'Nested' } },
   ]);
   const card = await openStatusCard(page, urlPath);
   await loadData(card);

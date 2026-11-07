@@ -25,6 +25,57 @@ describe('[class] LinkedLovelaceController', () => {
     }})
     expect(Object.keys(controller.templateController.templates)).toHaveLength(1)
   });
+
+  test('registers lower priority templates first so later ones can use them', () => {
+    const controller = new LinkedLovelaceController();
+    const added = jest.spyOn(controller.templateController, 'renderAndAddTemplate');
+    controller.registerTemplates({
+      late: { type: 'test', ll_priority: 2 },
+      unset: { type: 'test' },
+      early: { type: 'test', ll_priority: 1 },
+    });
+    expect(added.mock.calls.map(([key]) => key)).toStrictEqual(['unset', 'early', 'late']);
+  });
+});
+
+describe('[class] LinkedLovelaceController getUpdatedDashboardConfig', () => {
+  const makeController = () => {
+    const controller = new LinkedLovelaceController();
+    controller.registerTemplates({ room: { type: 'markdown', content: 'rendered' } });
+    return controller;
+  };
+  const instance = { type: 'custom:linked-lovelace-template', ll_template: 'room' };
+
+  test('returns a strategy dashboard untouched, without adding views', async () => {
+    const strategy = { strategy: { type: 'map' } } as DashboardConfig;
+    mockDashboardConfig(strategy);
+    expect(await makeController().getUpdatedDashboardConfig('map')).toStrictEqual(strategy);
+  });
+
+  test('renders cards in a view and in its sections', async () => {
+    mockDashboardConfig({
+      views: [{ title: 'V', cards: [instance], sections: [{ type: 'grid', cards: [instance] }] }],
+    });
+    const config = await makeController().getUpdatedDashboardConfig(null);
+    expect(config.views![0].cards![0].content).toBe('rendered');
+    expect(config.views![0].sections![0].cards![0].content).toBe('rendered');
+  });
+
+  test('leaves views and sections without cards as they are', async () => {
+    const empty = { views: [{ title: 'V' }, { title: 'S', sections: [{ type: 'grid' }] }] } as DashboardConfig;
+    mockDashboardConfig(empty);
+    expect(await makeController().getUpdatedDashboardConfig(null)).toEqual(empty);
+  });
+});
+
+describe('[class] LinkedLovelaceController getUpdatedDashboardConfigs', () => {
+  test('renders every dashboard, keying the overview as "null"', async () => {
+    mockDashboardConfig({ views: [] });
+    const api = GlobalLinkedLovelace.instance.api as any;
+    api.getDashboards = jest.fn().mockResolvedValue([{ url_path: '' }, { url_path: 'home' }]);
+    const configs = await new LinkedLovelaceController().getUpdatedDashboardConfigs();
+    expect(Object.keys(configs).sort()).toStrictEqual(['home', 'null']);
+  });
 });
 
 describe('[class] LinkedLovelaceController key chips', () => {

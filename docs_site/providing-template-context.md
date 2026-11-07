@@ -55,7 +55,7 @@ To do this, we can provide any card the top-level key `ll_context` - which is a 
 
 Given our example template above - `help-button` - we can update the template to use variables from our context to support a dynamic message. - fallback variable not yet supported.
 
-__We can__ help our users by providing some defaults that will get added to the code editor when using the Linked Lovelace Template card editor.
+__We can__ help our users by providing some defaults in the template's `ll_context`.
 
 **Unfortunately, this will break the beauty of our original template card.**
 
