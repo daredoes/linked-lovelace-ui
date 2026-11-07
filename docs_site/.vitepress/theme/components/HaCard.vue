@@ -39,9 +39,6 @@ export default defineComponent({
     yamlDump(): string {
       return YAML.stringify(this.card)
     },
-    contextDump(): string {
-      return YAML.stringify({ ll_context: this.card.ll_context }).trim()
-    },
   },
 })
 </script>
@@ -86,18 +83,6 @@ export default defineComponent({
       <button v-else class="ll-btn ll-btn-primary" @click="status?.updateAll()">
         Update All
       </button>
-    </div>
-  </div>
-
-  <!-- Unsynced template placeholder -->
-  <div v-else-if="cardType === 'custom:linked-lovelace-template'" class="ha-card ll-placeholder-card">
-    <div class="ll-placeholder-title">🔗 linked-lovelace-template</div>
-    <code>ll_template: {{ card.ll_template }}</code>
-    <pre v-if="card.ll_context" class="ll-context-dump">{{ contextDump }}</pre>
-    <div class="ll-muted">
-      On the first sync this card is replaced by the rendered template,
-      <template v-if="card.ll_context">using the <code>ll_context</code> above from the YAML config.</template>
-      <template v-else>as defined in the YAML config.</template>
     </div>
   </div>
 

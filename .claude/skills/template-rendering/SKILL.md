@@ -28,7 +28,7 @@ writes rendered output back over the user's dashboard config.
 ```mermaid
 flowchart TD
     A["updateCardTemplate(card, templates, parentContext)"] --> B{"card.ll_template<br/>registered?"}
-    B -- yes --> C["context = parentContext + card.ll_context + template.ll_context"]
+    B -- yes --> C["context = template.ll_context + parentContext + card.ll_context"]
     C --> D["JSON.stringify(template)"]
     D --> E["eta.renderString(json, context)"]
     E --> F{"JSON.parse ok?"}
@@ -68,6 +68,9 @@ Two things fall out of that shape and explain most surprises:
 - **Numbers stay numbers.** `leaves numbers as numbers` guards the round-trip.
 - **`ll_context` must not be written back into source cards.** See PR #41; the
   fix was to stop persisting context onto definition cards.
+- **A template's `ll_context` holds defaults.** Instance and parent values win,
+  and values matching a default are not saved onto the instance, so a changed
+  default reaches every card that does not override it.
 - **Card objects must not become arrays.** See PR #37 and #35: `card:` (single)
   and `cards:` (list) are different shapes and both must survive.
 - Guard against runaway recursion. A "max stack call" bug (Feb 2023) came from

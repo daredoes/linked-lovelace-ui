@@ -56,6 +56,10 @@ Expand **Preview Changes** to read the diff for each listed dashboard before wri
 
 **Update All** writes every listed dashboard in one click. Great for experts, but definitely a risky click after making changes!
 
+If a dashboard can't be updated, its row shows an error until the next successful update or **Load Data**, and the Logs tab has the reason.
+
+If a card uses an `ll_template` with no matching template, this tab lists the key and its dashboard. Fix the spelling or add the template, then click **Load Data** again.
+
 **Download Backup** saves the configs as they were read, before any write, as a JSON file. Keep it if you want a way back: paste a dashboard's config from that file into the raw configuration editor to restore it.
 
 ### Templates
@@ -80,7 +84,7 @@ __*This is purely a debugging tool.*__
 
 ## Key Chips
 
-The status card itself has no options. Key chips are asked for by the definition card, next to the `ll_key` it already carries:
+The status card itself has no options. Key chips are asked for by the template, next to the `ll_key` it already carries:
 
 ```yaml
 type: markdown
@@ -94,7 +98,7 @@ The next sync wraps that card in a small container that draws a pill with its `l
 Set it to `false` and the next sync removes the wrapper again. Either way nothing happens until you run a sync; the key on its own does not touch your dashboards.
 
 ::: info
-Because each card asks for its own chip, you can badge the two definitions you keep losing track of and leave the rest alone. It works on cards in a view and on cards inside a section.
+Because each card asks for its own chip, you can badge the two templates you keep losing track of and leave the rest alone. It works on cards in a view and on cards inside a section.
 :::
 
 ## Demonstration

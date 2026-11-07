@@ -60,12 +60,14 @@ const SOURCE_CARD = `
 `;
 
 const USAGE_CARDS = `
-- type: custom:linked-lovelace-template
+- type: markdown
+  content: Run a sync to render this card.
   ll_template: room
   ll_context:
     name: Living Room
     state: 'on'
-- type: custom:linked-lovelace-template
+- type: markdown
+  content: Run a sync to render this card.
   ll_template: room
   ll_context:
     name: Bedroom
@@ -79,17 +81,20 @@ views:
     path: home
     cards:
       - type: custom:linked-lovelace-status
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: room
         ll_context:
           name: Living Room
           state: 'on'
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: room
         ll_context:
           name: Bedroom
           state: 'off'
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: room
         ll_context:
           name: Kitchen
@@ -126,7 +131,8 @@ const PARTIAL_YAML = `
 `;
 
 const LL_KEYS_YAML = `
-- type: custom:linked-lovelace-template
+- type: markdown
+  content: Run a sync to render this card.
   ll_template: unitStack
   ll_keys:
     cards: cards
@@ -154,7 +160,8 @@ const NESTING_YAML = `
   cards:
     - type: markdown
       content: '# <%= context.title %>'
-    - type: custom:linked-lovelace-template
+    - type: markdown
+      content: Run a sync to render this card.
       ll_template: badge
       ll_context:
         label: '<%= context.title %>'
@@ -167,7 +174,8 @@ views:
     path: home
     cards:
       - type: custom:linked-lovelace-status
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: unitStack
         ll_keys:
           cards: cards
@@ -181,7 +189,8 @@ views:
               ll_context:
                 name: Garage
                 state: 'off'
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: panel
         ll_context:
           title: Welcome
@@ -213,7 +222,8 @@ views:
         cards:
           - type: markdown
             content: '# <%= context.title %>'
-          - type: custom:linked-lovelace-template
+          - type: markdown
+            content: Run a sync to render this card.
             ll_template: badge
             ll_context:
               label: '<%= context.title %>'
@@ -226,7 +236,8 @@ views:
     path: home
     cards:
       - type: custom:linked-lovelace-status
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: sectionRoom
         ll_context:
           name: Garage
@@ -257,7 +268,8 @@ views:
         show_key_chips: true
         content: |
           ## <%= context.name %>
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: chipRoom
         ll_context:
           name: Studio
@@ -366,8 +378,8 @@ test('demo walkthrough', async ({ page }) => {
   await saveConfig(page, BASICS, YAML.parse(templated(ROOM_V1)));
   const basics = await open(page, BASICS);
   await chapter(page, 2, 8, 'One source');
-  await showCode(page, 'The source card', SOURCE_CARD, ['ll_key: room', 'context.name', 'context.state']);
-  await say(page, 'One source card instead. ll_key gives it a name, and the placeholders are Eta.', BAND);
+  await showCode(page, 'The template', SOURCE_CARD, ['ll_key: room', 'context.name', 'context.state']);
+  await say(page, 'One template instead. ll_key gives it a name, and the placeholders are Eta.', BAND);
   await showCode(page, 'The cards that use it', USAGE_CARDS, ['ll_template: room', 'll_context']);
   await say(page, 'Each card that wants it names the template in ll_template and passes its own ll_context.', BAND);
   await hideCode(page);
@@ -376,7 +388,7 @@ test('demo walkthrough', async ({ page }) => {
   // ---- Act 3: discovery ----------------------------------------------------
   console.log('ACT 3: Load Data');
   await chapter(page, 3, 8, 'Discovery');
-  await say(page, 'Load Data reads every dashboard over the websocket API and collects the source cards.', UNDER);
+  await say(page, 'Load Data reads every dashboard over the websocket API and collects the templates.', UNDER);
   await loadData(basics);
   await basics.locator('.tab', { hasText: 'Templates' }).click();
   await basics.locator('.accordion-bar', { hasText: 'Templates' }).click();
@@ -415,7 +427,7 @@ test('demo walkthrough', async ({ page }) => {
   await showCode(page, 'Edit the source, once', `- type: markdown\n  ll_key: room\n  content: |\n${ROOM_V2}`, [
     '_One template, every room._',
   ]);
-  await say(page, 'Add a line to the source card, then sync again.', BAND);
+  await say(page, 'Add a line to the template, then sync again.', BAND);
   const basics2 = await open(page, BASICS);
   await loadData(basics2);
   await updateAll(page, basics2);

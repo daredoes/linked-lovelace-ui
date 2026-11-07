@@ -1438,10 +1438,6 @@ describe('[function] updateCardTemplate v2', () => {
     expect(updateCardTemplate(card, { [template.ll_key!]: template })).toStrictEqual({
       type: "custom_collapsable-cards",
       ll_template: "test_card",
-      ll_context: {
-        group: "sensor.tempratures_koelkasten",
-        name: "Temperatuur"
-      },
       title_card: {
         type: "tile",
         name: "Temperatuur",

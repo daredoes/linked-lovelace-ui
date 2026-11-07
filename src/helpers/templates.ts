@@ -24,6 +24,49 @@ export const getTemplatesUsedInView = (view: DashboardView): string[] => {
   );
 };
 
+const RETIRED_TEMPLATE_CARD_TYPE = 'custom:linked-lovelace-template';
+
+// The retired placeholder type has no element to render it. A card still naming
+// a template becomes a visible note that the next sync can render over, and a
+// card with no template becomes the status card that took over its job.
+const migrateRetiredTemplateCard = (card: DashboardCard): DashboardCard => {
+  if (card.type !== RETIRED_TEMPLATE_CARD_TYPE) {
+    return card;
+  }
+  if (card.ll_template) {
+    return {
+      ...card,
+      type: 'markdown',
+      content: `Template \`${card.ll_template}\` wasn't found. Check the \`ll_template\` spelling, then run a sync.`,
+    };
+  }
+  return card.ll_key ? card : { type: 'custom:linked-lovelace-status' };
+};
+
+const findTemplateKeys = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.flatMap(findTemplateKeys);
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, child]) =>
+      key === 'll_template' && typeof child === 'string' ? [child] : findTemplateKeys(child),
+    );
+  }
+  return [];
+};
+
+// Keys containing Eta syntax are skipped because their value is only known at render time.
+export const getMissingTemplates = (views: DashboardView[], templates: Record<string, DashboardCard>): string[] => {
+  const keys = findTemplateKeys(views).filter((key) => !key.includes('<%') && !templates[key]);
+  return [...new Set(keys)];
+};
+
+const withoutDefaults = (context: Record<string, any>, defaults: Record<string, any>): Record<string, any> => {
+  return Object.fromEntries(
+    Object.entries(context).filter(([key, value]) => JSON.stringify(value) !== JSON.stringify(defaults[key])),
+  );
+};
+
 export const updateCardTemplate = (data: DashboardCard, templateData: Record<string, any> = {}, parentContext: Record<string, any> = {}): DashboardCard => {
   // Get key and data for template
   const templateKey = data.ll_template;
@@ -34,7 +77,10 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     if (dataFromTemplate) {
       const templateCardData = {...templateData[templateKey]};
       delete templateCardData['ll_key']
-      dataFromTemplate = {...dataFromTemplate, ...(templateCardData?.ll_context || {})}
+      const templateDefaults: Record<string, any> = templateCardData?.ll_context || {};
+      // Saved back on the card without the defaults, so a changed default reaches every card that doesn't override it.
+      const ownContext = withoutDefaults(dataFromTemplate, templateDefaults);
+      dataFromTemplate = {...templateDefaults, ...dataFromTemplate}
       // If data in template, find and replace each key
       let template = JSON.stringify(templateCardData);
       template = TemplateEngine.instance.eta.renderString(template, dataFromTemplate)
@@ -86,7 +132,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
         data[k] = updatedData[k]
       })
       // Put template data back in card
-      data = { ...{ ll_context: dataFromTemplate, ll_keys: originalCardData.ll_keys, ...data }, ll_context: dataFromTemplate, ll_keys: originalCardData.ll_keys };
+      data = { ...{ ll_context: ownContext, ll_keys: originalCardData.ll_keys, ...data }, ll_context: ownContext, ll_keys: originalCardData.ll_keys };
       if (typeof data.ll_context !== "undefined" && Object.keys(data.ll_context || {}).length === 0) {
         delete data.ll_context
       }
@@ -97,6 +143,7 @@ export const updateCardTemplate = (data: DashboardCard, templateData: Record<str
     // Put template key back in card
     data = { ...{ ll_template: templateKey, ll_keys: originalCardData.ll_keys, ...data }, ll_template: templateKey, ll_keys: originalCardData.ll_keys };
   } else {
+    data = migrateRetiredTemplateCard(data);
     // Support for new sections dashboards.
     if (data.sections && Array.isArray(data.sections)) {
       for (let i = 0; i < data.sections.length; i++) {

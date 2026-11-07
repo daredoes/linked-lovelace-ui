@@ -25,10 +25,11 @@ type: horizontal-stack
 cards: []   # placeholder, overwritten by ll_keys
 ```
 
-Consumer card:
+Instance:
 
 ```yaml
-type: custom:linked-lovelace-template
+type: markdown
+content: Run a sync to render this card.
 ll_template: row-of-buttons
 ll_context:
   cards:
@@ -127,7 +128,7 @@ cards:
 
 ### Pattern 2: Runtime injection via ll_keys
 
-Use `ll_keys` to inject template arrays at sync-time rather than registration-time. This is more flexible because the child templates are evaluated with the context available when the consumer card is rendered.
+Use `ll_keys` to inject template arrays at sync-time rather than registration-time. This is more flexible because the child templates are evaluated with the context available when the instance is rendered.
 
 See [ll_keys In Depth](#ll-keys-in-depth) above for details.
 
@@ -199,8 +200,8 @@ View
 ```
 
 **Rules:**
-1. `ll_context` on a consumer card merges with `parentContext` (parent wins for keys not overridden by child).
-2. `ll_context` on a source card (the template definition itself) provides the default context merged in at render time.
+1. `ll_context` on an instance merges with `parentContext` (parent wins for keys not overridden by child).
+2. `ll_context` on a template provides defaults. A value from the instance or its parent wins, and defaults aren't saved onto the instance, so changing one reaches every card that doesn't override it.
 3. Template bodies are rendered as strings. Child cards inside a template body are not automatically re-rendered with context propagation; use `ll_keys` for that.
 
 ---
@@ -224,13 +225,13 @@ Enable Dry Run to preview the diff without making any changes. This is the defau
 | Tab | Description |
 |-----|-------------|
 | Dashboards | Shows affected dashboards with before/after diff |
-| Templates | Lists all registered template source cards |
+| Templates | Lists all registered templates |
 | Partials | Lists all registered Eta partials |
 | Logs | Runtime output for debugging |
 
 ### Key Chips
 
-Add `show_key_chips: true` next to the `ll_key` on a source card and the next sync wraps that card in a `custom:linked-lovelace-key-chip`. The wrapper renders the original card untouched and adds a small badge with the `ll_key` in the top right corner, so a definition is easy to spot on a busy dashboard.
+Add `show_key_chips: true` next to the `ll_key` on a template and the next sync wraps that card in a `custom:linked-lovelace-key-chip`. The wrapper renders the original card untouched and adds a small badge with the `ll_key` in the top right corner, so a template is easy to spot on a busy dashboard.
 
 ```yaml
 type: markdown
@@ -239,12 +240,12 @@ show_key_chips: true
 content: "## <%= context.name %>"
 ```
 
-The wrapper is managed for you. Sync hoists `ll_key`, `ll_priority`, and `show_key_chips` onto it, and template discovery unwraps it before reading keys, so a wrapped definition still registers normally. Set the key to `false` and the next sync unwraps it, restoring the original YAML.
+The wrapper is managed for you. Sync hoists `ll_key`, `ll_priority`, and `show_key_chips` onto it, and template discovery unwraps it before reading keys, so a wrapped template still registers normally. Set the key to `false` and the next sync unwraps it, restoring the original YAML.
 
-Since the flag lives on the card, chips are per definition rather than all or nothing, and they work the same whether the card sits in a view or inside a section. Cards rendered from the template never inherit the flag. See the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip) for the wrapper's YAML shape.
+Since the flag lives on the card, chips are per template rather than all or nothing, and they work the same whether the card sits in a view or inside a section. Cards rendered from the template never inherit the flag. See the [key-chip card reference](./api-reference#custom-linked-lovelace-key-chip) for the wrapper's YAML shape.
 
 ::: info Moved from the status card
-`show_key_chips` used to be an option on `custom:linked-lovelace-status` and applied to every definition at once. On the status card it is now ignored, and the next sync unwraps any chips it had added. Move the key onto the definitions you want badged.
+`show_key_chips` used to be an option on `custom:linked-lovelace-status` and applied to every template at once. On the status card it is now ignored, and the next sync unwraps any chips it had added. Move the key onto the templates you want badged.
 :::
 
 ---
@@ -255,15 +256,15 @@ V1 used a different key scheme. The key differences:
 
 | Feature | V1 | V2 |
 |---------|----|----|
-| Template source marker | `ll_v1_key` | `ll_key` |
-| Consumer card | `type: linked-lovelace` | `type: custom:linked-lovelace-template` |
+| Template marker | `ll_v1_key` | `ll_key` |
+| Instance | `type: linked-lovelace` | Any card with `ll_template` |
 | Template engine | Custom | Eta JS |
 | Variable syntax | `{{ variable }}` | `<%= context.variable %>` |
 | Partial support | No | Yes |
 | Sections support | No | Yes (HA 2024.3+) |
 
-V1 cards continue to work in V2 but will be deprecated. Migrate by:
+V1 cards don't work in V2. Migrate by:
 
-1. Renaming `ll_v1_key` to `ll_key` on source cards.
-2. Updating consumer cards from `type: linked-lovelace` to `type: custom:linked-lovelace-template`.
+1. Renaming `ll_v1_key` to `ll_key` on templates.
+2. Adding `ll_template` to instances and replacing `type: linked-lovelace` with a real card type.
 3. Replacing `{{ variable }}` syntax with `<%= context.variable %>`.

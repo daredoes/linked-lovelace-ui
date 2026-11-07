@@ -31,13 +31,12 @@ the API.
 
 ```mermaid
 flowchart TD
-    A["linked-lovelace-ui.ts loads"] --> B["import 5 card modules"]
-    B --> B1["linked-lovelace-template"]
+    A["linked-lovelace-ui.ts loads"] --> B["import 4 card modules"]
     B --> B2["linked-lovelace-status"]
     B --> B3["linked-lovelace-partials"]
     B --> B4["linked-lovelace-starter"]
     B --> B5["linked-lovelace-key-chip"]
-    B1 & B2 & B3 & B4 & B5 --> C["each pushes to window.customCards[]"]
+    B2 & B3 & B4 & B5 --> C["each pushes to window.customCards[]"]
     B --> D["initialize(onFinish)"]
     D --> E{"customElements.get('home-assistant')<br/>defined?"}
     E -- no --> F["wait 100ms"] --> E
@@ -70,7 +69,7 @@ flowchart TD
 
 ## 3. Template Engine Rendering
 
-`TemplateEngine` wraps a single Eta instance configured with
+`TemplateEngine` wraps a single Etan instance configured with
 `varName: 'context'` and `autoEscape: false`. Rendering takes a card serialized
 to JSON, runs it through Eta with a context object, then parses the result back
 into a card.
@@ -160,7 +159,7 @@ recurse. When a card has **no** template, the function instead walks `sections`,
 ```mermaid
 flowchart TD
     A["updateCardTemplate(card, templates, parentContext)"] --> B{"card.ll_template<br/>in templates?"}
-    B -- yes --> C["merge context:<br/>parentContext ⊕ card.ll_context ⊕ template.ll_context"]
+    B -- yes --> C["merge context:<br/>template.ll_context ⊕ parentContext ⊕ card.ll_context"]
     C --> D["renderString(JSON(template), context)"]
     D --> E["JSON.parse → rendered card"]
     E --> F["apply ll_keys: copy context values onto card keys"]
@@ -185,7 +184,7 @@ user confirms `Update All` does it write each changed dashboard back via
 During rendering, each view card is first stripped of any
 `custom:linked-lovelace-key-chip` wrapper. A card that carries both an `ll_key`
 and `show_key_chips: true` is re-wrapped after its template renders, so that
-definition stays visibly badged on the dashboard.
+template stays visibly badged on the dashboard.
 
 ```mermaid
 sequenceDiagram
@@ -248,25 +247,8 @@ flowchart TD
 
 ## 9. Editor Flows
 
-**Template editor** (`linked-lovelace-template-editor`): after `firstUpdated`
-runs a `refresh()` to discover templates, it renders one button per template.
-Clicking a button copies the template's body into the card config and fires a
-`config-changed` event so Lovelace persists it. The Status card has no visual
-editor, because it takes no options; Lovelace shows its YAML editor instead.
-
-```mermaid
-flowchart TD
-    A["Lovelace opens card editor"] --> B["setConfig(config) + loadCardHelpers()"]
-    B --> C["firstUpdated → controller.refresh()"]
-    C --> D["_loaded = true"]
-    D --> E["renderTemplates(): button per discovered template key"]
-    E --> F["user clicks a template button"]
-    F --> G["_valueChanged(ev)"]
-    G --> H["merge template body + ll_template into _config"]
-    H --> I["fireEvent('config-changed', { config })"]
-    I --> J["Lovelace saves card config"]
-    J -.->|"next Status-card Update"| K["card rendered against template (Flow 7)"]
-```
+The Status card has no visual editor, because it takes no options; Lovelace shows
+its YAML editor instead.
 
 ## API Surface
 

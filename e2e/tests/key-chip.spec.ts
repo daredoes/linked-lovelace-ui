@@ -26,7 +26,7 @@ test.afterEach(async ({ page }) => {
 });
 
 const definition: Card = { type: 'markdown', ll_key: 'greeting', content: 'Hello chip' };
-const usage: Card = { type: 'custom:linked-lovelace-template', ll_template: 'greeting' };
+const usage: Card = { type: 'markdown', content: 'Run a sync to render this card.', ll_template: 'greeting' };
 
 async function newChipDashboard(page: any, showKeyChips: boolean): Promise<string> {
   const d = await createDashboard(page, []);

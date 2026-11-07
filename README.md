@@ -1,6 +1,6 @@
 # Linked Lovelace UI by [@daredoes](https://www.github.com/daredoes)
 
-Reusable card templates for Home Assistant dashboards. Mark any card with `ll_key` and it becomes a template you can place on every user-created dashboard (so everything except Overview), then sync them all with one click. It runs entirely in your browser as a client-side script, with no backend integration to configure.
+Reusable card templates for Home Assistant dashboards. Mark any card with `ll_key` and it becomes a template you can place on any dashboard, including Overview, then sync them all with one click. It runs entirely in your browser as a client-side script, with no backend integration to configure.
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
@@ -22,7 +22,7 @@ Already have Home Assistant? Add a `custom:linked-lovelace-starter` card and cli
 - Turn any card into a template by adding `ll_key: my_template` to its config, then use it anywhere with `ll_template: my_template`.
 - Pass variables through `ll_context` and read them in the template as `<%= context.name %>`.
 - Templating is [Eta JS](https://eta.js.org/), so if/else, loops, and partials all work. Partials can be defined inline or fetched from a URL.
-- Sync from the status card: **Load Data** reads your dashboards, **Update All** writes the rendered results back.
+- Sync from the status card: **Load Data** reads your dashboards, **Update All** writes the rendered results back. Templates aren't live, so a change only reaches other cards when you sync.
 
 ## Installation
 
@@ -37,14 +37,18 @@ Install through HACS: it's in the default store, listed under frontend as `Linke
 
 The [documentation site](https://daredoes.work/linked-lovelace-ui/) has the full guides and reference:
 
-- [Getting Started](https://daredoes.work/linked-lovelace-ui/getting-started) covers installation and confirming the card loaded.
+- [Getting Started](https://daredoes.work/linked-lovelace-ui/getting-started) covers installation, confirming the card loaded, and removal.
 - [Create Your First Template](https://daredoes.work/linked-lovelace-ui/create-your-first-template) builds a template from scratch.
 - [Template Syntax](https://daredoes.work/linked-lovelace-ui/template-syntax) and [Providing Template Context](https://daredoes.work/linked-lovelace-ui/providing-template-context) cover Eta JS and `ll_context`.
 - [Creating Partials](https://daredoes.work/linked-lovelace-ui/creating-partials) shows reusable snippets, including ones loaded from a URL.
 - [Using the Status Card](https://daredoes.work/linked-lovelace-ui/using-the-status-card) explains **Load Data**, **Update All**, and per-dashboard updates.
 - [API Reference](https://daredoes.work/linked-lovelace-ui/api-reference) lists every `ll_*` key and card option.
 - [Advanced Features](https://daredoes.work/linked-lovelace-ui/advanced-features) covers `ll_keys`, priorities, and nesting.
-- [Troubleshooting](https://daredoes.work/linked-lovelace-ui/troubleshooting) is for when a sync doesn't do what you expected.
+- [Troubleshooting](https://daredoes.work/linked-lovelace-ui/troubleshooting) is for when a sync doesn't do what you expected, and lists the known limitations.
+
+## Upgrading
+
+`custom:linked-lovelace-template` is gone: any card with `ll_template` does its job. If you still have some, Home Assistant shows an error on them until you run a sync, which replaces them. [Troubleshooting](https://daredoes.work/linked-lovelace-ui/troubleshooting#custom-element-doesn-t-exist-linked-lovelace-template) lists what each one becomes.
 
 ## Upgrading From V1
 

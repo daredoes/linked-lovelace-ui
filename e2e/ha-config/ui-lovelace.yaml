@@ -1,6 +1,6 @@
 # Self-contained Linked Lovelace demo dashboard (no external URLs, no network).
 # Exercises: the status/overview card, a partial registration, a template
-# definition (ll_key), and a template-usage card (linked-lovelace-template).
+# definition (ll_key), and a template instance (ll_template).
 title: Linked Lovelace Demo
 views:
   - title: Demo
@@ -28,7 +28,8 @@ views:
 
       # A template USAGE card: references the "text" template by key. After an
       # "Update All", the status card rewrites this into a rendered markdown card.
-      - type: custom:linked-lovelace-template
+      - type: markdown
+        content: Run a sync to render this card.
         ll_template: text
         ll_context:
           title: Hello from Linked Lovelace

@@ -12,7 +12,7 @@ You don't need Home Assistant and there is nothing to install. Everything stays 
 
 If you would rather watch the real card first, here is the same feature set running in an actual Home Assistant, recorded by the end-to-end suite. The panel on the left holds the YAML under discussion, so each feature appears beside the card it produces.
 
-It runs about two and a half minutes, in eight chapters: three duplicated cards, one source card that replaces them, discovery, the dry-run diff and the sync that follows it, editing the source once, partials with `ll_keys` and `ll_priority`, a source inside a sections view, and key chips.
+It runs about two and a half minutes, in eight chapters: three duplicated cards, one template that replaces them, discovery, the dry-run diff and the sync that follows it, editing the source once, partials with `ll_keys` and `ll_priority`, a template inside a sections view, and key chips.
 
 <div class="ll-demo-video">
   <video controls playsinline preload="metadata" poster="./images/linked-lovelace-demo-poster.jpg" src="./images/linked-lovelace-demo.mp4"></video>
@@ -48,7 +48,7 @@ The default content is the same showcase the [Starter Dashboard](./starter-dashb
 ## Things to Experiment With
 
 - In **Edit YAML**, change `state: 'on'` to `state: 'off'` in a room card's `ll_context` and re-sync. The `stateToIcon` partial picks a different icon.
-- Add a fourth room by copying one of the `custom:linked-lovelace-template` cards in the `Demo` view's YAML and giving its `ll_context` a new `name`.
+- Add a fourth room by copying one of the cards with `ll_template: room` in the `Demo` view's YAML and giving its `ll_context` a new `name`.
 - Break it on purpose: misspell an `ll_template` value and sync. The card passes through unrendered, which is exactly what happens in HA (see [Troubleshooting](./troubleshooting#template-not-found)).
 - Edit the `stateToIcon` partial on the Templates view to return different emoji, then re-sync.
 
